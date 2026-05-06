@@ -86,7 +86,7 @@ const Navbar = () => {
               <div className="relative">
                 <div className="absolute inset-0 bg-gradient-to-r to-indigo-600 rounded-xl blur opacity-50 group-hover:opacity-75 transition-opacity"></div>
                 <img 
-                  src='/src/assets/images/logo.png'
+                  src={new URL('/src/assets/images/logo.png', import.meta.url).href} 
                   alt="Logo MauriLink" 
                   className="relative h-30 w-60 object-contain"
                 />
