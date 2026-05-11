@@ -23,6 +23,8 @@ import CreateRFP from './pages/CreateRFP';
 import EditRFP from './pages/EditRFP';
 import CompanyProposals from './pages/CompanyProposals';
 
+import MyJobs from './pages/MyJobs';
+
 function App() {
   return (
     <div className="min-h-screen bg-gray-50">
@@ -43,6 +45,7 @@ function App() {
         <Route path="/create-rfp" element={<CreateRFP />} />
         <Route path="/edit-rfp/:id" element={<EditRFP />} />
         <Route path="/company-proposals" element={<CompanyProposals />} />
+        <Route path="/my-jobs" element={<MyJobs />} />
       </Routes>
       <ToastContainer position="bottom-right" autoClose={5000} />
     </div>

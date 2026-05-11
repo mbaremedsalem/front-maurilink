@@ -1,0 +1,786 @@
+{
+  "nav": {
+    "home": "الرئيسية",
+    "jobs": "وظائف",
+    "rfps": "طلبات العروض",
+    "employer_space": "مساحة التوظيف",
+    "proposals_received": "المقترحات المستلمة",
+    "my_rfps": "طلبات العروض الخاصة بي",
+    "my_applications": "طلبات الترشح",
+    "my_resume": "سيرتي الذاتية",
+    "login": "تسجيل الدخول",
+    "register": "التسجيل",
+    "profile": "ملفي الشخصي",
+    "create_rfp": "إنشاء طلب عرض",
+    "logout": "تسجيل الخروج"
+  },
+  "roles": {
+    "candidate": "مرشح",
+    "recruiter": "مسؤول توظيف"
+  },
+  "home": {
+    "hero": {
+      "badge": "🔥 أكثر من 1000 فرصة عمل هذا الأسبوع",
+      "title": "ابحث عن الوظيفة",
+      "title_line2": "التي تحلم بها",
+      "subtitle": "المنصة الذكية التي تربط المواهب بالشركات",
+      "cta_jobs": "عرض الوظائف",
+      "cta_register": "سجل مجاناً",
+      "sponsored": "رعاية"
+    },
+    "jobs_section": {
+      "badge": "أحدث الفرص",
+      "title": "الوظائف الحديثة",
+      "subtitle": "اكتشف أحدث الإعلانات المنشورة",
+      "view_all": "عرض جميع الوظائف",
+      "loading": "جاري تحميل الوظائف...",
+      "no_jobs_title": "لا توجد وظائف حالياً",
+      "no_jobs_subtitle": "عد لاحقاً لاكتشاف فرص جديدة"
+    },
+    "stats": {
+      "jobs": "وظيفة",
+      "candidates": "مرشح مسجل",
+      "companies": "شركة",
+      "satisfaction": "رضا"
+    },
+    "features": {
+      "badge": "خدماتنا",
+      "title": "منصة متكاملة",
+      "subtitle": "اكتشف جميع الخدمات التي نقدمها لمرافقتك",
+      "candidates": {
+        "title": "للمرشحين",
+        "description": "أنشئ سيرتك الذاتية الاحترافية، وتقدم للوظائف المناسبة لك، وتتبع طلباتك في الوقت الفعلي.",
+        "cta": "إنشاء حساب مرشح",
+        "benefits": ["سيرة ذاتية مخصصة", "تنبيهات الوظائف", "تتبع الطلبات"]
+      },
+      "companies": {
+        "title": "للشركات",
+        "description": "انشر وظائفك، وأدر الطلبات بكفاءة، وابحث عن المواهب التي ستحدث الفرق.",
+        "cta": "إنشاء حساب شركة",
+        "benefits": ["نشر غير محدود", "قاعدة السير الذاتية", "إحصائيات مفصلة"]
+      },
+      "jobs": {
+        "title": "آلاف الوظائف",
+        "description": "احصل على أفضل الفرص المهنية في جميع قطاعات النشاط.",
+        "cta": "عرض جميع الوظائف",
+        "benefits": ["تصفية متقدمة", "توصيات", "تقديم سريع"]
+      }
+    },
+    "cta": {
+      "title": "مستعد للبدء؟",
+      "subtitle": "انضم إلى آلاف المواهب والشركات",
+      "button": "إنشاء حسابي مجاناً"
+    },
+    "loading": "جاري التحميل..."
+  },
+  "login": {
+    "title": "تسجيل الدخول",
+    "subtitle": "قم بتسجيل الدخول للوصول إلى مساحتك الشخصية",
+    "username_label": "اسم المستخدم",
+    "username_placeholder": "john.doe@example.com",
+    "password_label": "كلمة المرور",
+    "password_placeholder": "••••••••",
+    "remember_me": "تذكرني",
+    "forgot_password": "نسيت كلمة المرور؟",
+    "login_button": "تسجيل الدخول",
+    "logging_in": "جاري تسجيل الدخول...",
+    "separator_text": "جديد على MauriLink؟",
+    "register_button": "إنشاء حساب مجاناً",
+    "footer_text": "بتسجيل الدخول، فإنك توافق على",
+    "terms": "شروط الاستخدام",
+    "and": "و",
+    "privacy": "سياسة الخصوصية",
+    "errors": {
+      "username_required": "الرجاء إدخال اسم المستخدم",
+      "password_required": "الرجاء إدخال كلمة المرور",
+      "invalid_credentials": "بيانات الدخول غير صحيحة",
+      "login_success": "تم تسجيل الدخول بنجاح!"
+    },
+    "modal": {
+      "terms_title": "شروط الاستخدام",
+      "privacy_title": "سياسة الخصوصية"
+    }
+  },
+  "register": {
+    "title": "إنشاء حساب",
+    "subtitle": "انضم إلى مجتمع MauriLink",
+    "account_type": {
+      "candidate": "مرشح",
+      "company": "شركة"
+    },
+    "first_name": "الاسم الأول",
+    "last_name": "الاسم الأخير",
+    "username": "اسم المستخدم",
+    "username_placeholder": "اسم المستخدم",
+    "email": "البريد الإلكتروني",
+    "email_placeholder": "votre@email.com",
+    "phone": "الهاتف",
+    "phone_placeholder": "+222 12 34 56 78",
+    "password": "كلمة المرور",
+    "password_placeholder": "كلمة المرور",
+    "password_confirm": "تأكيد كلمة المرور",
+    "password_confirm_placeholder": "تأكيد كلمة المرور",
+    "required_field": "مطلوب",
+    "terms_accept": "أوافق على",
+    "terms_and": "و",
+    "terms_of_service": "شروط الاستخدام",
+    "privacy_policy": "سياسة الخصوصية",
+    "register_button": "تسجيل",
+    "registering": "جاري التسجيل...",
+    "separator": "أو",
+    "have_account": "لديك حساب بالفعل؟",
+    "login_link": "تسجيل الدخول",
+    "footer_text": "بالتسجيل، فإنك توافق على",
+    "errors": {
+      "accept_terms": "الرجاء الموافقة على شروط الاستخدام",
+      "password_mismatch": "كلمات المرور غير متطابقة",
+      "registration_failed": "خطأ في التسجيل",
+      "registration_success": "تم التسجيل بنجاح! مرحباً بك في MauriLink 🎉"
+    },
+    "modal": {
+      "terms_title": "شروط الاستخدام",
+      "privacy_title": "سياسة الخصوصية"
+    }
+  },
+  "privacy": {
+    "hero_text": "🔒 في MauriLink، نحمي بياناتك الشخصية بأقصى درجات العناية.",
+    "data_collected": {
+      "title": "١. البيانات التي يتم جمعها",
+      "identification": "التعريف:",
+      "identification_desc": "الاسم، البريد الإلكتروني، الهاتف",
+      "profile": "الملف الشخصي:",
+      "profile_desc": "الصورة، السيرة الذاتية، التفضيلات",
+      "usage": "الاستخدام:",
+      "usage_desc": "سجل الاتصال، الصفحات التي تمت زيارتها",
+      "payment": "الدفع:",
+      "payment_desc": "المعلومات البنكية (مؤمنة)"
+    },
+    "data_usage": {
+      "title": "٢. استخدام البيانات",
+      "item1": "تقديم وتحسين خدماتنا",
+      "item2": "إدارة حسابك واشتراكك",
+      "item3": "التواصل بشأن التحديثات والعروض",
+      "item4": "تخصيص تجربتك",
+      "item5": "منع الاحتيال والأنشطة غير القانونية"
+    },
+    "cookies": {
+      "title": "٣. ملفات تعريف الارتباط (Cookies)",
+      "description": "نستخدم ملفات تعريف الارتباط لتحسين تجربتك، وتذكر تفضيلاتك، وتحليل حركة المرور. يمكنك التحكم في ملفات تعريف الارتباط من خلال إعدادات متصفحك."
+    },
+    "info_sharing": {
+      "title": "٤. مشاركة المعلومات",
+      "description": "نحن لا نبيع بياناتك الشخصية. قد نشارك معلوماتك في الحالات التالية:",
+      "item1": "بموافقتك الصريحة",
+      "item2": "للامتثال للالتزامات القانونية",
+      "item3": "مع شركائنا الموثوقين",
+      "item4": "في إطار اندماج أو استحواذ"
+    },
+    "data_security": {
+      "title": "٥. أمان البيانات",
+      "description": "نحن نستخدم التشفير، والمصادقة الثنائية، والتدقيق المنتظم لحماية بياناتك من الوصول غير المصرح به."
+    },
+    "your_rights": {
+      "title": "٦. حقوقك (GDPR)",
+      "item1": "الحق في الوصول إلى بياناتك",
+      "item2": "الحق في التصحيح",
+      "item3": "الحق في المحو (\"الحق في النسيان\")",
+      "item4": "الحق في قابلية نقل البيانات",
+      "item5": "الحق في الاعتراض على المعالجة"
+    },
+    "data_retention": {
+      "title": "٧. الاحتفاظ بالبيانات",
+      "description": "نحن نحتفظ ببياناتك طالما أن حسابك نشط. في حالة حذف حسابك، نحتفظ ببعض البيانات لفترة إضافية للامتثال للالتزامات القانونية."
+    },
+    "contact": {
+      "title": "الاتصال بمسؤول حماية البيانات",
+      "email": "البريد الإلكتروني",
+      "phone": "الهاتف",
+      "address": "العنوان",
+      "address_value": "نواكشوط، موريتانيا"
+    },
+    "last_update": "آخر تحديث",
+    "january": "يناير"
+  },
+  "terms": {
+    "hero_text_short": "📖 باستخدامك MauriLink، فإنك توافق على هذه الشروط. يرجى قراءتها بعناية.",
+    "acceptance": {
+      "title": "١. قبول الشروط",
+      "description": "بالوصول إلى MauriLink واستخدامها، فإنك توافق على الالتزام بشروط الاستخدام هذه، وجميع القوانين واللوائح المعمول بها. إذا كنت لا توافق، يمنع عليك استخدام أو الوصول إلى هذا الموقع."
+    },
+    "user_account": {
+      "title": "٢. حسابات المستخدم",
+      "responsible_for": "أنت مسؤول عن:",
+      "item1": "الحفاظ على سرية كلمة المرور الخاصة بك",
+      "item2": "جميع الأنشطة التي تتم تحت حسابك",
+      "item3": "إبلاغنا بأي استخدام غير مصرح به",
+      "item4": "تقديم معلومات دقيقة وحديثة"
+    },
+    "subscriptions": {
+      "title": "٣. الاشتراكات والمدفوعات",
+      "item1": "يتم دفع الرسوم مقدماً (شهرياً أو سنوياً)",
+      "item2": "يتم تجديد الاشتراكات تلقائياً",
+      "item3": "يمكن الإلغاء من إعدادات الحساب",
+      "item4": "لا توجد استردادات للفترات الجزئية"
+    },
+    "user_content": {
+      "title": "٤. محتوى المستخدم",
+      "description": "أنت تحتفظ بجميع حقوقك على المحتوى الذي تنشره على MauriLink. بنشر المحتوى، تمنح MauriLink ترخيصاً عالمياً وغير حصري وخالياً من الحقوق لاستخدام وإعادة إنتاج وتوزيع المحتوى الخاص بك في سياق تقديم خدماتنا."
+    },
+    "prohibited_conduct": {
+      "title": "٥. السلوك المحظور",
+      "item1": "الاستخدام لأغراض غير قانونية",
+      "item2": "محتوى مسيء أو كراهية",
+      "item3": "مضايقة أو تخويف",
+      "item4": "الوصول غير المصرح به إلى الأنظمة",
+      "item5": "استخدام الروبوتات أو الطرق الآلية"
+    },
+    "termination": {
+      "title": "٦. الإنهاء",
+      "description": "نحن نحتفظ بالحق في إنهاء أو تعليق حسابك فوراً، دون إشعار مسبق، إذا انتهكت هذه الشروط. بعد الإنهاء، سيتوقف حقك في استخدام الخدمة فوراً."
+    },
+    "limitation_liability": {
+      "title": "٧. تحديد المسؤولية",
+      "description": "لن تكون MauriLink مسؤولة عن الأضرار غير المباشرة أو التبعية أو الناشئة عن استخدام أو عدم القدرة على استخدام خدماتنا، حتى لو تم إبلاغنا بإمكانية حدوث مثل هذه الأضرار."
+    },
+    "contact": {
+      "title": "اتصل بنا",
+      "questions": "أسئلة؟ اتصل بنا"
+    },
+    "last_update": "آخر تحديث",
+    "january": "يناير"
+  },
+  "jobs": {
+    "hero": {
+      "title": "ابحث عن تحديك المهني القادم",
+      "subtitle": "{{count}} فرصة عمل متاحة حالياً"
+    },
+    "publish_button": "نشر عرض",
+    "stats": {
+      "companies": "شركة",
+      "contract_types": "أنواع العقود",
+      "avg_salary": "متوسط الراتب",
+      "last_job": "آخر عرض"
+    },
+    "search_placeholder": "عنوان الوظيفة، الكلمات المفتاحية، المهارات...",
+    "filters_button": "تصفية",
+    "sort_by": "ترتيب حسب",
+    "clear_filters": "مسح التصفيات",
+    "loading": "جاري تحميل الوظائف...",
+    "sort": {
+      "newest": "الأحدث",
+      "oldest": "الأقدم",
+      "salary_high": "أعلى راتب",
+      "salary_low": "أقل راتب"
+    },
+    "filters": {
+      "contract_type": "نوع العقد",
+      "all_types": "جميع الأنواع",
+      "location": "الموقع",
+      "all_cities": "جميع المدن",
+      "salary_min": "الحد الأدنى للراتب (أوقية)",
+      "salary_max": "الحد الأقصى للراتب (أوقية)",
+      "min_placeholder": "الحد الأدنى",
+      "max_placeholder": "الحد الأقصى"
+    },
+    "no_results": {
+      "title": "لم يتم العثور على وظائف",
+      "subtitle": "لا توجد وظائف تطابق معايير البحث الخاصة بك",
+      "clear_filters": "مسح جميع التصفيات"
+    },
+    "errors": {
+      "load_error": "خطأ في تحميل الوظائف"
+    },
+    "success": {
+      "create_success": "تم إنشاء العرض بنجاح!"
+    }
+  },
+  "jobCard": {
+    "not_specified": "غير محدد",
+    "company": "شركة",
+    "new_badge": "جديد",
+    "view_details": "عرض التفاصيل",
+    "view_job": "عرض الوظيفة",
+    "published_on": "نشرت في",
+    "contract_types": {
+      "cdi": "CDI",
+      "cdd": "CDD",
+      "stage": "تدريب",
+      "alternance": "تناوب",
+      "freelance": "عمل حر"
+    }
+  },
+  "jobDetail": {
+    "not_specified": "غير محدد",
+    "company": "شركة",
+    "urgent": "عاجل",
+    "featured": "مميز",
+    "location": "الموقع",
+    "salary": "الراتب",
+    "published_on": "نشرت في",
+    "applications": "الطلبات",
+    "deadline": "الموعد النهائي",
+    "required_experience": "الخبرة المطلوبة",
+    "technical_skills": "المهارات التقنية",
+    "experience": "الخبرة",
+    "education": "المستوى التعليمي",
+    "languages": "اللغات",
+    "website": "الموقع الإلكتروني",
+    "ready_to_apply": "مستعد للتقديم؟",
+    "join_dynamic_team": "انضم إلى فريق ديناميكي",
+    "apply_now": "تقدم الآن",
+    "application_sent": "تم إرسال الطلب",
+    "company_will_review": "ستقوم الشركة بمراجعة ملفك الشخصي",
+    "similar_jobs": "وظائف مشابهة",
+    "about_company": "حول {{company}}",
+    "apply_to_job": "التقدم للوظيفة",
+    "resume": "السيرة الذاتية",
+    "cover_letter": "خطاب التحفيز",
+    "no_resume": "ليس لديك سيرة ذاتية بعد.",
+    "create_resume": "إنشاء سيرتي الذاتية",
+    "select_resume_option": "اختر سيرة ذاتية",
+    "default": "افتراضي",
+    "cover_letter_placeholder": "صف حافزك ومهاراتك ولماذا أنت المرشح المثالي...",
+    "characters": "حرف",
+    "good_to_know": "معلومة مهمة",
+    "application_info": "سيتم مراجعة طلبك من قبل فريق التوظيف. تأكد من أن سيرتك الذاتية محدثة.",
+    "send_application": "إرسال طلبي",
+    "sending": "جاري الإرسال...",
+    "cancel": "إلغاء",
+    "summary": "ملخص",
+    "date": "التاريخ",
+    "application_for": "تم إرسال طلبك لوظيفة",
+    "has_been_sent": "بنجاح",
+    "back_to_jobs": "العودة إلى الوظائف",
+    "contract_types": {
+      "cdi": "CDI",
+      "cdd": "CDD",
+      "stage": "تدريب",
+      "alternance": "تناوب",
+      "freelance": "عمل حر"
+    },
+    "tabs": {
+      "description": "الوصف",
+      "requirements": "المتطلبات",
+      "benefits": "المزايا"
+    },
+    "benefits": {
+      "career_growth": "تطور مهني",
+      "pro_environment": "بيئة احترافية",
+      "paid_vacation": "إجازات مدفوعة",
+      "health_insurance": "تأمين صحي",
+      "dynamic_team": "فريق ديناميكي",
+      "training": "تدريب مستمر"
+    },
+    "not_found": {
+      "title": "الوظيفة غير موجودة",
+      "subtitle": "الوظيفة التي تبحث عنها غير موجودة أو تم حذفها"
+    },
+    "messages": {
+      "removed_favorites": "تمت إزالة الوظيفة من المفضلة",
+      "added_favorites": "تمت إضافة الوظيفة إلى المفضلة",
+      "link_copied": "تم نسخ الرابط إلى الحافظة!",
+      "copy_error": "لا يمكن النسخ التلقائي. هذا هو الرابط: ",
+      "login_to_apply": "الرجاء تسجيل الدخول للتقديم",
+      "select_resume": "الرجاء اختيار سيرة ذاتية",
+      "add_cover_letter": "الرجاء إضافة خطاب تحفيز"
+    },
+    "errors": {
+      "load_error": "لا يمكن تحميل عرض العمل",
+      "application_error": "حدث خطأ أثناء التقديم"
+    }
+  },
+  "rfps": {
+    "not_specified": "غير محدد",
+    "header": {
+      "title": "طلبات العروض",
+      "subtitle": "فرص المشاريع",
+      "description": "اكتشف طلبات العروض من الشركات وقدم خدماتك"
+    },
+    "search_placeholder": "البحث بالعنوان أو الشركة أو الموقع...",
+    "results_count": "تم العثور على {{count}} طلب عرض",
+    "deadline": "الموعد النهائي",
+    "published_on": "نشر في",
+    "view_details": "عرض التفاصيل",
+    "attachment": "ملف مرفق",
+    "status": {
+      "closed": "مغلق",
+      "expired": "منتهي",
+      "urgent": "عاجل",
+      "open": "مفتوح",
+      "days": "ي"
+    },
+    "filters": {
+      "all": "الجميع",
+      "open": "المفتوحة",
+      "urgent": "العاجلة",
+      "closed": "المغلقة"
+    },
+    "no_results": {
+      "title": "لم يتم العثور على طلبات عروض",
+      "subtitle": "حاول تعديل معايير البحث الخاصة بك"
+    },
+    "errors": {
+      "load_error": "لا يمكن تحميل طلبات العروض"
+    }
+  },
+  "resumes": {
+    "page_title": "السير الذاتية",
+    "page_subtitle": "إدارة سيرك الذاتية وإنشاء سير جديدة",
+    "create_button": "إنشاء سيرة ذاتية",
+    "untitled": "بدون عنوان",
+    "default_badge": "افتراضي",
+    "view": "عرض",
+    "pdf_button": "PDF",
+    "set_default": "تعيين كسيرة ذاتية افتراضية",
+    "preview_title": "معاينة السيرة الذاتية",
+    "download_pdf": "تحميل PDF",
+    "about_me": "نبذة عني",
+    "experience_title": "الخبرات المهنية",
+    "education_title": "التعليم",
+    "skills_title": "المهارات",
+    "languages_title": "اللغات",
+    "present": "حالياً",
+    "in_progress": "قيد التقدم",
+    "start": "البداية",
+    "updated_on": "تم التحديث في",
+    "created_on": "تم الإنشاء في",
+    "default_title": "سيرة ذاتية مهنية",
+    "no_resumes_title": "لا توجد سير ذاتية",
+    "no_resumes_subtitle": "لم تقم بإنشاء أي سيرة ذاتية بعد",
+    "create_first": "إنشاء أول سيرة ذاتية",
+    "pdf": {
+      "about_me": "نبذة عني",
+      "experience": "الخبرات المهنية",
+      "education": "التعليم",
+      "skills": "المهارات",
+      "languages": "اللغات"
+    },
+    "messages": {
+      "update_success": "تم تحديث السيرة الذاتية بنجاح",
+      "create_success": "تم إنشاء السيرة الذاتية بنجاح",
+      "delete_success": "تم حذف السيرة الذاتية بنجاح",
+      "default_updated": "تم تحديث السيرة الذاتية الافتراضية",
+      "pdf_success": "تم إنشاء PDF بنجاح",
+      "confirm_delete": "هل أنت متأكد من حذف هذه السيرة الذاتية؟"
+    },
+    "errors": {
+      "load_error": "خطأ في تحميل السير الذاتية",
+      "save_error": "خطأ في حفظ السيرة الذاتية",
+      "delete_error": "خطأ في حذف السيرة الذاتية",
+      "default_error": "خطأ في تحديث السيرة الافتراضية",
+      "pdf_error": "خطأ في إنشاء PDF"
+    }
+  },
+  "recruiter": {
+    "badge": "مساحة التوظيف",
+    "title": "إدارة التوظيف بكفاءة",
+    "subtitle": "منصة متكاملة للعثور على أفضل المواهب وإدارة تعييناتك",
+    "stats": {
+      "active_jobs": "وظائف نشطة",
+      "total_applications": "إجمالي الطلبات",
+      "views": "مشاهدات",
+      "matches": "تطابقات"
+    },
+    "quick_actions": {
+      "title": "إجراءات سريعة",
+      "get_started": "ابدأ",
+      "post_job": {
+        "title": "نشر عرض عمل",
+        "description": "أنشئ عرض عمل جديد لجذب أفضل المواهب"
+      },
+      "manage_jobs": {
+        "title": "إدارة العروض",
+        "description": "تعديل أو أرشفة أو نسخ عروضك الحالية"
+      },
+      "view_applications": {
+        "title": "الطلبات",
+        "description": "عرض وإدارة الطلبات المستلمة"
+      },
+      "rfps": {
+        "title": "طلبات العروض",
+        "description": "نشر وإدارة طلبات العروض الخاصة بك"
+      }
+    },
+    "featured_jobs": {
+      "title": "الوظائف المميزة",
+      "view_all": "عرض الكل",
+      "active": "نشطة",
+      "applications": "تقدماً",
+      "days_left": "{{days}} أيام متبقية",
+      "manage": "إدارة العرض",
+      "no_jobs": "لا توجد عروض عمل منشورة",
+      "create_first": "إنشاء أول عرض لي",
+      "senior_dev": {
+        "title": "مطور Full Stack Senior"
+      },
+      "product_manager": {
+        "title": "مدير منتج"
+      }
+    },
+    "tips": {
+      "badge": "نصائح",
+      "title": "نصائح لتوظيف ناجح",
+      "description": "حسّن عملية التوظيف الخاصة بك بهذه النصائح:",
+      "tip1": "اكتب وصفاً واضحاً ومفصلاً للوظيفة",
+      "tip2": "استجب بسرعة للطلبات",
+      "tip3": "استخدم الفلاتر المتقدمة للعثور على الملفات الشخصية المناسبة"
+    }
+  },
+  "myJobs": {
+    "title": "عروض عملي",
+    "total_offers": "{{count}} عرض(عروض) إجمالاً",
+    "create_job": "إنشاء عرض",
+    "refresh": "تحديث",
+    "loading": "جاري تحميل عروضك...",
+    "search_placeholder": "البحث بالعنوان أو الموقع...",
+    "clear_filters": "مسح التصفيات",
+    "showing_results": "عرض {{count}} عرض(عروض) من أصل {{total}}",
+    "not_specified": "غير محدد",
+    "confirm_delete": "هل أنت متأكد من حذف هذا العرض؟",
+    "status": {
+      "active": "نشط",
+      "inactive": "غير نشط"
+    },
+    "filter": {
+      "all_status": "جميع الحالات",
+      "active": "نشطة",
+      "inactive": "غير نشطة",
+      "all_contracts": "جميع العقود"
+    },
+    "actions": {
+      "view": "عرض العرض",
+      "edit": "تعديل",
+      "delete": "حذف",
+      "download": "تحميل"
+    },
+    "no_jobs": {
+      "title": "لا توجد عروض عمل",
+      "subtitle": "لم تقم بنشر أي عروض عمل بعد"
+    },
+    "no_results": {
+      "title": "لم يتم العثور على نتائج",
+      "subtitle": "لا توجد عروض تطابق معايير البحث الخاصة بك"
+    },
+    "create_first": "إنشاء أول عرض لي",
+    "errors": {
+      "load_error": "خطأ في تحميل عروضك",
+      "delete_error": "خطأ في الحذف"
+    },
+    "success": {
+      "delete_success": "تم حذف العرض بنجاح"
+    }
+  },
+  "myRfps": {
+    "title": "طلبات العروض الخاصة بي",
+    "subtitle": "إدارة طلبات العروض المنشورة",
+    "create_button": "طلب عرض جديد",
+    "loading": "جاري تحميل طلبات العروض الخاصة بك...",
+    "not_specified": "غير محدد",
+    "deadline": "الموعد النهائي",
+    "published_on": "نشر في",
+    "confirm_delete": "هل أنت متأكد من حذف طلب العرض هذا؟",
+    "status": {
+      "closed": "مغلق",
+      "expired": "منتهي",
+      "urgent": "عاجل",
+      "open": "مفتوح",
+      "days": "ي"
+    },
+    "stats": {
+      "total": "المجموع",
+      "open": "المفتوحة",
+      "proposals": "المقترحات"
+    },
+    "actions": {
+      "view": "عرض",
+      "edit": "تعديل",
+      "delete": "حذف"
+    },
+    "no_rfps": {
+      "title": "لا توجد طلبات عروض منشورة",
+      "create_first": "إنشاء أول طلب عرض لي"
+    },
+    "errors": {
+      "load_error": "لا يمكن تحميل طلبات العروض الخاصة بك",
+      "delete_error": "خطأ في الحذف"
+    },
+    "success": {
+      "delete_success": "تم حذف طلب العرض بنجاح"
+    }
+  },
+  "rfpDetail": {
+    "back_button": "العودة إلى طلبات العروض",
+    "location": "الموقع",
+    "budget": "الميزانية",
+    "deadline": "الموعد النهائي",
+    "duration": "المدة",
+    "project_description": "وصف المشروع",
+    "requirements": "المتطلبات",
+    "evaluation_criteria": "معايير التقييم",
+    "attachments": "المرفقات",
+    "download_file": "تحميل الملف",
+    "submit_proposal": "تقديم مقترح",
+    "view_proposals": "عرض المقترحات ({{count}})",
+    "not_specified": "غير محدد",
+    "cover_letter": "خطاب التحفيز",
+    "cover_letter_placeholder": "قدم نفسك، واشرح خبرتك ولماذا أنت المرشح المناسب...",
+    "proposed_amount": "المبلغ المقترح",
+    "proposed_timeline": "الجدول الزمني المقترح",
+    "amount_placeholder": "مثال: 20000",
+    "timeline_placeholder": "مثال: 2.5 شهر",
+    "proposal_document": "وثيقة المقترح (السيرة الذاتية، ملف الأعمال...)",
+    "send_proposal": "إرسال المقترح",
+    "sending": "جاري الإرسال...",
+    "cancel": "إلغاء",
+    "received_proposals": "المقترحات المستلمة",
+    "loading_proposals": "جاري تحميل المقترحات...",
+    "no_proposals": "لا توجد مقترحات مستلمة حالياً",
+    "submitted_on": "تم الإرسال في",
+    "download_document": "تحميل المستند",
+    "recruiter_notes": "ملاحظات المسؤول",
+    "accept": "قبول",
+    "reject": "رفض",
+    "rfp_status": {
+      "closed": "مغلق",
+      "expired": "منتهي",
+      "urgent": "عاجل",
+      "open": "مفتوح",
+      "days_left": "أيام متبقية"
+    },
+    "proposal_status": {
+      "pending": "قيد الانتظار",
+      "accepted": "مقبولة",
+      "rejected": "مرفوضة",
+      "reviewed": "قيد المراجعة"
+    },
+    "criteria": {
+      "experience": "الخبرة المطلوبة",
+      "education": "المستوى التعليمي",
+      "skills": "المهارات المطلوبة",
+      "certifications": "الشهادات",
+      "portfolio": "ملف الأعمال مطلوب"
+    },
+    "messages": {
+      "login_to_submit": "الرجاء تسجيل الدخول لتقديم مقترح",
+      "only_candidates": "المرشحون فقط يمكنهم تقديم المقترحات",
+      "proposal_sent": "تم إرسال المقترح بنجاح!",
+      "accepted": "تم قبول المقترح بنجاح",
+      "rejected": "تم رفض المقترح بنجاح"
+    },
+    "errors": {
+      "load_error": "لا يمكن تحميل طلب العرض",
+      "submit_error": "خطأ في إرسال المقترح",
+      "status_update_error": "خطأ في تحديث الحالة"
+    }
+  },
+  "applications": {
+    "title": "إدارة الطلبات",
+    "subtitle": "عرض وإدارة جميع الطلبات المستلمة",
+    "refresh": "تحديث",
+    "loading": "جاري تحميل الطلبات...",
+    "unknown_date": "تاريخ غير معروف",
+    "details": "تفاصيل",
+    "accept": "قبول",
+    "reject": "رفض",
+    "email": "البريد الإلكتروني",
+    "phone": "الهاتف",
+    "application_date": "تاريخ التقديم",
+    "location": "الموقع",
+    "job_offer": "عرض العمل",
+    "cover_letter": "خطاب التحفيز",
+    "accept_application": "قبول الطلب",
+    "reject_application": "رفض الطلب",
+    "search_placeholder": "البحث بالاسم أو البريد الإلكتروني أو العرض...",
+    "status": {
+      "pending": "قيد الانتظار",
+      "accepted": "مقبولة",
+      "rejected": "مرفوضة"
+    },
+    "stats": {
+      "total": "إجمالي الطلبات",
+      "pending": "قيد الانتظار",
+      "accepted": "المقبولة",
+      "rejected": "المرفوضة"
+    },
+    "filters": {
+      "all": "الجميع",
+      "pending": "قيد الانتظار",
+      "accepted": "المقبولة",
+      "rejected": "المرفوضة"
+    },
+    "modal": {
+      "title": "تفاصيل الطلب",
+      "subtitle": "عرض جميع معلومات المرشح"
+    },
+    "no_applications": {
+      "title": "لا توجد طلبات",
+      "subtitle": "لم تتلق أي طلبات بعد"
+    },
+    "no_results": {
+      "title": "لا توجد نتائج",
+      "subtitle": "لا توجد طلبات تطابق معايير البحث الخاصة بك"
+    },
+    "errors": {
+      "load_error": "خطأ في تحميل الطلبات",
+      "not_found": "الطلب غير موجود",
+      "update_error": "خطأ في تحديث الحالة"
+    },
+    "messages": {
+      "accepted": "تم قبول الطلب بنجاح",
+      "rejected": "تم رفض الطلب بنجاح"
+    }
+  },
+  "companyProposals": {
+    "title": "المقترحات المستلمة",
+    "subtitle": "إدارة مقترحات المرشحين لطلبات العروض الخاصة بك",
+    "back": "رجوع",
+    "loading": "جاري تحميل المقترحات...",
+    "unknown_date": "تاريخ غير معروف",
+    "view_rfp": "عرض طلب العرض",
+    "rfp_title": "طلب العرض",
+    "proposed_amount": "المبلغ المقترح",
+    "proposed_timeline": "الجدول الزمني المقترح",
+    "cover_letter": "خطاب التحفيز",
+    "download_document": "تحميل المستند",
+    "recruiter_notes": "ملاحظات المسؤول",
+    "accept": "قبول",
+    "reject": "رفض",
+    "submitted_on": "تم الإرسال في",
+    "no_proposals": "لم يتم العثور على مقترحات",
+    "status": {
+      "pending": "قيد الانتظار",
+      "accepted": "مقبولة",
+      "rejected": "مرفوضة",
+      "reviewed": "قيد المراجعة"
+    },
+    "stats": {
+      "total": "المجموع",
+      "pending": "قيد الانتظار",
+      "accepted": "المقبولة",
+      "rejected": "المرفوضة"
+    },
+    "filters": {
+      "all": "الجميع",
+      "pending": "قيد الانتظار",
+      "accepted": "المقبولة",
+      "rejected": "المرفوضة"
+    },
+    "unauthorized": {
+      "title": "وصول غير مصرح به",
+      "subtitle": "هذه الصفحة مخصصة للشركات فقط",
+      "back_home": "العودة إلى الرئيسية"
+    },
+    "errors": {
+      "load_error": "لا يمكن تحميل المقترحات",
+      "status_update_error": "خطأ في تحديث الحالة"
+    },
+    "messages": {
+      "accepted": "تم قبول المقترح بنجاح",
+      "rejected": "تم رفض المقترح بنجاح"
+    }
+  }
+
+
+
+
+}

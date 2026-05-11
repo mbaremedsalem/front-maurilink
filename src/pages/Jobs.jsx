@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { jobService } from '../api/services';
 import JobCard from '../components/JobCard';
 import JobForm from '../components/JobForm';
@@ -23,6 +24,9 @@ import {
 } from 'react-icons/hi';
 
 const Jobs = () => {
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.language === 'ar';
+  
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -48,10 +52,10 @@ const Jobs = () => {
   const contractTypes = ['CDI', 'CDD', 'FREELANCE', 'STAGE', 'ALTERNANCE'];
   const locations = ['Paris', 'Lyon', 'Marseille', 'Bordeaux', 'Lille', 'Toulouse', 'Nantes', 'Strasbourg', 'Remote', 'France'];
   const sortOptions = [
-    { value: 'newest', label: 'Plus récentes' },
-    { value: 'oldest', label: 'Plus anciennes' },
-    { value: 'salary_high', label: 'Salaire plus élevé' },
-    { value: 'salary_low', label: 'Salaire plus bas' },
+    { value: 'newest', label: t('jobs.sort.newest') },
+    { value: 'oldest', label: t('jobs.sort.oldest') },
+    { value: 'salary_high', label: t('jobs.sort.salary_high') },
+    { value: 'salary_low', label: t('jobs.sort.salary_low') },
   ];
 
   useEffect(() => {
@@ -97,7 +101,7 @@ const Jobs = () => {
       
     } catch (error) {
       console.error('Error fetching jobs:', error);
-      toast.error('Erreur lors du chargement des offres');
+      toast.error(t('jobs.errors.load_error'));
     } finally {
       setLoading(false);
     }
@@ -106,7 +110,7 @@ const Jobs = () => {
   const handleCreateJob = async (jobData) => {
     try {
       await jobService.create(jobData);
-      toast.success('Offre créée avec succès !');
+      toast.success(t('jobs.success.create_success'));
       fetchJobs();
       setShowCreateModal(false);
     } catch (error) {
@@ -162,8 +166,12 @@ const Jobs = () => {
     return `${baseUrl}${logoPath}`;
   };
 
+  // Helper pour la direction RTL
+  const getSearchIconPosition = () => isRTL ? 'right-3' : 'left-3';
+  const getInputPadding = () => isRTL ? 'pr-10 pl-4' : 'pl-10 pr-4';
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50">
+    <div className={`min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 ${isRTL ? 'text-right' : ''}`}>
       {/* Hero Section avec statistiques */}
       <div className="relative bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-700 text-white overflow-hidden">
         <div className="absolute inset-0 bg-black opacity-20"></div>
@@ -175,14 +183,14 @@ const Jobs = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="flex justify-between items-center flex-wrap gap-4"
+            className={`flex justify-between items-center flex-wrap gap-4 ${isRTL ? 'flex-row-reverse' : ''}`}
           >
-            <div>
+            <div className={isRTL ? 'text-right' : ''}>
               <h1 className="text-4xl md:text-5xl font-bold mb-4">
-                Trouvez votre prochain défi professionnel
+                {t('jobs.hero.title')}
               </h1>
               <p className="text-xl text-blue-100">
-                {stats.total} offres disponibles actuellement
+                {t('jobs.hero.subtitle', { count: stats.total })}
               </p>
             </div>
             
@@ -194,9 +202,10 @@ const Jobs = () => {
                 className="bg-white text-blue-600 px-6 py-3 rounded-xl font-semibold flex items-center gap-2 shadow-lg hover:shadow-xl transition-all"
               >
                 <HiPlus className="w-5 h-5" />
-                Publier une offre
+                {t('jobs.publish_button')}
               </motion.button>
             )}
+            
           </motion.div>
 
           {/* Statistiques rapides */}
@@ -207,33 +216,33 @@ const Jobs = () => {
             className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-12"
           >
             <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
-              <div className="flex items-center gap-2 mb-2">
+              <div className={`flex items-center gap-2 mb-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                 <HiOfficeBuilding className="h-5 w-5" />
-                <span className="text-sm font-medium">Entreprises</span>
+                <span className="text-sm font-medium">{t('jobs.stats.companies')}</span>
               </div>
               <p className="text-2xl font-bold">{new Set(jobs.map(j => j.company_details?.id)).size}</p>
             </div>
             <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
-              <div className="flex items-center gap-2 mb-2">
+              <div className={`flex items-center gap-2 mb-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                 <HiBriefcase className="h-5 w-5" />
-                <span className="text-sm font-medium">Types de contrat</span>
+                <span className="text-sm font-medium">{t('jobs.stats.contract_types')}</span>
               </div>
               <p className="text-2xl font-bold">{Object.keys(stats.byContract).length}</p>
             </div>
             <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
-              <div className="flex items-center gap-2 mb-2">
+              <div className={`flex items-center gap-2 mb-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                 <HiTrendingUp className="h-5 w-5" />
-                <span className="text-sm font-medium">Salaire moyen</span>
+                <span className="text-sm font-medium">{t('jobs.stats.avg_salary')}</span>
               </div>
               <p className="text-2xl font-bold">{Math.round(stats.avgSalary).toLocaleString()} MRU</p>
             </div>
             <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
-              <div className="flex items-center gap-2 mb-2">
+              <div className={`flex items-center gap-2 mb-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                 <HiCalendar className="h-5 w-5" />
-                <span className="text-sm font-medium">Dernière offre</span>
+                <span className="text-sm font-medium">{t('jobs.stats.last_job')}</span>
               </div>
               <p className="text-2xl font-bold">
-                {jobs.length > 0 ? new Date(jobs[0].published_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }) : '-'}
+                {jobs.length > 0 ? new Date(jobs[0].published_date).toLocaleDateString(i18n.language === 'ar' ? 'ar-MR' : 'fr-FR', { day: 'numeric', month: 'short' }) : '-'}
               </p>
             </div>
           </motion.div>
@@ -243,20 +252,20 @@ const Jobs = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Search and Filters Bar */}
         <div className="bg-white rounded-2xl shadow-xl p-6 mb-8 -mt-8 relative z-10">
-          <div className="flex flex-col md:flex-row gap-4 mb-4">
+          <div className={`flex flex-col md:flex-row gap-4 mb-4 ${isRTL ? 'md:flex-row-reverse' : ''}`}>
             <div className="flex-1 relative">
-              <HiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <HiSearch className={`absolute ${getSearchIconPosition()} top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400`} />
               <input
                 type="text"
                 name="search"
-                placeholder="Titre du poste, mots-clés, compétences..."
+                placeholder={t('jobs.search_placeholder')}
                 value={filters.search}
                 onChange={handleFilterChange}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                className={`w-full ${getInputPadding()} py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all ${isRTL ? 'text-right' : ''}`}
               />
             </div>
             
-            <div className="flex gap-3">
+            <div className={`flex gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
@@ -264,7 +273,7 @@ const Jobs = () => {
                 className="px-5 py-3 border border-gray-300 rounded-xl hover:bg-gray-50 flex items-center gap-2 transition-all"
               >
                 <HiFilter className="h-5 w-5" />
-                Filtres
+                {t('jobs.filters_button')}
                 {hasActiveFilters && (
                   <span className="bg-blue-600 text-white text-xs rounded-full px-2 py-1 ml-1">
                     {Object.values(filters).filter(v => v !== '').length}
@@ -290,10 +299,10 @@ const Jobs = () => {
             </div>
           </div>
 
-          <div className="flex justify-between items-center">
-            <div className="flex items-center gap-2 text-sm text-gray-600">
+          <div className={`flex justify-between items-center ${isRTL ? 'flex-row-reverse' : ''}`}>
+            <div className={`flex items-center gap-2 text-sm text-gray-600 ${isRTL ? 'flex-row-reverse' : ''}`}>
               <HiSortAscending className="h-4 w-4" />
-              <span>Trier par :</span>
+              <span>{t('jobs.sort_by')} :</span>
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
@@ -310,10 +319,10 @@ const Jobs = () => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 onClick={clearFilters}
-                className="text-sm text-blue-600 hover:text-blue-700 flex items-center gap-1"
+                className={`text-sm text-blue-600 hover:text-blue-700 flex items-center gap-1 ${isRTL ? 'flex-row-reverse' : ''}`}
               >
                 <HiX className="h-4 w-4" />
-                Effacer les filtres
+                {t('jobs.clear_filters')}
               </motion.button>
             )}
           </div>
@@ -329,17 +338,17 @@ const Jobs = () => {
               >
                 <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      <HiBriefcase className="inline h-4 w-4 mr-1" />
-                      Type de contrat
+                    <label className={`block text-sm font-medium text-gray-700 mb-2 ${isRTL ? 'text-right' : ''}`}>
+                      <HiBriefcase className={`inline h-4 w-4 ${isRTL ? 'ml-1' : 'mr-1'}`} />
+                      {t('jobs.filters.contract_type')}
                     </label>
                     <select
                       name="contract_type"
                       value={filters.contract_type}
                       onChange={handleFilterChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${isRTL ? 'text-right' : ''}`}
                     >
-                      <option value="">Tous les types</option>
+                      <option value="">{t('jobs.filters.all_types')}</option>
                       {contractTypes.map(type => (
                         <option key={type} value={type}>{type}</option>
                       ))}
@@ -347,17 +356,17 @@ const Jobs = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      <HiLocationMarker className="inline h-4 w-4 mr-1" />
-                      Localisation
+                    <label className={`block text-sm font-medium text-gray-700 mb-2 ${isRTL ? 'text-right' : ''}`}>
+                      <HiLocationMarker className={`inline h-4 w-4 ${isRTL ? 'ml-1' : 'mr-1'}`} />
+                      {t('jobs.filters.location')}
                     </label>
                     <select
                       name="location"
                       value={filters.location}
                       onChange={handleFilterChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${isRTL ? 'text-right' : ''}`}
                     >
-                      <option value="">Toutes les villes</option>
+                      <option value="">{t('jobs.filters.all_cities')}</option>
                       {locations.map(location => (
                         <option key={location} value={location}>{location}</option>
                       ))}
@@ -365,32 +374,32 @@ const Jobs = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      <HiCurrencyDollar className="inline h-4 w-4 mr-1" />
-                      Salaire minimum (MRU)
+                    <label className={`block text-sm font-medium text-gray-700 mb-2 ${isRTL ? 'text-right' : ''}`}>
+                      <HiCurrencyDollar className={`inline h-4 w-4 ${isRTL ? 'ml-1' : 'mr-1'}`} />
+                      {t('jobs.filters.salary_min')}
                     </label>
                     <input
                       type="number"
                       name="salary_min"
-                      placeholder="Minimum"
+                      placeholder={t('jobs.filters.min_placeholder')}
                       value={filters.salary_min}
                       onChange={handleFilterChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${isRTL ? 'text-right' : ''}`}
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      <HiCurrencyDollar className="inline h-4 w-4 mr-1" />
-                      Salaire maximum (MRU)
+                    <label className={`block text-sm font-medium text-gray-700 mb-2 ${isRTL ? 'text-right' : ''}`}>
+                      <HiCurrencyDollar className={`inline h-4 w-4 ${isRTL ? 'ml-1' : 'mr-1'}`} />
+                      {t('jobs.filters.salary_max')}
                     </label>
                     <input
                       type="number"
                       name="salary_max"
-                      placeholder="Maximum"
+                      placeholder={t('jobs.filters.max_placeholder')}
                       value={filters.salary_max}
                       onChange={handleFilterChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${isRTL ? 'text-right' : ''}`}
                     />
                   </div>
                 </div>
@@ -407,7 +416,7 @@ const Jobs = () => {
               transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
               className="inline-block rounded-full h-16 w-16 border-b-4 border-blue-600"
             ></motion.div>
-            <p className="mt-4 text-gray-600">Chargement des offres...</p>
+            <p className="mt-4 text-gray-600">{t('jobs.loading')}</p>
           </div>
         ) : jobs.length === 0 ? (
           <motion.div
@@ -416,9 +425,9 @@ const Jobs = () => {
             className="text-center py-20 bg-white rounded-2xl shadow-sm"
           >
             <div className="text-6xl mb-4">🔍</div>
-            <h3 className="text-2xl font-semibold text-gray-900 mb-2">Aucune offre trouvée</h3>
+            <h3 className="text-2xl font-semibold text-gray-900 mb-2">{t('jobs.no_results.title')}</h3>
             <p className="text-gray-600 mb-6">
-              Aucune offre ne correspond à vos critères de recherche
+              {t('jobs.no_results.subtitle')}
             </p>
             {hasActiveFilters && (
               <motion.button
@@ -427,7 +436,7 @@ const Jobs = () => {
                 onClick={clearFilters}
                 className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
               >
-                Effacer tous les filtres
+                {t('jobs.no_results.clear_filters')}
               </motion.button>
             )}
           </motion.div>

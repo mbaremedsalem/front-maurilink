@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { jobService, applicationService, resumeService } from '../api/services';
 import { 
   HiLocationMarker, 
@@ -36,7 +37,10 @@ import { HiBuildingOffice2 } from 'react-icons/hi2';
 import { toast } from 'react-toastify';
 
 const JobDetail = () => {
+  const { t, i18n } = useTranslation();
   const { id } = useParams();
+  const isRTL = i18n.language === 'ar';
+  
   const [job, setJob] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saved, setSaved] = useState(false);
@@ -59,6 +63,14 @@ const JobDetail = () => {
     return `${baseUrl}${logoPath}`;
   };
 
+  // Helper pour la direction RTL
+  const getArrowIcon = () => {
+    if (isRTL) {
+      return <span className="transform group-hover:-translate-x-1 transition-transform">←</span>;
+    }
+    return <span className="transform group-hover:translate-x-1 transition-transform">→</span>;
+  };
+
   useEffect(() => {
     fetchJob();
     if (isAuthenticated) {
@@ -75,7 +87,7 @@ const JobDetail = () => {
       setJob(response.data);
     } catch (error) {
       console.error('Error fetching job:', error);
-      toast.error("Impossible de charger l'offre d'emploi");
+      toast.error(t('jobDetail.errors.load_error'));
     } finally {
       setLoading(false);
     }
@@ -121,63 +133,61 @@ const JobDetail = () => {
 
   const handleSave = () => {
     setSaved(!saved);
-    toast.success(saved ? 'Offre retirée des favoris' : 'Offre ajoutée aux favoris');
+    toast.success(saved ? t('jobDetail.messages.removed_favorites') : t('jobDetail.messages.added_favorites'));
   };
 
-const handleShare = async () => {
-  // Méthode 1: Utiliser l'API Clipboard moderne
-  const copyToClipboard = async (text) => {
-    try {
-      await navigator.clipboard.writeText(text);
-      return true;
-    } catch (err) {
-      console.error('Clipboard API failed:', err);
-      return false;
-    }
-  };
+  const handleShare = async () => {
+    const copyToClipboard = async (text) => {
+      try {
+        await navigator.clipboard.writeText(text);
+        return true;
+      } catch (err) {
+        console.error('Clipboard API failed:', err);
+        return false;
+      }
+    };
 
-  // Méthode 2: Méthode de secours avec textarea
-  const fallbackCopyToClipboard = (text) => {
-    const textarea = document.createElement('textarea');
-    textarea.value = text;
-    textarea.style.position = 'fixed';
-    textarea.style.top = '-9999px';
-    textarea.style.left = '-9999px';
-    document.body.appendChild(textarea);
-    textarea.select();
-    textarea.setSelectionRange(0, text.length);
+    const fallbackCopyToClipboard = (text) => {
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      textarea.style.position = 'fixed';
+      textarea.style.top = '-9999px';
+      textarea.style.left = '-9999px';
+      document.body.appendChild(textarea);
+      textarea.select();
+      textarea.setSelectionRange(0, text.length);
+      
+      try {
+        const successful = document.execCommand('copy');
+        document.body.removeChild(textarea);
+        return successful;
+      } catch (err) {
+        console.error('Fallback copy failed:', err);
+        document.body.removeChild(textarea);
+        return false;
+      }
+    };
+
+    const url = window.location.href;
+    let success = await copyToClipboard(url);
     
-    try {
-      const successful = document.execCommand('copy');
-      document.body.removeChild(textarea);
-      return successful;
-    } catch (err) {
-      console.error('Fallback copy failed:', err);
-      document.body.removeChild(textarea);
-      return false;
+    if (!success) {
+      success = fallbackCopyToClipboard(url);
+    }
+
+    if (success) {
+      toast.success(t('jobDetail.messages.link_copied'));
+    } else {
+      toast.error(t('jobDetail.messages.copy_error') + url, {
+        autoClose: 5000,
+        closeButton: true,
+      });
     }
   };
 
-  const url = window.location.href;
-  let success = await copyToClipboard(url);
-  
-  if (!success) {
-    success = fallbackCopyToClipboard(url);
-  }
-
-  if (success) {
-    toast.success('Lien copié dans le presse-papier !');
-  } else {
-    // Méthode 3: Afficher le lien manuellement
-    toast.error('Impossible de copier automatiquement. Voici le lien : ' + url, {
-      autoClose: 5000,
-      closeButton: true,
-    });
-  }
-};
   const handleApply = async () => {
     if (!isAuthenticated) {
-      toast.warning('Veuillez vous connecter pour postuler');
+      toast.warning(t('jobDetail.messages.login_to_apply'));
       setTimeout(() => {
         window.location.href = '/login';
       }, 1500);
@@ -185,12 +195,12 @@ const handleShare = async () => {
     }
 
     if (!selectedResume) {
-      toast.warning('Veuillez sélectionner un CV');
+      toast.warning(t('jobDetail.messages.select_resume'));
       return;
     }
 
     if (!coverLetter.trim()) {
-      toast.warning('Veuillez ajouter une lettre de motivation');
+      toast.warning(t('jobDetail.messages.add_cover_letter'));
       return;
     }
 
@@ -206,7 +216,7 @@ const handleShare = async () => {
       const response = await applicationService.apply(applicationData);
       setApplicationResult(response.data);
       
-      toast.success('Candidature envoyée avec succès !');
+      toast.success(t('jobDetail.messages.application_sent'));
       
       setTimeout(() => {
         setShowApplyModal(false);
@@ -218,7 +228,7 @@ const handleShare = async () => {
       console.error('Error applying:', error);
       const errorMessage = error.response?.data?.detail || 
                           error.response?.data?.message || 
-                          'Une erreur est survenue lors de la candidature';
+                          t('jobDetail.errors.application_error');
       toast.error(errorMessage);
     } finally {
       setSubmitting(false);
@@ -226,8 +236,17 @@ const handleShare = async () => {
   };
 
   const formatSalary = (salary) => {
-    if (!salary) return 'Non spécifié';
-    return new Intl.NumberFormat('fr-FR').format(salary) + ' MRU';
+    if (!salary) return t('jobDetail.not_specified');
+    return new Intl.NumberFormat(i18n.language === 'ar' ? 'ar-MR' : 'fr-FR').format(salary) + ' MRU';
+  };
+
+  const formatDate = (dateString, format = 'short') => {
+    if (!dateString) return t('jobDetail.not_specified');
+    const date = new Date(dateString);
+    const options = format === 'short' 
+      ? { day: 'numeric', month: 'short' }
+      : { day: 'numeric', month: 'long', year: 'numeric' };
+    return date.toLocaleDateString(i18n.language === 'ar' ? 'ar-MR' : 'fr-FR', options);
   };
 
   const getContractTypeColor = (type) => {
@@ -250,6 +269,17 @@ const handleShare = async () => {
       'Freelance': <HiCog className="h-3 w-3" />
     };
     return icons[type] || <HiBriefcase className="h-3 w-3" />;
+  };
+
+  const getContractTypeLabel = (type) => {
+    const labels = {
+      'CDI': t('jobDetail.contract_types.cdi'),
+      'CDD': t('jobDetail.contract_types.cdd'),
+      'Stage': t('jobDetail.contract_types.stage'),
+      'Alternance': t('jobDetail.contract_types.alternance'),
+      'Freelance': t('jobDetail.contract_types.freelance')
+    };
+    return labels[type] || type || t('jobDetail.not_specified');
   };
 
   if (loading) {
@@ -276,14 +306,14 @@ const handleShare = async () => {
           className="text-center"
         >
           <div className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl mb-3 sm:mb-4 md:mb-5 lg:mb-6">🔍</div>
-          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-2 sm:mb-3">Offre non trouvée</h2>
-          <p className="text-sm sm:text-base text-gray-600 mb-5 sm:mb-6 md:mb-7 lg:mb-8">L'offre que vous recherchez n'existe pas ou a été supprimée</p>
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-2 sm:mb-3">{t('jobDetail.not_found.title')}</h2>
+          <p className="text-sm sm:text-base text-gray-600 mb-5 sm:mb-6 md:mb-7 lg:mb-8">{t('jobDetail.not_found.subtitle')}</p>
           <Link
             to="/jobs"
             className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-5 sm:px-6 md:px-7 lg:px-8 py-2.5 sm:py-3 md:py-3.5 lg:py-4 rounded-xl hover:shadow-lg transition-all text-sm sm:text-base"
           >
             <HiArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" />
-            Retour aux offres
+            {t('jobDetail.back_to_jobs')}
           </Link>
         </motion.div>
       </div>
@@ -292,18 +322,18 @@ const handleShare = async () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50">
-      {/* Sticky Navigation Bar - Alignée avec les autres pages */}
+      {/* Sticky Navigation Bar */}
       <div className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-gray-200 shadow-sm">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-2.5 sm:py-3 md:py-3.5 lg:py-4">
-          <div className="flex justify-between items-center">
+          <div className={`flex justify-between items-center ${isRTL ? 'flex-row-reverse' : ''}`}>
             <Link
               to="/jobs"
               className="inline-flex items-center gap-1.5 sm:gap-2 text-gray-600 hover:text-blue-600 transition-colors group text-sm sm:text-base"
             >
-              <HiArrowLeft className="group-hover:-translate-x-1 transition-transform h-3.5 w-3.5 sm:h-4 sm:w-4 md:h-4.5 md:w-4.5 lg:h-5 lg:w-5" />
-              <span className="hidden xs:inline">Retour aux offres</span>
+              <HiArrowLeft className={`group-hover:${isRTL ? '-translate-x-1' : '-translate-x-1'} transition-transform h-3.5 w-3.5 sm:h-4 sm:w-4 md:h-4.5 md:w-4.5 lg:h-5 lg:w-5`} />
+              <span className="hidden xs:inline">{t('jobDetail.back_to_jobs')}</span>
             </Link>
-            <div className="flex gap-1.5 sm:gap-2 md:gap-2.5">
+            <div className={`flex gap-1.5 sm:gap-2 md:gap-2.5 ${isRTL ? 'flex-row-reverse' : ''}`}>
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -325,7 +355,7 @@ const handleShare = async () => {
         </div>
       </div>
 
-      {/* Main Content Container - Largeur et padding cohérents */}
+      {/* Main Content Container */}
       <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 md:py-7 lg:py-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -333,21 +363,19 @@ const handleShare = async () => {
           transition={{ duration: 0.6 }}
           className="w-full"
         >
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6 lg:gap-8">
-            {/* Main Content - Left Side (2/3 sur desktop) */}
+          <div className={`grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6 lg:gap-8 ${isRTL ? 'lg:flex-row-reverse' : ''}`}>
+            {/* Main Content - Left Side */}
             <div className="lg:col-span-2 space-y-4 sm:space-y-5 md:space-y-6">
-              {/* Job Header Card - Responsive complet */}
+              {/* Job Header Card */}
               <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden">
-                {/* Header avec gradient et logo */}
                 <div className="relative">
                   <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700 px-4 sm:px-5 md:px-6 lg:px-8 py-5 sm:py-6 md:py-7 lg:py-10 text-white relative overflow-hidden">
-                    {/* Effets décoratifs responsives */}
-                    <div className="absolute top-0 right-0 w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40 lg:w-48 lg:h-48 bg-white/10 rounded-full -mr-12 -mt-12 sm:-mr-16 sm:-mt-16 md:-mr-20 md:-mt-20 lg:-mr-24 lg:-mt-24"></div>
-                    <div className="absolute bottom-0 left-0 w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40 lg:w-48 lg:h-48 bg-white/10 rounded-full -ml-12 -mb-12 sm:-ml-16 sm:-mb-16 md:-ml-20 md:-mb-20 lg:-ml-24 lg:-mb-24"></div>
+                    <div className="absolute top-0 right-0 w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40 lg:w-48 lg:h-48 bg-white/10 rounded-full -mr-12 -mt-12"></div>
+                    <div className="absolute bottom-0 left-0 w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40 lg:w-48 lg:h-48 bg-white/10 rounded-full -ml-12 -mb-12"></div>
                     
                     <div className="relative z-10">
-                      <div className="flex flex-col xs:flex-row gap-3 sm:gap-4 md:gap-5 lg:gap-6 items-start xs:items-center">
-                        {/* Logo responsive */}
+                      <div className={`flex flex-col xs:flex-row gap-3 sm:gap-4 md:gap-5 lg:gap-6 items-start xs:items-center ${isRTL ? 'xs:flex-row-reverse' : ''}`}>
+                        {/* Logo */}
                         <div className="flex-shrink-0 self-center xs:self-auto">
                           {getLogoUrl(job.company_details?.logo) ? (
                             <div className="w-12 h-12 xs:w-14 xs:h-14 sm:w-16 sm:h-16 md:w-18 md:h-18 lg:w-24 lg:h-24 bg-white rounded-lg xs:rounded-xl sm:rounded-2xl shadow-lg overflow-hidden flex items-center justify-center p-1 xs:p-1.5 sm:p-2">
@@ -368,32 +396,32 @@ const handleShare = async () => {
                           )}
                         </div>
                         
-                        <div className="flex-1 text-center xs:text-left w-full">
-                          {/* Badges responsives */}
-                          <div className="flex flex-wrap items-center justify-center xs:justify-start gap-1 sm:gap-1.5 md:gap-2 mb-1.5 sm:mb-2 md:mb-2.5">
+                        <div className={`flex-1 text-center xs:text-left w-full ${isRTL ? 'xs:text-right' : ''}`}>
+                          {/* Badges */}
+                          <div className={`flex flex-wrap items-center justify-center xs:justify-start gap-1 sm:gap-1.5 md:gap-2 mb-1.5 sm:mb-2 md:mb-2.5 ${isRTL ? 'xs:justify-end' : ''}`}>
                             <span className={`inline-flex items-center gap-0.5 sm:gap-1 px-1.5 sm:px-2 md:px-2.5 py-0.5 sm:py-1 rounded-full text-[10px] xs:text-xs sm:text-xs font-semibold ${getContractTypeColor(job.contract_type)}`}>
                               {getContractTypeIcon(job.contract_type)}
-                              <span className="hidden xs:inline">{job.contract_type || 'Non spécifié'}</span>
+                              <span className="hidden xs:inline">{getContractTypeLabel(job.contract_type)}</span>
                             </span>
                             {job.is_urgent && (
                               <span className="bg-red-500 text-white px-1.5 sm:px-2 md:px-2.5 py-0.5 sm:py-1 rounded-full text-[10px] xs:text-xs sm:text-xs font-semibold flex items-center gap-0.5 sm:gap-1">
                                 <HiClock className="h-2 w-2 sm:h-2.5 sm:w-2.5" />
-                                <span className="hidden xs:inline">Urgent</span>
+                                <span className="hidden xs:inline">{t('jobDetail.urgent')}</span>
                               </span>
                             )}
                             {job.featured && (
                               <span className="bg-yellow-400 text-gray-900 px-1.5 sm:px-2 md:px-2.5 py-0.5 sm:py-1 rounded-full text-[10px] xs:text-xs sm:text-xs font-semibold flex items-center gap-0.5 sm:gap-1">
                                 <HiStar className="h-2 w-2 sm:h-2.5 sm:w-2.5" />
-                                <span className="hidden xs:inline">Featured</span>
+                                <span className="hidden xs:inline">{t('jobDetail.featured')}</span>
                               </span>
                             )}
                           </div>
                           <h1 className="text-base xs:text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-bold mb-1 sm:mb-1.5 md:mb-2 break-words leading-tight">
                             {job.title}
                           </h1>
-                          <div className="flex items-center justify-center xs:justify-start gap-1 sm:gap-1.5 md:gap-2 text-blue-100 text-xs sm:text-sm md:text-base">
+                          <div className={`flex items-center justify-center xs:justify-start gap-1 sm:gap-1.5 md:gap-2 text-blue-100 text-xs sm:text-sm md:text-base ${isRTL ? 'xs:justify-end' : ''}`}>
                             <HiOfficeBuilding className="h-3 w-3 sm:h-3.5 sm:w-3.5 md:h-4 md:w-4" />
-                            <p className="truncate">{job.company_details?.company_name || 'Entreprise'}</p>
+                            <p className="truncate">{job.company_details?.company_name || t('jobDetail.company')}</p>
                           </div>
                         </div>
                       </div>
@@ -401,15 +429,15 @@ const handleShare = async () => {
                   </div>
                 </div>
 
-                {/* Quick Info Bar - Grid responsive */}
+                {/* Quick Info Bar */}
                 <div className="grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-2.5 md:gap-3 p-3 sm:p-3.5 md:p-4 border-b border-gray-100 bg-gray-50/50">
                   {[
-                    { icon: HiLocationMarker, label: 'Localisation', value: job.location || 'Non spécifiée', color: 'blue' },
-                    { icon: HiCurrencyEuro, label: 'Salaire', value: job.salary_min && job.salary_max ? `${parseFloat(job.salary_min).toLocaleString()} - ${parseFloat(job.salary_max).toLocaleString()}` : 'Non spécifié', color: 'green' },
-                    { icon: HiCalendar, label: 'Publiée le', value: new Date(job.published_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }), color: 'purple' },
-                    { icon: HiUserGroup, label: 'Candidatures', value: job.applications_count || 0, color: 'orange' }
+                    { icon: HiLocationMarker, label: t('jobDetail.location'), value: job.location || t('jobDetail.not_specified'), color: 'blue' },
+                    { icon: HiCurrencyEuro, label: t('jobDetail.salary'), value: job.salary_min && job.salary_max ? `${parseFloat(job.salary_min).toLocaleString()} - ${parseFloat(job.salary_max).toLocaleString()}` : t('jobDetail.not_specified'), color: 'green' },
+                    { icon: HiCalendar, label: t('jobDetail.published_on'), value: formatDate(job.published_date, 'short'), color: 'purple' },
+                    { icon: HiUserGroup, label: t('jobDetail.applications'), value: job.applications_count || 0, color: 'orange' }
                   ].map((item, idx) => (
-                    <div key={idx} className="flex items-center gap-1.5 sm:gap-2 md:gap-2.5">
+                    <div key={idx} className={`flex items-center gap-1.5 sm:gap-2 md:gap-2.5 ${isRTL ? 'flex-row-reverse' : ''}`}>
                       <div className={`p-1 sm:p-1.5 md:p-2 bg-${item.color}-100 rounded-lg flex-shrink-0`}>
                         <item.icon className={`h-3 w-3 sm:h-3.5 sm:w-3.5 md:h-4 md:w-4 text-${item.color}-600`} />
                       </div>
@@ -421,13 +449,13 @@ const handleShare = async () => {
                   ))}
                 </div>
 
-                {/* Tabs - Scrollable horizontal sur mobile */}
+                {/* Tabs */}
                 <div className="border-b border-gray-200 px-3 sm:px-4 md:px-6 overflow-x-auto">
-                  <div className="flex gap-3 sm:gap-4 md:gap-6 lg:gap-8 min-w-max">
+                  <div className={`flex gap-3 sm:gap-4 md:gap-6 lg:gap-8 min-w-max ${isRTL ? 'flex-row-reverse' : ''}`}>
                     {[
-                      { id: 'description', label: 'Description', icon: HiInformationCircle },
-                      { id: 'requirements', label: 'Prérequis', icon: HiBadgeCheck },
-                      { id: 'benefits', label: 'Avantages', icon: HiStar }
+                      { id: 'description', label: t('jobDetail.tabs.description'), icon: HiInformationCircle },
+                      { id: 'requirements', label: t('jobDetail.tabs.requirements'), icon: HiBadgeCheck },
+                      { id: 'benefits', label: t('jobDetail.tabs.benefits'), icon: HiStar }
                     ].map((tab) => (
                       <button
                         key={tab.id}
@@ -451,17 +479,17 @@ const handleShare = async () => {
                   </div>
                 </div>
 
-                {/* Tab Content - Padding responsive */}
-                <div className="p-3 sm:p-4 md:p-5 lg:p-6">
+                {/* Tab Content */}
+                <div className={`p-3 sm:p-4 md:p-5 lg:p-6 ${isRTL ? 'text-right' : ''}`}>
                   {activeTab === 'description' && (
                     <motion.div
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       className="prose max-w-none"
                     >
-                      <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 mb-2 sm:mb-3 md:mb-4 flex items-center gap-1.5 sm:gap-2">
+                      <h3 className={`text-base sm:text-lg md:text-xl font-bold text-gray-900 mb-2 sm:mb-3 md:mb-4 flex items-center gap-1.5 sm:gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                         <HiInformationCircle className="h-4 w-4 sm:h-4.5 sm:w-4.5 md:h-5 md:w-5 text-blue-600" />
-                        Description du poste
+                        {t('jobDetail.tabs.description')}
                       </h3>
                       <div className="text-gray-700 leading-relaxed whitespace-pre-wrap text-xs sm:text-sm md:text-base">
                         {job.description}
@@ -474,15 +502,15 @@ const handleShare = async () => {
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                     >
-                      <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 mb-2 sm:mb-3 md:mb-4 flex items-center gap-1.5 sm:gap-2">
+                      <h3 className={`text-base sm:text-lg md:text-xl font-bold text-gray-900 mb-2 sm:mb-3 md:mb-4 flex items-center gap-1.5 sm:gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                         <HiBadgeCheck className="h-4 w-4 sm:h-4.5 sm:w-4.5 md:h-5 md:w-5 text-blue-600" />
-                        Compétences et prérequis
+                        {t('jobDetail.tabs.requirements')}
                       </h3>
                       
                       {job.criteria?.skills && job.criteria.skills.length > 0 && (
                         <div className="mb-4 sm:mb-5 md:mb-6">
-                          <h4 className="font-semibold text-gray-900 mb-1.5 sm:mb-2 md:mb-2.5 text-sm sm:text-base">Compétences techniques</h4>
-                          <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                          <h4 className={`font-semibold text-gray-900 mb-1.5 sm:mb-2 md:mb-2.5 text-sm sm:text-base ${isRTL ? 'text-right' : ''}`}>{t('jobDetail.technical_skills')}</h4>
+                          <div className={`flex flex-wrap gap-1.5 sm:gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                             {job.criteria.skills.map((skill, index) => (
                               <motion.span
                                 key={index}
@@ -502,17 +530,23 @@ const handleShare = async () => {
                         <div className="space-y-2 sm:space-y-3 md:space-y-4">
                           {Object.entries(job.criteria).map(([key, value]) => {
                             if (key === 'skills' || Array.isArray(value)) return null;
+                            const keyLabel = {
+                              experience: t('jobDetail.experience'),
+                              education: t('jobDetail.education'),
+                              languages: t('jobDetail.languages')
+                            }[key] || key.charAt(0).toUpperCase() + key.slice(1).replace(/_/g, ' ');
+                            
                             return (
                               <motion.div
                                 key={key}
-                                initial={{ opacity: 0, x: -20 }}
+                                initial={{ opacity: 0, x: isRTL ? 20 : -20 }}
                                 animate={{ opacity: 1, x: 0 }}
-                                className="flex items-start gap-1.5 sm:gap-2 md:gap-2.5 p-2 sm:p-2.5 md:p-3 bg-gray-50 rounded-lg"
+                                className={`flex items-start gap-1.5 sm:gap-2 md:gap-2.5 p-2 sm:p-2.5 md:p-3 bg-gray-50 rounded-lg ${isRTL ? 'flex-row-reverse' : ''}`}
                               >
-                                <HiBadgeCheck className="h-3.5 w-3.5 sm:h-4 sm:w-4 md:h-4.5 md:w-4.5 text-green-500 mt-0.5" />
+                                <HiBadgeCheck className="h-3.5 w-3.5 sm:h-4 sm:w-4 md:h-4.5 md:w-4.5 text-green-500 mt-0.5 flex-shrink-0" />
                                 <div className="flex-1 min-w-0">
                                   <dt className="text-xs sm:text-sm font-medium text-gray-900">
-                                    {key.charAt(0).toUpperCase() + key.slice(1).replace(/_/g, ' ')}
+                                    {keyLabel}
                                   </dt>
                                   <dd className="text-gray-600 text-xs sm:text-sm break-words">{value}</dd>
                                 </div>
@@ -529,22 +563,22 @@ const handleShare = async () => {
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                     >
-                      <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 mb-2 sm:mb-3 md:mb-4 flex items-center gap-1.5 sm:gap-2">
+                      <h3 className={`text-base sm:text-lg md:text-xl font-bold text-gray-900 mb-2 sm:mb-3 md:mb-4 flex items-center gap-1.5 sm:gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                         <HiStar className="h-4 w-4 sm:h-4.5 sm:w-4.5 md:h-5 md:w-5 text-blue-600" />
-                        Avantages
+                        {t('jobDetail.tabs.benefits')}
                       </h3>
                       <div className="grid grid-cols-1 xs:grid-cols-2 gap-1.5 sm:gap-2 md:gap-2.5">
                         {[
-                          { icon: HiTrendingUp, label: 'Évolution de carrière', color: 'green' },
-                          { icon: HiOfficeBuilding, label: 'Environnement pro', color: 'blue' },
-                          { icon: HiCalendar, label: 'Congés payés', color: 'purple' },
-                          { icon: HiCurrencyEuro, label: 'Mutuelle', color: 'orange' },
-                          { icon: HiUsers, label: 'Équipe dynamique', color: 'red' },
-                          { icon: HiLightBulb, label: 'Formation continue', color: 'yellow' }
+                          { icon: HiTrendingUp, label: t('jobDetail.benefits.career_growth'), color: 'green' },
+                          { icon: HiOfficeBuilding, label: t('jobDetail.benefits.pro_environment'), color: 'blue' },
+                          { icon: HiCalendar, label: t('jobDetail.benefits.paid_vacation'), color: 'purple' },
+                          { icon: HiCurrencyEuro, label: t('jobDetail.benefits.health_insurance'), color: 'orange' },
+                          { icon: HiUsers, label: t('jobDetail.benefits.dynamic_team'), color: 'red' },
+                          { icon: HiLightBulb, label: t('jobDetail.benefits.training'), color: 'yellow' }
                         ].map((benefit, idx) => (
-                          <div key={idx} className={`flex items-center gap-1.5 sm:gap-2 md:gap-2.5 p-1.5 sm:p-2 md:p-2.5 bg-${benefit.color}-50 rounded-lg hover:shadow-md transition-shadow`}>
+                          <div key={idx} className={`flex items-center gap-1.5 sm:gap-2 md:gap-2.5 p-1.5 sm:p-2 md:p-2.5 bg-${benefit.color}-50 rounded-lg hover:shadow-md transition-shadow ${isRTL ? 'flex-row-reverse' : ''}`}>
                             <benefit.icon className={`h-3.5 w-3.5 sm:h-4 sm:w-4 md:h-4.5 md:w-4.5 text-${benefit.color}-600 flex-shrink-0`} />
-                            <span className="text-gray-700 text-xs sm:text-sm capitalize">{benefit.label}</span>
+                            <span className="text-gray-700 text-xs sm:text-sm">{benefit.label}</span>
                           </div>
                         ))}
                       </div>
@@ -553,7 +587,7 @@ const handleShare = async () => {
                 </div>
               </div>
 
-              {/* Company Info Section - Responsive */}
+              {/* Company Info Section */}
               {job.company_details && (
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
@@ -561,7 +595,7 @@ const handleShare = async () => {
                   transition={{ delay: 0.2 }}
                   className="bg-white rounded-xl sm:rounded-2xl shadow-lg p-3.5 sm:p-4 md:p-5 lg:p-6"
                 >
-                  <div className="flex flex-col sm:flex-row items-start gap-3 sm:gap-4 md:gap-5">
+                  <div className={`flex flex-col sm:flex-row items-start gap-3 sm:gap-4 md:gap-5 ${isRTL ? 'sm:flex-row-reverse' : ''}`}>
                     <div className="flex-shrink-0 self-center sm:self-auto">
                       {getLogoUrl(job.company_details.logo) ? (
                         <div className="w-14 h-14 xs:w-16 xs:h-16 sm:w-18 sm:h-18 md:w-20 md:h-20 bg-gradient-to-br from-blue-500 to-purple-500 rounded-xl flex items-center justify-center p-1 sm:p-1.5 md:p-2 shadow-lg">
@@ -582,41 +616,41 @@ const handleShare = async () => {
                       )}
                     </div>
                     
-                    <div className="flex-1 min-w-0 text-center sm:text-left">
+                    <div className={`flex-1 min-w-0 text-center sm:text-left ${isRTL ? 'sm:text-right' : ''}`}>
                       <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 mb-1 sm:mb-1.5 md:mb-2">
-                        À propos de {job.company_details.company_name}
+                        {t('jobDetail.about_company', { company: job.company_details.company_name })}
                       </h3>
                       {job.company_details.description && (
                         <p className="text-gray-600 text-xs sm:text-sm mb-2 sm:mb-3 md:mb-4 leading-relaxed break-words">
                           {job.company_details.description}
                         </p>
                       )}
-                      <div className="flex flex-wrap gap-2 sm:gap-3 md:gap-4 justify-center sm:justify-start text-xs sm:text-sm">
+                      <div className={`flex flex-wrap gap-2 sm:gap-3 md:gap-4 justify-center sm:justify-start text-xs sm:text-sm ${isRTL ? 'sm:justify-end' : ''}`}>
                         {job.company_details.website && (
                           <a
                             href={job.company_details.website}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-700 transition-colors"
+                            className={`inline-flex items-center gap-1 text-blue-600 hover:text-blue-700 transition-colors ${isRTL ? 'flex-row-reverse' : ''}`}
                           >
                             <HiGlobeAlt className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-                            <span>Site web</span>
+                            <span>{t('jobDetail.website')}</span>
                           </a>
                         )}
                         {job.company_details.email && (
-                          <span className="inline-flex items-center gap-1 text-gray-600">
+                          <span className={`inline-flex items-center gap-1 text-gray-600 ${isRTL ? 'flex-row-reverse' : ''}`}>
                             <HiMail className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                             <span className="hidden xs:inline truncate max-w-[150px]">{job.company_details.email}</span>
                           </span>
                         )}
                         {job.company_details.phone && (
-                          <span className="inline-flex items-center gap-1 text-gray-600">
+                          <span className={`inline-flex items-center gap-1 text-gray-600 ${isRTL ? 'flex-row-reverse' : ''}`}>
                             <HiPhone className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                             <span className="hidden xs:inline">{job.company_details.phone}</span>
                           </span>
                         )}
                         {job.company_details.address && (
-                          <span className="inline-flex items-center gap-1 text-gray-600">
+                          <span className={`inline-flex items-center gap-1 text-gray-600 ${isRTL ? 'flex-row-reverse' : ''}`}>
                             <HiLocationMarker className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                             <span className="hidden xs:inline truncate max-w-[200px]">{job.company_details.address}</span>
                           </span>
@@ -628,30 +662,30 @@ const handleShare = async () => {
               )}
             </div>
 
-            {/* Sidebar - Right Side (1/3 sur desktop) - Sticky responsive */}
+            {/* Sidebar - Right Side */}
             <div className="space-y-4 sm:space-y-5 md:space-y-6">
-              {/* Apply Card - Sticky sur desktop */}
+              {/* Apply Card */}
               <motion.div
-                initial={{ opacity: 0, x: 20 }}
+                initial={{ opacity: 0, x: isRTL ? -20 : 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.3 }}
                 className="bg-white rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-5 md:p-6 lg:sticky lg:top-20 transition-all duration-300"
               >
-                <div className="text-center mb-3 sm:mb-4 md:mb-5">
+                <div className={`text-center mb-3 sm:mb-4 md:mb-5 ${isRTL ? 'text-right' : ''}`}>
                   <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-3 md:mb-4">
                     <HiBriefcase className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7 lg:h-8 lg:w-8 text-white" />
                   </div>
-                  <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 mb-1">Prêt à postuler ?</h3>
-                  <p className="text-gray-600 text-xs sm:text-sm">Rejoignez une équipe dynamique</p>
+                  <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 mb-1">{t('jobDetail.ready_to_apply')}</h3>
+                  <p className="text-gray-600 text-xs sm:text-sm">{t('jobDetail.join_dynamic_team')}</p>
                 </div>
 
                 {hasApplied ? (
                   <div className="text-center">
-                    <div className="inline-flex items-center gap-1.5 bg-green-100 text-green-700 px-3 sm:px-4 md:px-5 py-1.5 sm:py-2 md:py-2.5 rounded-xl font-semibold text-xs sm:text-sm">
+                    <div className={`inline-flex items-center gap-1.5 bg-green-100 text-green-700 px-3 sm:px-4 md:px-5 py-1.5 sm:py-2 md:py-2.5 rounded-xl font-semibold text-xs sm:text-sm ${isRTL ? 'flex-row-reverse' : ''}`}>
                       <HiCheck className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                      Candidature envoyée
+                      {t('jobDetail.application_sent')}
                     </div>
-                    <p className="text-xs sm:text-sm text-gray-500 mt-2 sm:mt-3">L'entreprise examinera votre profil</p>
+                    <p className="text-xs sm:text-sm text-gray-500 mt-2 sm:mt-3">{t('jobDetail.company_will_review')}</p>
                   </div>
                 ) : (
                   <motion.button
@@ -660,51 +694,51 @@ const handleShare = async () => {
                     onClick={() => setShowApplyModal(true)}
                     className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-2.5 sm:py-3 md:py-3.5 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all text-sm sm:text-base"
                   >
-                    Postuler maintenant
+                    {t('jobDetail.apply_now')}
                   </motion.button>
                 )}
 
                 <div className="mt-4 sm:mt-5 md:mt-6 pt-3 sm:pt-4 md:pt-5 border-t border-gray-100">
                   <div className="space-y-2 sm:space-y-2.5">
-                    <div className="flex items-center justify-between text-xs sm:text-sm">
-                      <span className="text-gray-600 flex items-center gap-1 sm:gap-1.5">
+                    <div className={`flex items-center justify-between text-xs sm:text-sm ${isRTL ? 'flex-row-reverse' : ''}`}>
+                      <span className={`text-gray-600 flex items-center gap-1 sm:gap-1.5 ${isRTL ? 'flex-row-reverse' : ''}`}>
                         <HiCalendar className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-                        Date limite
+                        {t('jobDetail.deadline')}
                       </span>
                       <span className="font-semibold text-gray-900">
-                        {job.deadline ? new Date(job.deadline).toLocaleDateString('fr-FR') : 'Non spécifiée'}
+                        {job.deadline ? formatDate(job.deadline, 'full') : t('jobDetail.not_specified')}
                       </span>
                     </div>
-                    <div className="flex items-center justify-between text-xs sm:text-sm">
-                      <span className="text-gray-600 flex items-center gap-1 sm:gap-1.5">
+                    <div className={`flex items-center justify-between text-xs sm:text-sm ${isRTL ? 'flex-row-reverse' : ''}`}>
+                      <span className={`text-gray-600 flex items-center gap-1 sm:gap-1.5 ${isRTL ? 'flex-row-reverse' : ''}`}>
                         <HiAcademicCap className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-                        Expérience requise
+                        {t('jobDetail.required_experience')}
                       </span>
                       <span className="font-semibold text-gray-900 text-right">
-                        {job.experience_level || job.criteria?.experience || 'Non spécifiée'}
+                        {job.experience_level || job.criteria?.experience || t('jobDetail.not_specified')}
                       </span>
                     </div>
                   </div>
                 </div>
               </motion.div>
 
-              {/* Similar Jobs - Responsive */}
+              {/* Similar Jobs */}
               {similarJobs.length > 0 && (
                 <motion.div
-                  initial={{ opacity: 0, x: 20 }}
+                  initial={{ opacity: 0, x: isRTL ? -20 : 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.4 }}
                   className="bg-white rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-5 md:p-6"
                 >
-                  <h3 className="text-sm sm:text-base md:text-lg font-bold text-gray-900 mb-3 sm:mb-4 flex items-center gap-1.5 sm:gap-2">
+                  <h3 className={`text-sm sm:text-base md:text-lg font-bold text-gray-900 mb-3 sm:mb-4 flex items-center gap-1.5 sm:gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                     <HiStar className="h-4 w-4 sm:h-4.5 sm:w-4.5 md:h-5 md:w-5 text-blue-600" />
-                    Offres similaires
+                    {t('jobDetail.similar_jobs')}
                   </h3>
                   <div className="space-y-2 sm:space-y-2.5 md:space-y-3">
                     {similarJobs.map((similarJob, idx) => (
                       <motion.div
                         key={similarJob.id}
-                        initial={{ opacity: 0, x: -20 }}
+                        initial={{ opacity: 0, x: isRTL ? 20 : -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.4 + idx * 0.1 }}
                       >
@@ -712,7 +746,7 @@ const handleShare = async () => {
                           to={`/jobs/${similarJob.id}`}
                           className="block p-2 sm:p-2.5 md:p-3 rounded-xl hover:bg-gray-50 transition-all group border border-gray-100 hover:border-blue-200"
                         >
-                          <div className="flex items-start gap-2 sm:gap-2.5 md:gap-3">
+                          <div className={`flex items-start gap-2 sm:gap-2.5 md:gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
                             {getLogoUrl(similarJob.company_details?.logo) ? (
                               <img
                                 src={getLogoUrl(similarJob.company_details.logo)}
@@ -733,12 +767,12 @@ const handleShare = async () => {
                                 {similarJob.title}
                               </h4>
                               <p className="text-gray-600 text-[10px] sm:text-xs mb-0.5 truncate">{similarJob.company_details?.company_name}</p>
-                              <div className="flex items-center gap-1 text-gray-500 text-[10px] sm:text-xs">
+                              <div className={`flex items-center gap-1 text-gray-500 text-[10px] sm:text-xs ${isRTL ? 'flex-row-reverse' : ''}`}>
                                 <HiLocationMarker className="h-2 w-2 sm:h-2.5 sm:w-2.5 flex-shrink-0" />
-                                <span className="truncate">{similarJob.location || 'Non spécifiée'}</span>
+                                <span className="truncate">{similarJob.location || t('jobDetail.not_specified')}</span>
                               </div>
                             </div>
-                            <HiArrowRight className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-gray-400 group-hover:text-blue-600 group-hover:translate-x-0.5 transition-all flex-shrink-0 mt-1" />
+                            {getArrowIcon()}
                           </div>
                         </Link>
                       </motion.div>
@@ -751,7 +785,7 @@ const handleShare = async () => {
         </motion.div>
       </div>
 
-      {/* Apply Modal - Déjà responsive */}
+      {/* Apply Modal */}
       <AnimatePresence>
         {showApplyModal && (
           <motion.div
@@ -779,54 +813,54 @@ const handleShare = async () => {
                     <HiCheck className="h-7 w-7 sm:h-8 sm:w-8 md:h-10 md:w-10 text-green-600" />
                   </motion.div>
                   <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 mb-1.5 sm:mb-2">
-                    Candidature envoyée !
+                    {t('jobDetail.application_sent')}
                   </h3>
                   <p className="text-gray-600 text-sm sm:text-base mb-3 sm:mb-4">
-                    Votre candidature pour <strong>{job.title}</strong> a bien été envoyée.
+                    {t('jobDetail.application_for')} <strong>{job.title}</strong> {t('jobDetail.has_been_sent')}
                   </p>
-                  <div className="bg-blue-50 rounded-xl p-3 sm:p-4 mb-4 sm:mb-6 text-left">
-                    <p className="text-xs sm:text-sm font-semibold text-gray-700 mb-1.5 sm:mb-2">📋 Récapitulatif</p>
-                    <p className="text-xs sm:text-sm text-gray-600">📄 CV : {applicationResult.resume_details?.title}</p>
+                  <div className={`bg-blue-50 rounded-xl p-3 sm:p-4 mb-4 sm:mb-6 ${isRTL ? 'text-right' : 'text-left'}`}>
+                    <p className="text-xs sm:text-sm font-semibold text-gray-700 mb-1.5 sm:mb-2">📋 {t('jobDetail.summary')}</p>
+                    <p className="text-xs sm:text-sm text-gray-600">📄 {t('jobDetail.resume')} : {applicationResult.resume_details?.title}</p>
                     <p className="text-xs sm:text-sm text-gray-600 mt-1">
-                      📅 Date : {new Date(applicationResult.applied_date).toLocaleString('fr-FR')}
+                      📅 {t('jobDetail.date')} : {new Date(applicationResult.applied_date).toLocaleString(i18n.language === 'ar' ? 'ar-MR' : 'fr-FR')}
                     </p>
                   </div>
                 </div>
               ) : (
                 <>
                   <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-4 sm:px-6 py-4 sm:py-6 text-white sticky top-0">
-                    <h3 className="text-lg sm:text-xl md:text-2xl font-bold mb-1 sm:mb-2">Postuler à l'offre</h3>
+                    <h3 className="text-lg sm:text-xl md:text-2xl font-bold mb-1 sm:mb-2">{t('jobDetail.apply_to_job')}</h3>
                     <p className="text-blue-100 text-sm sm:text-base">{job.title}</p>
                     <p className="text-blue-100 text-xs sm:text-sm mt-0.5 sm:mt-1">{job.company_details?.company_name}</p>
                   </div>
 
-                  <div className="p-4 sm:p-6">
+                  <div className={`p-4 sm:p-6 ${isRTL ? 'text-right' : ''}`}>
                     <div className="mb-4 sm:mb-5 md:mb-6">
                       <label className="block text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">
-                        CV *
+                        {t('jobDetail.resume')} *
                       </label>
                       {resumes.length === 0 ? (
                         <div className="bg-yellow-50 rounded-xl p-3 sm:p-4">
                           <p className="text-yellow-800 text-xs sm:text-sm mb-1.5 sm:mb-2">
-                            Vous n'avez pas encore de CV.
+                            {t('jobDetail.no_resume')}
                           </p>
                           <Link
                             to="/profile/resumes"
                             className="text-blue-600 text-xs sm:text-sm font-medium hover:text-blue-700 inline-flex items-center gap-1"
                           >
-                            Créer mon CV →
+                            {t('jobDetail.create_resume')} →
                           </Link>
                         </div>
                       ) : (
                         <select
                           value={selectedResume || ''}
                           onChange={(e) => setSelectedResume(parseInt(e.target.value))}
-                          className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
+                          className={`w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base ${isRTL ? 'text-right' : ''}`}
                         >
-                          <option value="">Sélectionnez un CV</option>
+                          <option value="">{t('jobDetail.select_resume_option')}</option>
                           {resumes.map((resume) => (
                             <option key={resume.id} value={resume.id}>
-                              {resume.title} {resume.is_default && '(Par défaut)'}
+                              {resume.title} {resume.is_default && `(${t('jobDetail.default')})`}
                             </option>
                           ))}
                         </select>
@@ -835,34 +869,33 @@ const handleShare = async () => {
 
                     <div className="mb-4 sm:mb-5 md:mb-6">
                       <label className="block text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">
-                        Lettre de motivation *
+                        {t('jobDetail.cover_letter')} *
                       </label>
                       <textarea
                         value={coverLetter}
                         onChange={(e) => setCoverLetter(e.target.value)}
                         rows={6}
-                        className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
-                        placeholder="Décrivez votre motivation, vos compétences et pourquoi vous êtes le candidat idéal..."
+                        className={`w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base ${isRTL ? 'text-right' : ''}`}
+                        placeholder={t('jobDetail.cover_letter_placeholder')}
                       />
                       <p className="text-xs text-gray-500 mt-1">
-                        {coverLetter.length} caractères
+                        {coverLetter.length} {t('jobDetail.characters')}
                       </p>
                     </div>
 
                     <div className="bg-blue-50 rounded-xl p-3 sm:p-4 mb-4 sm:mb-5 md:mb-6">
-                      <div className="flex items-start gap-1.5 sm:gap-2">
+                      <div className={`flex items-start gap-1.5 sm:gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                         <HiInformationCircle className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 mt-0.5 flex-shrink-0" />
                         <div>
-                          <p className="text-xs sm:text-sm text-blue-800 font-medium mb-0.5 sm:mb-1">À savoir</p>
+                          <p className="text-xs sm:text-sm text-blue-800 font-medium mb-0.5 sm:mb-1">{t('jobDetail.good_to_know')}</p>
                           <p className="text-xs text-blue-700">
-                            Votre candidature sera examinée par l'équipe recrutement. 
-                            Assurez-vous que votre CV est à jour.
+                            {t('jobDetail.application_info')}
                           </p>
                         </div>
                       </div>
                     </div>
 
-                    <div className="flex gap-2 sm:gap-3">
+                    <div className={`flex gap-2 sm:gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
                       <motion.button
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
@@ -871,12 +904,12 @@ const handleShare = async () => {
                         className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-2.5 sm:py-3 rounded-xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
                       >
                         {submitting ? (
-                          <div className="flex items-center justify-center gap-2">
+                          <div className={`flex items-center justify-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                             <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-b-2 border-white"></div>
-                            Envoi en cours...
+                            {t('jobDetail.sending')}
                           </div>
                         ) : (
-                          'Envoyer ma candidature'
+                          t('jobDetail.send_application')
                         )}
                       </motion.button>
                       <button
@@ -884,7 +917,7 @@ const handleShare = async () => {
                         disabled={submitting}
                         className="px-4 sm:px-6 py-2.5 sm:py-3 border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors disabled:opacity-50 text-sm sm:text-base"
                       >
-                        Annuler
+                        {t('jobDetail.cancel')}
                       </button>
                     </div>
                   </div>

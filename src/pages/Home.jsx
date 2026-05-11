@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useAnimation, AnimatePresence } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
+import { useTranslation } from 'react-i18next';
 import { advertisingService, jobService } from '../api/services';
 import JobCard from '../components/JobCard';
 import { 
@@ -27,12 +28,15 @@ import {
 import { HiBuildingOffice2 } from 'react-icons/hi2';
 
 const Home = () => {
+  const { t, i18n } = useTranslation();
   const [ads, setAds] = useState([]);
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadingJobs, setLoadingJobs] = useState(true);
   const [currentAdIndex, setCurrentAdIndex] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+  
+  // La direction RTL est déjà gérée par le hook useDirection dans App.jsx
   
   // Refs séparées pour chaque section
   const [heroRef, heroInView] = useInView({ triggerOnce: true, threshold: 0.1 });
@@ -109,11 +113,6 @@ const Home = () => {
       }
       
       setJobs(jobsData);
-      console.log('Jobs loaded with logos:', jobsData.map(job => ({
-        title: job.title,
-        logo: job.company_details?.logo,
-        company: job.company_details?.company_name
-      })));
     } catch (error) {
       console.error('Error fetching jobs:', error);
       setJobs([]);
@@ -161,39 +160,39 @@ const Home = () => {
 
   const features = [
     {
-      title: 'Pour les candidats',
-      description: 'Créez votre CV professionnel, postulez aux offres qui vous correspondent et suivez vos candidatures en temps réel.',
+      title: t('home.features.candidates.title'),
+      description: t('home.features.candidates.description'),
       icon: HiUsers,
       link: '/register',
-      linkText: 'Créer mon compte candidat',
+      linkText: t('home.features.candidates.cta'),
       color: 'from-blue-500 to-blue-600',
-      benefits: ['CV personnalisé', 'Alertes emploi', 'Suivi candidatures']
+      benefits: t('home.features.candidates.benefits', { returnObjects: true })
     },
     {
-      title: 'Pour les entreprises',
-      description: 'Publiez vos offres, gérez les candidatures efficacement et trouvez les talents qui feront la différence.',
+      title: t('home.features.companies.title'),
+      description: t('home.features.companies.description'),
       icon: HiBuildingOffice2,
       link: '/register',
-      linkText: 'Créer mon compte entreprise',
+      linkText: t('home.features.companies.cta'),
       color: 'from-indigo-500 to-indigo-600',
-      benefits: ['Diffusion illimitée', 'CVthèque', 'Statistiques détaillées']
+      benefits: t('home.features.companies.benefits', { returnObjects: true })
     },
     {
-      title: 'Des milliers d\'offres',
-      description: 'Accédez aux meilleures opportunités professionnelles dans tous les secteurs d\'activité.',
+      title: t('home.features.jobs.title'),
+      description: t('home.features.jobs.description'),
       icon: HiBriefcase,
       link: '/jobs',
-      linkText: 'Voir toutes les offres',
+      linkText: t('home.features.jobs.cta'),
       color: 'from-purple-500 to-purple-600',
-      benefits: ['Filtres avancés', 'Recommandations', 'Application rapide']
+      benefits: t('home.features.jobs.benefits', { returnObjects: true })
     },
   ];
 
   const stats = [
-    { number: '10K+', label: 'Offres d\'emploi', icon: HiBriefcase },
-    { number: '5K+', label: 'Candidats inscrits', icon: HiUsers },
-    { number: '1K+', label: 'Entreprises', icon: HiBuildingOffice2 },
-    { number: '95%', label: 'Satisfaction', icon: HiChartBar },
+    { number: '10K+', label: t('home.stats.jobs'), icon: HiBriefcase },
+    { number: '5K+', label: t('home.stats.candidates'), icon: HiUsers },
+    { number: '1K+', label: t('home.stats.companies'), icon: HiBuildingOffice2 },
+    { number: '95%', label: t('home.stats.satisfaction'), icon: HiChartBar },
   ];
 
   const containerVariants = {
@@ -211,7 +210,11 @@ const Home = () => {
   const formatDate = (dateString) => {
     if (!dateString) return null;
     const date = new Date(dateString);
-    return date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+    return date.toLocaleDateString(i18n.language === 'ar' ? 'ar-MR' : 'fr-FR', { 
+      day: 'numeric', 
+      month: 'long', 
+      year: 'numeric' 
+    });
   };
 
   return (
@@ -321,17 +324,17 @@ const Home = () => {
               className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-xl px-3 py-1.5 rounded-full mb-3 border border-white/20"
             >
               <HiSparkles className="w-3.5 h-3.5 text-yellow-400" />
-              <span className="text-xs font-semibold text-white">🔥 Plus de 1000 offres cette semaine</span>
+              <span className="text-xs font-semibold text-white">{t('home.hero.badge')}</span>
             </motion.div>
 
             <h1 className="text-3xl md:text-5xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-white via-blue-100 to-white">
-              Trouvez l'emploi
+              {t('home.hero.title')}
               <br />
-              de vos rêves
+              {t('home.hero.title_line2')}
             </h1>
             
             <p className="text-sm md:text-base mb-4 text-white/90 max-w-2xl mx-auto leading-relaxed">
-              La plateforme intelligente qui connecte les talents aux entreprises
+              {t('home.hero.subtitle')}
             </p>
             
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
@@ -340,7 +343,7 @@ const Home = () => {
                   to="/jobs"
                   className="group bg-white text-blue-600 px-5 py-2 rounded-lg font-semibold hover:shadow-xl transition-all duration-300 inline-flex items-center gap-2 text-sm"
                 >
-                  <span>Voir les offres</span>
+                  <span>{t('home.hero.cta_jobs')}</span>
                   <HiArrowRight className="group-hover:translate-x-1 transition-transform" />
                 </Link>
               </motion.div>
@@ -350,7 +353,7 @@ const Home = () => {
                   to="/register"
                   className="group border-2 border-white text-white px-5 py-2 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-all duration-300 inline-flex items-center gap-2 backdrop-blur-sm text-sm"
                 >
-                  <span>S'inscrire gratuitement</span>
+                  <span>{t('home.hero.cta_register')}</span>
                   <HiStar className="group-hover:rotate-12 transition-transform" />
                 </Link>
               </motion.div>
@@ -377,7 +380,7 @@ const Home = () => {
                     <div className="flex-1 text-left">
                       <div className="flex items-center gap-2 mb-0.5">
                         <span className="text-[10px] font-bold text-yellow-400 bg-yellow-400/20 px-1.5 py-0.5 rounded">
-                          SPONSORISÉ
+                          {t('home.hero.sponsored')}
                         </span>
                         {currentAd.company_name && (
                           <span className="text-[10px] text-white/70 flex items-center gap-1">
@@ -436,82 +439,84 @@ const Home = () => {
         </div>
       </div>
 
-{/* Section des dernières offres d'emploi - Version avec hauteur uniforme */}
-<div ref={jobsRef} className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-  <motion.div
-    initial={{ opacity: 0, y: 20 }}
-    animate={jobsInView ? { opacity: 1, y: 0 } : { opacity: 1, y: 0 }}
-    transition={{ duration: 0.6 }}
-    className="mb-8"
-  >
-    <div className="flex justify-between items-center flex-wrap gap-4">
-      <div>
-        <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-3 py-1.5 rounded-full text-xs font-semibold mb-3">
-          <HiSparkles className="w-3.5 h-3.5" />
-          <span>Dernières opportunités</span>
-        </div>
-        <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
-          Offres récentes
-        </h2>
-        <p className="text-gray-600 mt-1">
-          Découvrez les dernières annonces publiées
-        </p>
-      </div>
-      
-      <Link
-        to="/jobs"
-        className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-semibold transition-all group"
-      >
-        <span>Voir toutes les offres</span>
-        <HiArrowRight className="group-hover:translate-x-1 transition-transform" />
-      </Link>
-    </div>
-  </motion.div>
-
-  {loadingJobs ? (
-    <div className="text-center py-12">
-      <motion.div
-        animate={{ rotate: 360 }}
-        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-        className="inline-block rounded-full h-12 w-12 border-b-3 border-blue-600"
-      />
-      <p className="mt-3 text-gray-500">Chargement des offres...</p>
-    </div>
-  ) : jobs.length === 0 ? (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="text-center py-12 bg-white rounded-xl shadow-sm"
-    >
-      <div className="text-5xl mb-3">📭</div>
-      <h3 className="text-xl font-semibold text-gray-900 mb-1">Aucune offre pour le moment</h3>
-      <p className="text-gray-500">Revenez plus tard pour découvrir les nouvelles opportunités</p>
-    </motion.div>
-  ) : (
-    <motion.div
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-      className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-fr"
-    >
-      {jobs.map((job, index) => (
+      {/* Section des dernières offres d'emploi */}
+      <div ref={jobsRef} className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <motion.div
-          key={job.id}
-          variants={itemVariants}
-          whileHover={{ y: -4 }}
-          transition={{ type: "spring", stiffness: 300, damping: 20 }}
-          className="h-full"
+          initial={{ opacity: 0, y: 20 }}
+          animate={jobsInView ? { opacity: 1, y: 0 } : { opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="mb-8"
         >
-          <JobCard 
-            job={job} 
-            viewMode="grid" 
-            logoUrl={getLogoUrl(job.company_details?.logo)}
-          />
+          <div className="flex justify-between items-center flex-wrap gap-4">
+            <div>
+              <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-3 py-1.5 rounded-full text-xs font-semibold mb-3">
+                <HiSparkles className="w-3.5 h-3.5" />
+                <span>{t('home.jobs_section.badge')}</span>
+              </div>
+              <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
+                {t('home.jobs_section.title')}
+              </h2>
+              <p className="text-gray-600 mt-1">
+                {t('home.jobs_section.subtitle')}
+              </p>
+            </div>
+            
+            <Link
+              to="/jobs"
+              className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-semibold transition-all group"
+            >
+              <span>{t('home.jobs_section.view_all')}</span>
+              <HiArrowRight className="group-hover:translate-x-1 transition-transform" />
+            </Link>
+          </div>
         </motion.div>
-      ))}
-    </motion.div>
-  )}
-</div>
+
+        {loadingJobs ? (
+          <div className="text-center py-12">
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+              className="inline-block rounded-full h-12 w-12 border-b-3 border-blue-600"
+            />
+            <p className="mt-3 text-gray-500">{t('home.jobs_section.loading')}</p>
+          </div>
+        ) : jobs.length === 0 ? (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-center py-12 bg-white rounded-xl shadow-sm"
+          >
+            <div className="text-5xl mb-3">📭</div>
+            <h3 className="text-xl font-semibold text-gray-900 mb-1">{t('home.jobs_section.no_jobs_title')}</h3>
+            <p className="text-gray-500">{t('home.jobs_section.no_jobs_subtitle')}</p>
+          </motion.div>
+        ) : (
+          <motion.div
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-fr"
+          >
+            {jobs.map((job, index) => (
+              <motion.div
+                key={job.id}
+                variants={itemVariants}
+                whileHover={{ y: -4 }}
+                transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                className="h-full"
+              >
+                <JobCard 
+                  job={job} 
+                  viewMode="grid" 
+                  logoUrl={getLogoUrl(job.company_details?.logo)}
+                />
+              </motion.div>
+            ))}
+          </motion.div>
+        )}
+      </div>
+
+      {/* Stats Section */}
       <div className="py-12 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
@@ -550,15 +555,15 @@ const Home = () => {
         >
           <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-3 py-1.5 rounded-full text-xs font-semibold mb-3">
             <HiSparkles className="w-3.5 h-3.5" />
-            <span>Nos services</span>
+            <span>{t('home.features.badge')}</span>
           </div>
           
           <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
-            Une plateforme complète
+            {t('home.features.title')}
           </h2>
           
           <p className="text-gray-600 max-w-2xl mx-auto text-sm">
-            Découvrez tous les services que nous proposons pour vous accompagner
+            {t('home.features.subtitle')}
           </p>
         </motion.div>
 
@@ -619,17 +624,17 @@ const Home = () => {
             transition={{ duration: 0.6 }}
           >
             <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">
-              Prêt à commencer ?
+              {t('home.cta.title')}
             </h2>
             <p className="text-base text-blue-100 mb-5">
-              Rejoignez des milliers de talents et d'entreprises
+              {t('home.cta.subtitle')}
             </p>
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <Link
                 to="/register"
                 className="inline-flex items-center gap-2 bg-white text-blue-600 px-5 py-2.5 rounded-lg font-semibold hover:shadow-xl transition-all text-sm"
               >
-                Créer mon compte gratuitement
+                {t('home.cta.button')}
                 <HiTrendingUp className="h-4 w-4" />
               </Link>
             </motion.div>

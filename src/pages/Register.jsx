@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { register } from '../store/slices/authSlice';
 import { toast } from 'react-toastify';
 import { HiUser, HiMail, HiLockClosed, HiEye, HiEyeOff, HiUsers, HiOfficeBuilding, HiPhone, HiUserCircle } from 'react-icons/hi';
@@ -9,8 +10,11 @@ import TermsOfServiceContent from '../components/TermsOfServiceContent';
 import PrivacyPolicyContent from '../components/PrivacyPolicyContent';
 
 const Register = () => {
+  const { t, i18n } = useTranslation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const isRTL = i18n.language === 'ar';
+
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -36,7 +40,7 @@ const Register = () => {
     e.preventDefault();
     
     if (!acceptTerms) {
-      toast.error('Veuillez accepter les conditions d\'utilisation', {
+      toast.error(t('register.errors.accept_terms'), {
         position: "top-right",
         autoClose: 3000,
       });
@@ -44,7 +48,7 @@ const Register = () => {
     }
     
     if (formData.password !== formData.password_confirm) {
-      toast.error('Les mots de passe ne correspondent pas', {
+      toast.error(t('register.errors.password_mismatch'), {
         position: "top-right",
         autoClose: 3000,
         hideProgressBar: false,
@@ -58,7 +62,7 @@ const Register = () => {
     setIsLoading(true);
     try {
       await dispatch(register(formData)).unwrap();
-      toast.success('Inscription réussie ! Bienvenue sur MauriLink 🎉', {
+      toast.success(t('register.errors.registration_success'), {
         position: "top-right",
         autoClose: 3000,
         hideProgressBar: false,
@@ -72,7 +76,7 @@ const Register = () => {
       });
       navigate('/');
     } catch (error) {
-      toast.error("Erreur lors de l'inscription", {
+      toast.error(t('register.errors.registration_failed'), {
         position: "top-right",
         autoClose: 3000,
         hideProgressBar: false,
@@ -85,17 +89,26 @@ const Register = () => {
     }
   };
 
+  // Helper pour la direction des icônes
+  const getInputIconPosition = () => {
+    return isRTL ? 'right-0 pr-3' : 'left-0 pl-3';
+  };
+
+  const getButtonIconPosition = () => {
+    return isRTL ? 'left-0 pl-3' : 'right-0 pr-3';
+  };
+
   return (
     <>
       <div className="min-h-screen flex items-center justify-center bg-white py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full space-y-8">
           {/* Logo et titre */}
-          <div className="text-center">
+          <div className={`text-center ${isRTL ? 'text-right' : ''}`}>
             <h2 className="text-4xl font-extrabold text-gray-900">
-              Créer un compte
+              {t('register.title')}
             </h2>
             <p className="mt-2 text-sm text-gray-600">
-              Rejoignez la communauté MauriLink
+              {t('register.subtitle')}
             </p>
           </div>
 
@@ -113,7 +126,9 @@ const Register = () => {
                 }`}
               >
                 <HiUsers className={`h-6 w-6 mx-auto mb-1 ${formData.user_type === 'candidate' ? 'text-blue-600' : 'text-gray-400'}`} />
-                <p className={`text-sm font-semibold ${formData.user_type === 'candidate' ? 'text-blue-600' : 'text-gray-600'}`}>Candidat</p>
+                <p className={`text-sm font-semibold ${formData.user_type === 'candidate' ? 'text-blue-600' : 'text-gray-600'}`}>
+                  {t('register.account_type.candidate')}
+                </p>
               </button>
               
               <button
@@ -126,7 +141,9 @@ const Register = () => {
                 }`}
               >
                 <HiOfficeBuilding className={`h-6 w-6 mx-auto mb-1 ${formData.user_type === 'company' ? 'text-indigo-600' : 'text-gray-400'}`} />
-                <p className={`text-sm font-semibold ${formData.user_type === 'company' ? 'text-indigo-600' : 'text-gray-600'}`}>Entreprise</p>
+                <p className={`text-sm font-semibold ${formData.user_type === 'company' ? 'text-indigo-600' : 'text-gray-600'}`}>
+                  {t('register.account_type.company')}
+                </p>
               </button>
             </div>
 
@@ -134,18 +151,18 @@ const Register = () => {
               {/* Nom et prénom sur la même ligne */}
               <div className="grid grid-cols-2 gap-3">
                 <div className="relative">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Prénom
+                  <label className={`block text-sm font-medium text-gray-700 mb-1 ${isRTL ? 'text-right' : ''}`}>
+                    {t('register.first_name')}
                   </label>
                   <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <div className={`absolute inset-y-0 ${getInputIconPosition()} flex items-center pointer-events-none`}>
                       <HiUserCircle className="h-5 w-5 text-gray-400" />
                     </div>
                     <input
                       name="first_name"
                       type="text"
-                      className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white hover:bg-gray-50"
-                      placeholder="Prénom"
+                      className={`block w-full ${isRTL ? 'pr-10 pl-3 text-right' : 'pl-10 pr-3'} py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white hover:bg-gray-50`}
+                      placeholder={t('register.first_name')}
                       value={formData.first_name}
                       onChange={handleChange}
                     />
@@ -153,18 +170,18 @@ const Register = () => {
                 </div>
 
                 <div className="relative">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Nom
+                  <label className={`block text-sm font-medium text-gray-700 mb-1 ${isRTL ? 'text-right' : ''}`}>
+                    {t('register.last_name')}
                   </label>
                   <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <div className={`absolute inset-y-0 ${getInputIconPosition()} flex items-center pointer-events-none`}>
                       <HiUserCircle className="h-5 w-5 text-gray-400" />
                     </div>
                     <input
                       name="last_name"
                       type="text"
-                      className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white hover:bg-gray-50"
-                      placeholder="Nom"
+                      className={`block w-full ${isRTL ? 'pr-10 pl-3 text-right' : 'pl-10 pr-3'} py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white hover:bg-gray-50`}
+                      placeholder={t('register.last_name')}
                       value={formData.last_name}
                       onChange={handleChange}
                     />
@@ -174,19 +191,19 @@ const Register = () => {
 
               {/* Nom d'utilisateur */}
               <div className="relative">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Nom d'utilisateur <span className="text-red-500">*</span>
+                <label className={`block text-sm font-medium text-gray-700 mb-1 ${isRTL ? 'text-right' : ''}`}>
+                  {t('register.username')} <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <div className={`absolute inset-y-0 ${getInputIconPosition()} flex items-center pointer-events-none`}>
                     <HiUser className="h-5 w-5 text-gray-400" />
                   </div>
                   <input
                     name="username"
                     type="text"
                     required
-                    className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white hover:bg-gray-50"
-                    placeholder="Nom d'utilisateur"
+                    className={`block w-full ${isRTL ? 'pr-10 pl-3 text-right' : 'pl-10 pr-3'} py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white hover:bg-gray-50`}
+                    placeholder={t('register.username_placeholder')}
                     value={formData.username}
                     onChange={handleChange}
                   />
@@ -195,19 +212,19 @@ const Register = () => {
 
               {/* Email */}
               <div className="relative">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Email <span className="text-red-500">*</span>
+                <label className={`block text-sm font-medium text-gray-700 mb-1 ${isRTL ? 'text-right' : ''}`}>
+                  {t('register.email')} <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <div className={`absolute inset-y-0 ${getInputIconPosition()} flex items-center pointer-events-none`}>
                     <HiMail className="h-5 w-5 text-gray-400" />
                   </div>
                   <input
                     name="email"
                     type="email"
                     required
-                    className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white hover:bg-gray-50"
-                    placeholder="votre@email.com"
+                    className={`block w-full ${isRTL ? 'pr-10 pl-3 text-right' : 'pl-10 pr-3'} py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white hover:bg-gray-50`}
+                    placeholder={t('register.email_placeholder')}
                     value={formData.email}
                     onChange={handleChange}
                   />
@@ -216,18 +233,18 @@ const Register = () => {
 
               {/* Téléphone */}
               <div className="relative">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Téléphone
+                <label className={`block text-sm font-medium text-gray-700 mb-1 ${isRTL ? 'text-right' : ''}`}>
+                  {t('register.phone')}
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <div className={`absolute inset-y-0 ${getInputIconPosition()} flex items-center pointer-events-none`}>
                     <HiPhone className="h-5 w-5 text-gray-400" />
                   </div>
                   <input
                     name="phone"
                     type="tel"
-                    className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white hover:bg-gray-50"
-                    placeholder="+33 6 12 34 56 78"
+                    className={`block w-full ${isRTL ? 'pr-10 pl-3 text-right' : 'pl-10 pr-3'} py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white hover:bg-gray-50`}
+                    placeholder={t('register.phone_placeholder')}
                     value={formData.phone}
                     onChange={handleChange}
                   />
@@ -236,26 +253,26 @@ const Register = () => {
 
               {/* Mot de passe */}
               <div className="relative">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Mot de passe <span className="text-red-500">*</span>
+                <label className={`block text-sm font-medium text-gray-700 mb-1 ${isRTL ? 'text-right' : ''}`}>
+                  {t('register.password')} <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <div className={`absolute inset-y-0 ${getInputIconPosition()} flex items-center pointer-events-none`}>
                     <HiLockClosed className="h-5 w-5 text-gray-400" />
                   </div>
                   <input
                     name="password"
                     type={showPassword ? "text" : "password"}
                     required
-                    className="block w-full pl-10 pr-12 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white hover:bg-gray-50"
-                    placeholder="Mot de passe"
+                    className={`block w-full ${isRTL ? 'pr-10 pl-12' : 'pl-10 pr-12'} py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white hover:bg-gray-50 ${isRTL ? 'text-right' : ''}`}
+                    placeholder={t('register.password_placeholder')}
                     value={formData.password}
                     onChange={handleChange}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                    className={`absolute inset-y-0 ${getButtonIconPosition()} flex items-center`}
                   >
                     {showPassword ? (
                       <HiEyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600 transition-colors" />
@@ -268,26 +285,26 @@ const Register = () => {
 
               {/* Confirmation mot de passe */}
               <div className="relative">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Confirmer le mot de passe <span className="text-red-500">*</span>
+                <label className={`block text-sm font-medium text-gray-700 mb-1 ${isRTL ? 'text-right' : ''}`}>
+                  {t('register.password_confirm')} <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <div className={`absolute inset-y-0 ${getInputIconPosition()} flex items-center pointer-events-none`}>
                     <HiLockClosed className="h-5 w-5 text-gray-400" />
                   </div>
                   <input
                     name="password_confirm"
                     type={showConfirmPassword ? "text" : "password"}
                     required
-                    className="block w-full pl-10 pr-12 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white hover:bg-gray-50"
-                    placeholder="Confirmer le mot de passe"
+                    className={`block w-full ${isRTL ? 'pr-10 pl-12' : 'pl-10 pr-12'} py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white hover:bg-gray-50 ${isRTL ? 'text-right' : ''}`}
+                    placeholder={t('register.password_confirm_placeholder')}
                     value={formData.password_confirm}
                     onChange={handleChange}
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                    className={`absolute inset-y-0 ${getButtonIconPosition()} flex items-center`}
                   >
                     {showConfirmPassword ? (
                       <HiEyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600 transition-colors" />
@@ -300,7 +317,7 @@ const Register = () => {
             </div>
 
             {/* Conditions */}
-            <div className="flex items-start">
+            <div className={`flex items-start ${isRTL ? 'flex-row-reverse' : ''}`}>
               <input
                 type="checkbox"
                 checked={acceptTerms}
@@ -308,22 +325,22 @@ const Register = () => {
                 className="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                 required
               />
-              <label className="ml-2 text-sm text-gray-600">
-                J'accepte les{' '}
+              <label className={`${isRTL ? 'mr-2' : 'ml-2'} text-sm text-gray-600`}>
+                {t('register.terms_accept')}{' '}
                 <button 
                   type="button"
                   onClick={() => setShowTermsModal(true)}
                   className="text-blue-600 hover:text-blue-500 hover:underline transition-colors"
                 >
-                  Conditions d'utilisation
+                  {t('register.terms_of_service')}
                 </button>{' '}
-                et la{' '}
+                {t('register.terms_and')}{' '}
                 <button 
                   type="button"
                   onClick={() => setShowPrivacyModal(true)}
                   className="text-blue-600 hover:text-blue-500 hover:underline transition-colors"
                 >
-                  Politique de confidentialité
+                  {t('register.privacy_policy')}
                 </button>
               </label>
             </div>
@@ -336,15 +353,15 @@ const Register = () => {
                 className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading ? (
-                  <div className="flex items-center">
-                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <div className={`flex items-center ${isRTL ? 'space-x-reverse' : 'space-x-3'}`}>
+                    <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    Inscription en cours...
+                    <span>{t('register.registering')}</span>
                   </div>
                 ) : (
-                  "S'inscrire"
+                  t('register.register_button')
                 )}
               </button>
             </div>
@@ -356,38 +373,38 @@ const Register = () => {
               </div>
               <div className="relative flex justify-center text-sm">
                 <span className="px-2 bg-white text-gray-500">
-                  Ou
+                  {t('register.separator')}
                 </span>
               </div>
             </div>
 
             {/* Lien de connexion */}
-            <div className="text-center">
+            <div className={`text-center ${isRTL ? 'text-right' : ''}`}>
               <p className="text-sm text-gray-600">
-                Déjà un compte ?{' '}
+                {t('register.have_account')}{' '}
                 <Link to="/login" className="font-medium text-blue-600 hover:text-blue-500 transition-colors">
-                  Se connecter
+                  {t('register.login_link')}
                 </Link>
               </p>
             </div>
           </form>
 
           {/* Footer */}
-          <div className="text-center pt-4">
+          <div className={`text-center pt-4 ${isRTL ? 'text-right' : ''}`}>
             <p className="text-xs text-gray-500">
-              En vous inscrivant, vous acceptez nos{' '}
+              {t('register.footer_text')}{' '}
               <button 
                 onClick={() => setShowTermsModal(true)}
                 className="text-blue-600 hover:text-blue-500 hover:underline transition-colors"
               >
-                Conditions d'utilisation
+                {t('register.terms_of_service')}
               </button>{' '}
-              et notre{' '}
+              {t('register.terms_and')}{' '}
               <button 
                 onClick={() => setShowPrivacyModal(true)}
                 className="text-blue-600 hover:text-blue-500 hover:underline transition-colors"
               >
-                Politique de confidentialité
+                {t('register.privacy_policy')}
               </button>
             </p>
           </div>
@@ -398,7 +415,7 @@ const Register = () => {
       <Modal 
         isOpen={showTermsModal} 
         onClose={() => setShowTermsModal(false)}
-        title="Conditions d'utilisation"
+        title={t('register.modal.terms_title')}
       >
         <TermsOfServiceContent />
       </Modal>
@@ -406,7 +423,7 @@ const Register = () => {
       <Modal 
         isOpen={showPrivacyModal} 
         onClose={() => setShowPrivacyModal(false)}
-        title="Politique de confidentialité"
+        title={t('register.modal.privacy_title')}
       >
         <PrivacyPolicyContent />
       </Modal>

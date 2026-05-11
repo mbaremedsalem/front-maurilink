@@ -58,7 +58,7 @@ export const companyService = {
 export const jobService = {
   getAll: (params) => api.get('/jobs/offers/', { params }),
   getById: (id) => api.get(`/jobs/offers/${id}/`),
-  create: (data) => api.post('/jobs/offers/create/', data),
+  create: (data) => api.post('/jobs/offers/', data),
   update: (id, data) => api.put(`/jobs/offers/${id}/`, data),
   delete: (id) => api.delete(`/jobs/offers/${id}/`),
 };

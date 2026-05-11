@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 import { logout } from '../../store/slices/authSlice';
 import { Menu } from '@headlessui/react';
 import { 
@@ -13,7 +14,8 @@ import {
   HiOfficeBuilding,
   HiClipboardList,
   HiDocumentSearch,
-  HiPlusCircle
+  HiPlusCircle,
+  HiTranslate
 } from 'react-icons/hi';
 import { HiEnvelope } from 'react-icons/hi2';
 import { companyService } from '../../api/services';
@@ -21,9 +23,14 @@ import { companyService } from '../../api/services';
 const Navbar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
   const { isAuthenticated, user } = useSelector((state) => state.auth);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [rfpCount, setRfpCount] = useState(0);
+
+  // Définir la direction du texte en fonction de la langue
+  const isRTL = i18n.language === 'ar';
+  document.body.dir = isRTL ? 'rtl' : 'ltr';
 
   useEffect(() => {
     if (isAuthenticated && user?.user_type === 'company') {
@@ -46,32 +53,31 @@ const Navbar = () => {
     navigate('/login');
   };
 
+  const changeLanguage = (lng) => {
+    i18n.changeLanguage(lng);
+    localStorage.setItem('preferred-language', lng);
+  };
+
   const navigation = [
-    { name: 'Accueil', href: '/', icon: HiHome },
-    { name: 'Offres d\'emploi', href: '/jobs', icon: HiOfficeBuilding },
-    { name: 'Appels d\'offres', href: '/rfps', icon: HiClipboardList },
-    { name: 'Espace Recruteur', href: '/employer-space', icon: HiEnvelope },
-    // Dans Navbar.jsx, ajoutez ce lien dans la navigation pour les entreprises
-    {
-      name: 'Propositions reçues',
-      href: '/company-proposals',
-      icon: HiDocumentText
-    },
+    { name: t('nav.home'), href: '/', icon: HiHome },
+    { name: t('nav.jobs'), href: '/jobs', icon: HiOfficeBuilding },
+    { name: t('nav.rfps'), href: '/rfps', icon: HiClipboardList },
+    { name: t('nav.employer_space'), href: '/employer-space', icon: HiEnvelope },
     ...(isAuthenticated && user?.user_type === 'company'
       ? [
+          { name: t('nav.proposals_received'), href: '/company-proposals', icon: HiDocumentText },
           { 
-            name: 'Mes appels d\'offres', 
+            name: t('nav.my_rfps'), 
             href: '/my-rfps', 
             icon: HiDocumentSearch,
             badge: rfpCount > 0 ? rfpCount : null
           },
-          { name: 'Mes candidatures', href: '/applications', icon: HiBriefcase },
-          // { name: 'Créer un appel d\'offres', href: '/create-rfp', icon: HiPlusCircle }
+          { name: t('nav.my_applications'), href: '/applications', icon: HiBriefcase },
         ]
       : []),
     ...(isAuthenticated && user?.user_type === 'candidate'
       ? [
-          { name: 'Mon CV', href: '/resumes', icon: HiDocumentText },
+          { name: t('nav.my_resume'), href: '/resumes', icon: HiDocumentText },
         ]
       : []),
   ];
@@ -115,19 +121,49 @@ const Navbar = () => {
 
           {/* Actions utilisateur desktop */}
           <div className="hidden md:flex items-center space-x-3">
+            {/* Sélecteur de langue */}
+            <Menu as="div" className="relative">
+              <Menu.Button className="flex items-center space-x-2 text-gray-700 hover:text-blue-600 px-3 py-2 rounded-lg hover:bg-blue-50 transition-colors">
+                <HiTranslate className="h-5 w-5" />
+                <span className="text-sm font-medium">{i18n.language === 'fr' ? 'FR' : 'AR'}</span>
+              </Menu.Button>
+              <Menu.Items className="absolute right-0 mt-2 w-32 bg-white rounded-xl shadow-2xl py-1 z-10 border border-gray-100">
+                <Menu.Item>
+                  {({ active }) => (
+                    <button
+                      onClick={() => changeLanguage('fr')}
+                      className={`${active ? 'bg-gradient-to-r from-blue-50 to-indigo-50' : ''} block w-full text-left px-4 py-2 text-sm text-gray-700 transition-colors`}
+                    >
+                      🇫🇷 Français
+                    </button>
+                  )}
+                </Menu.Item>
+                <Menu.Item>
+                  {({ active }) => (
+                    <button
+                      onClick={() => changeLanguage('ar')}
+                      className={`${active ? 'bg-gradient-to-r from-blue-50 to-indigo-50' : ''} block w-full text-left px-4 py-2 text-sm text-gray-700 transition-colors`}
+                    >
+                      🇸🇦 العربية
+                    </button>
+                  )}
+                </Menu.Item>
+              </Menu.Items>
+            </Menu>
+
             {!isAuthenticated ? (
               <>
                 <Link
                   to="/login"
                   className="text-gray-700 hover:text-blue-600 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:bg-blue-50"
                 >
-                  Connexion
+                  {t('nav.login')}
                 </Link>
                 <Link
                   to="/register"
                   className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-5 py-2 rounded-lg text-sm font-medium hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 transform hover:scale-105 shadow-md hover:shadow-lg"
                 >
-                  Inscription
+                  {t('nav.register')}
                 </Link>
               </>
             ) : (
@@ -136,7 +172,9 @@ const Navbar = () => {
                   <HiUserCircle className="h-8 w-8" />
                   <div className="text-left">
                     <p className="text-sm font-medium">{user?.username}</p>
-                    <p className="text-xs text-gray-500">{user?.user_type === 'candidate' ? 'Candidat' : 'Recruteur'}</p>
+                    <p className="text-xs text-gray-500">
+                      {user?.user_type === 'candidate' ? t('roles.candidate') : t('roles.recruiter')}
+                    </p>
                   </div>
                 </Menu.Button>
                 <Menu.Items className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-2xl py-1 z-10 border border-gray-100 overflow-hidden">
@@ -148,7 +186,7 @@ const Navbar = () => {
                       >
                         <div className="flex items-center space-x-2">
                           <HiUserCircle className="h-5 w-5" />
-                          <span>Mon profil</span>
+                          <span>{t('nav.profile')}</span>
                         </div>
                       </Link>
                     )}
@@ -163,7 +201,7 @@ const Navbar = () => {
                           >
                             <div className="flex items-center space-x-2">
                               <HiDocumentSearch className="h-5 w-5" />
-                              <span>Mes appels d'offres</span>
+                              <span>{t('nav.my_rfps')}</span>
                               {rfpCount > 0 && (
                                 <span className="ml-auto bg-red-500 text-white text-xs rounded-full px-1.5 py-0.5">
                                   {rfpCount}
@@ -181,7 +219,7 @@ const Navbar = () => {
                           >
                             <div className="flex items-center space-x-2">
                               <HiPlusCircle className="h-5 w-5" />
-                              <span>Créer un appel d'offres</span>
+                              <span>{t('nav.create_rfp')}</span>
                             </div>
                           </Link>
                         )}
@@ -199,7 +237,7 @@ const Navbar = () => {
                           <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                           </svg>
-                          <span>Déconnexion</span>
+                          <span>{t('nav.logout')}</span>
                         </div>
                       </button>
                     )}
@@ -221,10 +259,34 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Menu mobile */}
+      {/* Menu mobile - Mettez à jour avec les mêmes traductions */}
       {isMobileMenuOpen && (
         <div className="md:hidden border-t border-gray-100 bg-white/95 backdrop-blur-md">
           <div className="px-4 pt-2 pb-4 space-y-2">
+            {/* Sélecteur de langue mobile */}
+            <div className="flex space-x-2 p-3 border-b border-gray-100 mb-2">
+              <button
+                onClick={() => changeLanguage('fr')}
+                className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium ${
+                  i18n.language === 'fr' 
+                    ? 'bg-blue-600 text-white' 
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                🇫🇷 Français
+              </button>
+              <button
+                onClick={() => changeLanguage('ar')}
+                className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium ${
+                  i18n.language === 'ar' 
+                    ? 'bg-blue-600 text-white' 
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                🇸🇦 العربية
+              </button>
+            </div>
+
             {navigation.map((item) => (
               <Link
                 key={item.name}
@@ -255,7 +317,7 @@ const Navbar = () => {
                     <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
                     </svg>
-                    <span>Connexion</span>
+                    <span>{t('nav.login')}</span>
                   </Link>
                   <Link
                     to="/register"
@@ -265,7 +327,7 @@ const Navbar = () => {
                     <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
                     </svg>
-                    <span>Inscription</span>
+                    <span>{t('nav.register')}</span>
                   </Link>
                 </>
               ) : (
@@ -276,7 +338,7 @@ const Navbar = () => {
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     <HiUserCircle className="h-5 w-5" />
-                    <span>Mon profil</span>
+                    <span>{t('nav.profile')}</span>
                   </Link>
                   {user?.user_type === 'company' && (
                     <>
@@ -287,7 +349,7 @@ const Navbar = () => {
                       >
                         <div className="flex items-center space-x-3">
                           <HiDocumentSearch className="h-5 w-5" />
-                          <span>Mes appels d'offres</span>
+                          <span>{t('nav.my_rfps')}</span>
                         </div>
                         {rfpCount > 0 && (
                           <span className="bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
@@ -301,7 +363,7 @@ const Navbar = () => {
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
                         <HiPlusCircle className="h-5 w-5" />
-                        <span>Créer un appel d'offres</span>
+                        <span>{t('nav.create_rfp')}</span>
                       </Link>
                     </>
                   )}
@@ -315,7 +377,7 @@ const Navbar = () => {
                     <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                     </svg>
-                    <span>Déconnexion</span>
+                    <span>{t('nav.logout')}</span>
                   </button>
                 </>
               )}

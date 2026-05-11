@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { login } from '../store/slices/authSlice';
 import { toast } from 'react-toastify';
 import {
@@ -16,6 +17,7 @@ import TermsOfServiceContent from '../components/TermsOfServiceContent';
 import PrivacyPolicyContent from '../components/PrivacyPolicyContent';
 
 const Login = () => {
+  const { t, i18n } = useTranslation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -29,6 +31,12 @@ const Login = () => {
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
 
+  // RTL support
+  const isRTL = i18n.language === 'ar';
+  const iconPosition = isRTL ? 'right-0 pr-4' : 'left-0 pl-4';
+  const buttonIconPosition = isRTL ? 'ml-2' : 'mr-2';
+  const arrowIcon = isRTL ? <HiArrowRight className="mr-2 h-5 w-5 group-hover:-translate-x-1 transition-transform duration-200 rotate-180" /> : <HiArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform duration-200" />;
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -37,11 +45,11 @@ const Login = () => {
     e.preventDefault();
     
     if (!formData.username.trim()) {
-      toast.error('Veuillez entrer votre nom d\'utilisateur');
+      toast.error(t('login.errors.username_required'));
       return;
     }
     if (!formData.password) {
-      toast.error('Veuillez entrer votre mot de passe');
+      toast.error(t('login.errors.password_required'));
       return;
     }
 
@@ -55,14 +63,14 @@ const Login = () => {
         localStorage.removeItem('rememberedUser');
       }
       
-      toast.success('Connexion réussie !', {
+      toast.success(t('login.errors.login_success'), {
         position: "top-right",
         autoClose: 3000,
         icon: '🎉'
       });
       navigate('/');
     } catch (error) {
-      toast.error(error.message || 'Identifiants incorrects', {
+      toast.error(error.message || t('login.errors.invalid_credentials'), {
         position: "top-right",
         autoClose: 4000,
       });
@@ -86,10 +94,10 @@ const Login = () => {
           {/* Logo et titre */}
           <div className="text-center">
             <h2 className="text-3xl font-extrabold text-gray-900">
-              Connexion
+              {t('login.title')}
             </h2>
             <p className="mt-2 text-sm text-gray-600">
-              Connectez-vous pour accéder à votre espace
+              {t('login.subtitle')}
             </p>
           </div>
 
@@ -98,11 +106,11 @@ const Login = () => {
             <div className="space-y-5">
               {/* Champ Nom d'utilisateur */}
               <div className="relative group">
-                <label className="block text-sm font-semibold text-gray-700 mb-2 ml-1">
-                  Nom d'utilisateur
+                <label className={`block text-sm font-semibold text-gray-700 mb-2 ${isRTL ? 'mr-1 text-right' : 'ml-1'}`}>
+                  {t('login.username_label')}
                 </label>
                 <div className={`relative transition-all duration-300 ${focusedField === 'username' ? 'transform scale-[1.02]' : ''}`}>
-                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
+                  <div className={`absolute inset-y-0 ${iconPosition} flex items-center pointer-events-none z-10`}>
                     <HiUser className={`h-5 w-5 transition-colors duration-300 ${
                       focusedField === 'username' ? 'text-blue-600' : 'text-gray-400'
                     }`} />
@@ -114,8 +122,8 @@ const Login = () => {
                     required
                     onFocus={() => setFocusedField('username')}
                     onBlur={() => setFocusedField(null)}
-                    className="block w-full pl-12 pr-4 py-3.5 border-2 border-gray-300 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-300 bg-white hover:bg-gray-50"
-                    placeholder="john.doe@exemple.com"
+                    className={`block w-full ${isRTL ? 'pr-12 pl-4 text-right' : 'pl-12 pr-4'} py-3.5 border-2 border-gray-300 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-300 bg-white hover:bg-gray-50`}
+                    placeholder={t('login.username_placeholder')}
                     value={formData.username}
                     onChange={handleChange}
                   />
@@ -124,11 +132,11 @@ const Login = () => {
 
               {/* Champ Mot de passe */}
               <div className="relative group">
-                <label className="block text-sm font-semibold text-gray-700 mb-2 ml-1">
-                  Mot de passe
+                <label className={`block text-sm font-semibold text-gray-700 mb-2 ${isRTL ? 'mr-1 text-right' : 'ml-1'}`}>
+                  {t('login.password_label')}
                 </label>
                 <div className={`relative transition-all duration-300 ${focusedField === 'password' ? 'transform scale-[1.02]' : ''}`}>
-                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
+                  <div className={`absolute inset-y-0 ${iconPosition} flex items-center pointer-events-none z-10`}>
                     <HiLockClosed className={`h-5 w-5 transition-colors duration-300 ${
                       focusedField === 'password' ? 'text-blue-600' : 'text-gray-400'
                     }`} />
@@ -140,15 +148,15 @@ const Login = () => {
                     required
                     onFocus={() => setFocusedField('password')}
                     onBlur={() => setFocusedField(null)}
-                    className="block w-full pl-12 pr-12 py-3.5 border-2 border-gray-300 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-300 bg-white hover:bg-gray-50"
-                    placeholder="••••••••"
+                    className={`block w-full ${isRTL ? 'pr-12 pl-12 text-right' : 'pl-12 pr-12'} py-3.5 border-2 border-gray-300 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-300 bg-white hover:bg-gray-50`}
+                    placeholder={t('login.password_placeholder')}
                     value={formData.password}
                     onChange={handleChange}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-0 pr-4 flex items-center hover:scale-110 transition-all duration-200 z-10"
+                    className={`absolute inset-y-0 ${isRTL ? 'left-0 pl-4' : 'right-0 pr-4'} flex items-center hover:scale-110 transition-all duration-200 z-10`}
                   >
                     {showPassword ? (
                       <HiEyeOff className="h-5 w-5 text-gray-400 hover:text-blue-600 transition-colors" />
@@ -161,16 +169,16 @@ const Login = () => {
             </div>
 
             {/* Options supplémentaires */}
-            <div className="flex items-center justify-between">
-              <label className="flex items-center cursor-pointer group">
+            <div className={`flex items-center ${isRTL ? 'flex-row-reverse justify-between' : 'justify-between'}`}>
+              <label className={`flex items-center cursor-pointer group ${isRTL ? 'flex-row-reverse' : ''}`}>
                 <input
                   type="checkbox"
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
                   className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2 cursor-pointer"
                 />
-                <span className="ml-2 text-sm text-gray-600 group-hover:text-gray-900 transition-colors">
-                  Se souvenir de moi
+                <span className={`${isRTL ? 'mr-2' : 'ml-2'} text-sm text-gray-600 group-hover:text-gray-900 transition-colors`}>
+                  {t('login.remember_me')}
                 </span>
               </label>
 
@@ -178,7 +186,7 @@ const Login = () => {
                 to="/forgot-password" 
                 className="text-sm font-medium text-blue-600 hover:text-blue-700 transition-all duration-200 hover:underline"
               >
-                Mot de passe oublié ?
+                {t('login.forgot_password')}
               </Link>
             </div>
 
@@ -189,17 +197,17 @@ const Login = () => {
               className="group relative w-full flex justify-center items-center py-3.5 px-4 text-sm font-bold rounded-xl text-white bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-4 focus:ring-blue-300 transition-all duration-300 transform hover:scale-[1.02] hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
             >
               {isLoading ? (
-                <div className="flex items-center space-x-3">
+                <div className={`flex items-center ${isRTL ? 'space-x-reverse' : 'space-x-3'}`}>
                   <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                  <span>Connexion en cours...</span>
+                  <span>{t('login.logging_in')}</span>
                 </div>
               ) : (
                 <>
-                  <span>Se connecter</span>
-                  <HiArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform duration-200" />
+                  <span>{t('login.login_button')}</span>
+                  {arrowIcon}
                 </>
               )}
             </button>
@@ -211,7 +219,7 @@ const Login = () => {
               </div>
               <div className="relative flex justify-center text-sm">
                 <span className="px-4 bg-white text-gray-500 font-medium">
-                  Nouveau sur MauriLink ?
+                  {t('login.separator_text')}
                 </span>
               </div>
             </div>
@@ -221,27 +229,27 @@ const Login = () => {
               to="/register"
               className="w-full flex items-center justify-center py-3 px-4 text-sm font-bold rounded-xl text-blue-600 bg-white border-2 border-blue-600 hover:bg-blue-50 transition-all duration-300 transform hover:scale-[1.02] group"
             >
-              <HiSparkles className="mr-2 h-5 w-5 group-hover:rotate-12 transition-transform duration-300" />
-              Créer un compte gratuitement
+              <HiSparkles className={`${buttonIconPosition} h-5 w-5 group-hover:rotate-12 transition-transform duration-300`} />
+              {t('login.register_button')}
             </Link>
           </form>
 
           {/* Footer avec liens modaux */}
-          <div className="text-center pt-6">
+          <div className={`text-center pt-6 ${isRTL ? 'text-right' : ''}`}>
             <p className="text-xs text-gray-500">
-              En vous connectant, vous acceptez nos{' '}
+              {t('login.footer_text')}{' '}
               <button
                 onClick={() => setShowTermsModal(true)}
                 className="text-blue-600 hover:text-blue-700 hover:underline font-medium transition-colors"
               >
-                Conditions d'utilisation
+                {t('login.terms')}
               </button>{' '}
-              et notre{' '}
+              {t('login.and')}{' '}
               <button
                 onClick={() => setShowPrivacyModal(true)}
                 className="text-blue-600 hover:text-blue-700 hover:underline font-medium transition-colors"
               >
-                Politique de confidentialité
+                {t('login.privacy')}
               </button>
             </p>
           </div>
@@ -252,7 +260,7 @@ const Login = () => {
       <Modal 
         isOpen={showTermsModal} 
         onClose={() => setShowTermsModal(false)}
-        title="Conditions d'utilisation"
+        title={t('login.modal.terms_title')}
       >
         <TermsOfServiceContent />
       </Modal>
@@ -260,7 +268,7 @@ const Login = () => {
       <Modal 
         isOpen={showPrivacyModal} 
         onClose={() => setShowPrivacyModal(false)}
-        title="Politique de confidentialité"
+        title={t('login.modal.privacy_title')}
       >
         <PrivacyPolicyContent />
       </Modal>

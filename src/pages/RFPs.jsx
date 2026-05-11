@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { rfpService } from '../api/services';
 import { 
   HiClock, 
@@ -16,6 +17,10 @@ import {
 import { toast } from 'react-toastify';
 
 const RFPs = () => {
+  const { t, i18n } = useTranslation();
+  const { language } = i18n;
+  const isRTL = language === 'ar';
+  
   const [rfps, setRfps] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -33,7 +38,7 @@ const RFPs = () => {
       setRfps(rfpsData);
     } catch (error) {
       console.error('Error fetching RFPs:', error);
-      toast.error('Impossible de charger les appels d\'offres');
+      toast.error(t('rfps.errors.load_error'));
     } finally {
       setLoading(false);
     }
@@ -46,18 +51,61 @@ const RFPs = () => {
     return `${baseUrl}${logoPath}`;
   };
 
+  const formatDate = (dateString, format = 'short') => {
+    if (!dateString) return t('rfps.not_specified');
+    const date = new Date(dateString);
+    const options = format === 'short' 
+      ? { day: 'numeric', month: 'short' }
+      : { day: 'numeric', month: 'long', year: 'numeric' };
+    return date.toLocaleDateString(language === 'ar' ? 'ar-MR' : 'fr-FR', options);
+  };
+
   const getStatusBadge = (rfp) => {
     if (rfp.status === 'closed') {
-      return <span className="bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs font-medium">Fermé</span>;
+      return (
+        <span className="bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs font-medium">
+          {t('rfps.status.closed')}
+        </span>
+      );
     }
     if (rfp.remaining_days <= 0) {
-      return <span className="bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs font-medium">Expiré</span>;
+      return (
+        <span className="bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs font-medium">
+          {t('rfps.status.expired')}
+        </span>
+      );
     }
     if (rfp.remaining_days <= 3) {
-      return <span className="bg-orange-100 text-orange-800 px-2 py-1 rounded-full text-xs font-medium">🔥 Urgent - {rfp.remaining_days}j</span>;
+      return (
+        <span className="bg-orange-100 text-orange-800 px-2 py-1 rounded-full text-xs font-medium">
+          🔥 {t('rfps.status.urgent')} - {rfp.remaining_days}{t('rfps.status.days')}
+        </span>
+      );
     }
-    return <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">Ouvert - {rfp.remaining_days}j</span>;
+    return (
+      <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
+        {t('rfps.status.open')} - {rfp.remaining_days}{t('rfps.status.days')}
+      </span>
+    );
   };
+
+  // Helper pour la direction RTL
+  const getArrowIcon = () => {
+    if (isRTL) {
+      return <span className="transform group-hover:-translate-x-1 transition-transform">←</span>;
+    }
+    return <span className="transform group-hover:translate-x-1 transition-transform">→</span>;
+  };
+
+  const getSearchIconPosition = () => isRTL ? 'right-3' : 'left-3';
+  const getInputPadding = () => isRTL ? 'pr-10 pl-4' : 'pl-10 pr-4';
+
+  const filterOptions = [
+    { value: 'all', label: t('rfps.filters.all') },
+    { value: 'open', label: t('rfps.filters.open') },
+    { value: 'urgent', label: t('rfps.filters.urgent') },
+    { value: 'closed', label: t('rfps.filters.closed') }
+  ];
 
   const filteredRfps = rfps.filter(rfp => {
     const matchesSearch = rfp.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -82,42 +130,37 @@ const RFPs = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 py-8">
+    <div className={`min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 py-8 ${isRTL ? 'text-right' : ''}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-4 py-2 rounded-full text-sm font-semibold mb-4">
             <HiClipboardList className="w-4 h-4" />
-            Appels d'offres
+            {t('rfps.header.title')}
           </div>
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">
-            Opportunités de projets
+            {t('rfps.header.subtitle')}
           </h1>
           <p className="text-gray-600 max-w-2xl mx-auto">
-            Découvrez les appels d'offres des entreprises et proposez vos services
+            {t('rfps.header.description')}
           </p>
         </div>
 
         {/* Search and Filters */}
         <div className="max-w-4xl mx-auto mb-8">
           <div className="relative mb-4">
-            <HiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+            <HiSearch className={`absolute ${getSearchIconPosition()} top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5`} />
             <input
               type="text"
-              placeholder="Rechercher par titre, entreprise ou localisation..."
+              placeholder={t('rfps.search_placeholder')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className={`w-full ${getInputPadding()} py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent ${isRTL ? 'text-right' : ''}`}
             />
           </div>
           
           <div className="flex gap-2 justify-center flex-wrap">
-            {[
-              { value: 'all', label: 'Tous' },
-              { value: 'open', label: 'Ouverts' },
-              { value: 'urgent', label: 'Urgents' },
-              { value: 'closed', label: 'Fermés' }
-            ].map(f => (
+            {filterOptions.map(f => (
               <button
                 key={f.value}
                 onClick={() => setFilter(f.value)}
@@ -134,7 +177,9 @@ const RFPs = () => {
         </div>
 
         {/* Results Count */}
-        <p className="text-gray-500 text-sm mb-4">{filteredRfps.length} appel(s) d'offres trouvé(s)</p>
+        <p className="text-gray-500 text-sm mb-4">
+          {t('rfps.results_count', { count: filteredRfps.length })}
+        </p>
 
         {/* RFPs Grid */}
         {filteredRfps.length === 0 ? (
@@ -142,8 +187,8 @@ const RFPs = () => {
             <div className="w-20 h-20 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
               <HiClipboardList className="w-10 h-10 text-gray-400" />
             </div>
-            <p className="text-gray-500 text-lg">Aucun appel d'offres trouvé</p>
-            <p className="text-gray-400 text-sm mt-1">Essayez de modifier vos critères de recherche</p>
+            <p className="text-gray-500 text-lg">{t('rfps.no_results.title')}</p>
+            <p className="text-gray-400 text-sm mt-1">{t('rfps.no_results.subtitle')}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -157,7 +202,7 @@ const RFPs = () => {
                 className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group"
               >
                 <Link to={`/rfps/${rfp.id}`} className="block h-full">
-                  {/* Section Logo - Première section du cadre */}
+                  {/* Section Logo */}
                   <div className="relative h-32 bg-gradient-to-r from-gray-100 to-gray-200 overflow-hidden">
                     {rfp.company_logo ? (
                       <div className="w-full h-full relative">
@@ -182,14 +227,14 @@ const RFPs = () => {
                     )}
                     
                     {/* Badge status sur l'image */}
-                    <div className="absolute top-3 left-3 z-10">
+                    <div className={`absolute top-3 ${isRTL ? 'right-3' : 'left-3'} z-10`}>
                       {getStatusBadge(rfp)}
                     </div>
                     
                     {/* Nom de l'entreprise sur l'image */}
-                    <div className="absolute bottom-3 left-3 right-3 z-10">
+                    <div className={`absolute bottom-3 ${isRTL ? 'right-3 left-3' : 'left-3 right-3'} z-10`}>
                       <div className="bg-black/60 backdrop-blur-md rounded-lg px-3 py-1.5 inline-block">
-                        <div className="flex items-center gap-2">
+                        <div className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                           <HiOfficeBuilding className="h-3.5 w-3.5 text-white" />
                           <span className="text-white text-xs font-medium truncate">
                             {rfp.company_name}
@@ -201,54 +246,56 @@ const RFPs = () => {
 
                   {/* Content */}
                   <div className="p-5">
-                    <h3 className="font-bold text-lg text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-2 mb-2">
+                    <h3 className={`font-bold text-lg text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-2 mb-2 ${isRTL ? 'text-right' : ''}`}>
                       {rfp.title}
                     </h3>
 
-                    <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                    <p className={`text-gray-600 text-sm mb-4 line-clamp-2 ${isRTL ? 'text-right' : ''}`}>
                       {rfp.description}
                     </p>
 
                     <div className="space-y-2 mb-4">
-                      <div className="flex items-center gap-2 text-gray-500 text-sm">
+                      <div className={`flex items-center gap-2 text-gray-500 text-sm ${isRTL ? 'flex-row-reverse' : ''}`}>
                         <HiLocationMarker className="w-4 h-4 flex-shrink-0" />
-                        <span className="truncate">{rfp.location}</span>
+                        <span className="truncate">{rfp.location || t('rfps.not_specified')}</span>
                       </div>
-                      <div className="flex items-center gap-2 text-gray-500 text-sm">
+                      <div className={`flex items-center gap-2 text-gray-500 text-sm ${isRTL ? 'flex-row-reverse' : ''}`}>
                         <HiCurrencyDollar className="w-4 h-4 text-green-600 flex-shrink-0" />
                         <span className="font-medium text-green-600 truncate">
                           {parseInt(rfp.budget_min).toLocaleString()} - {parseInt(rfp.budget_max).toLocaleString()} MRU
                         </span>
                       </div>
-                      <div className="flex items-center gap-2 text-gray-500 text-sm">
+                      <div className={`flex items-center gap-2 text-gray-500 text-sm ${isRTL ? 'flex-row-reverse' : ''}`}>
                         <HiCalendar className="w-4 h-4 flex-shrink-0" />
-                        <span className="truncate">Date limite: {new Date(rfp.submission_deadline).toLocaleDateString('fr-FR')}</span>
+                        <span className="truncate">
+                          {t('rfps.deadline')}: {formatDate(rfp.submission_deadline, 'full')}
+                        </span>
                       </div>
-                      <div className="flex items-center gap-2 text-gray-500 text-sm">
+                      <div className={`flex items-center gap-2 text-gray-500 text-sm ${isRTL ? 'flex-row-reverse' : ''}`}>
                         <HiBriefcase className="w-4 h-4 flex-shrink-0" />
-                        <span className="truncate">{rfp.duration}</span>
+                        <span className="truncate">{rfp.duration || t('rfps.not_specified')}</span>
                       </div>
                     </div>
 
                     {/* Footer */}
-                    <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+                    <div className={`flex items-center justify-between pt-3 border-t border-gray-100 ${isRTL ? 'flex-row-reverse' : ''}`}>
                       <div className="flex items-center gap-2">
                         <span className="text-xs text-gray-500">
-                          Publié le {new Date(rfp.published_date).toLocaleDateString('fr-FR')}
+                          {t('rfps.published_on')} {formatDate(rfp.published_date, 'short')}
                         </span>
                       </div>
-                      <span className="text-blue-600 font-medium text-sm group-hover:text-blue-700 flex items-center gap-1">
-                        Voir détails
-                        <span className="transform group-hover:translate-x-1 transition-transform">→</span>
+                      <span className={`text-blue-600 font-medium text-sm group-hover:text-blue-700 flex items-center gap-1 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                        {t('rfps.view_details')}
+                        {getArrowIcon()}
                       </span>
                     </div>
 
                     {/* Attachment Badge */}
                     {rfp.attachment && (
                       <div className="mt-3">
-                        <span className="inline-flex items-center gap-1 text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-lg">
+                        <span className={`inline-flex items-center gap-1 text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-lg ${isRTL ? 'flex-row-reverse' : ''}`}>
                           <HiDocumentDownload className="w-3 h-3" />
-                          Fichier joint
+                          {t('rfps.attachment')}
                         </span>
                       </div>
                     )}

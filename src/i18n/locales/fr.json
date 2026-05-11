@@ -1,0 +1,799 @@
+{
+  "nav": {
+    "home": "Accueil",
+    "jobs": "Offres d'emploi",
+    "rfps": "Appels d'offres",
+    "employer_space": "Espace Recruteur",
+    "proposals_received": "Propositions reçues",
+    "my_rfps": "Mes appels d'offres",
+    "my_applications": "Mes candidatures",
+    "my_resume": "Mon CV",
+    "login": "Connexion",
+    "register": "Inscription",
+    "profile": "Mon profil",
+    "create_rfp": "Créer un appel d'offres",
+    "logout": "Déconnexion"
+  },
+  "roles": {
+    "candidate": "Candidat",
+    "recruiter": "Recruteur"
+  },
+  "home": {
+    "hero": {
+      "badge": "🔥 Plus de 1000 offres cette semaine",
+      "title": "Trouvez l'emploi",
+      "title_line2": "de vos rêves",
+      "subtitle": "La plateforme intelligente qui connecte les talents aux entreprises",
+      "cta_jobs": "Voir les offres",
+      "cta_register": "S'inscrire gratuitement",
+      "sponsored": "SPONSORISÉ"
+    },
+    "jobs_section": {
+      "badge": "Dernières opportunités",
+      "title": "Offres récentes",
+      "subtitle": "Découvrez les dernières annonces publiées",
+      "view_all": "Voir toutes les offres",
+      "loading": "Chargement des offres...",
+      "no_jobs_title": "Aucune offre pour le moment",
+      "no_jobs_subtitle": "Revenez plus tard pour découvrir les nouvelles opportunités"
+    },
+    "stats": {
+      "jobs": "Offres d'emploi",
+      "candidates": "Candidats inscrits",
+      "companies": "Entreprises",
+      "satisfaction": "Satisfaction"
+    },
+    "features": {
+      "badge": "Nos services",
+      "title": "Une plateforme complète",
+      "subtitle": "Découvrez tous les services que nous proposons pour vous accompagner",
+      "candidates": {
+        "title": "Pour les candidats",
+        "description": "Créez votre CV professionnel, postulez aux offres qui vous correspondent et suivez vos candidatures en temps réel.",
+        "cta": "Créer mon compte candidat",
+        "benefits": ["CV personnalisé", "Alertes emploi", "Suivi candidatures"]
+      },
+      "companies": {
+        "title": "Pour les entreprises",
+        "description": "Publiez vos offres, gérez les candidatures efficacement et trouvez les talents qui feront la différence.",
+        "cta": "Créer mon compte entreprise",
+        "benefits": ["Diffusion illimitée", "CVthèque", "Statistiques détaillées"]
+      },
+      "jobs": {
+        "title": "Des milliers d'offres",
+        "description": "Accédez aux meilleures opportunités professionnelles dans tous les secteurs d'activité.",
+        "cta": "Voir toutes les offres",
+        "benefits": ["Filtres avancés", "Recommandations", "Application rapide"]
+      }
+    },
+    "cta": {
+      "title": "Prêt à commencer ?",
+      "subtitle": "Rejoignez des milliers de talents et d'entreprises",
+      "button": "Créer mon compte gratuitement"
+    },
+    "loading": "Chargement..."
+  },
+  "login": {
+    "title": "Connexion",
+    "subtitle": "Connectez-vous pour accéder à votre espace",
+    "username_label": "Nom d'utilisateur",
+    "username_placeholder": "john.doe@exemple.com",
+    "password_label": "Mot de passe",
+    "password_placeholder": "••••••••",
+    "remember_me": "Se souvenir de moi",
+    "forgot_password": "Mot de passe oublié ?",
+    "login_button": "Se connecter",
+    "logging_in": "Connexion en cours...",
+    "separator_text": "Nouveau sur MauriLink ?",
+    "register_button": "Créer un compte gratuitement",
+    "footer_text": "En vous connectant, vous acceptez nos",
+    "terms": "Conditions d'utilisation",
+    "and": "et notre",
+    "privacy": "Politique de confidentialité",
+    "errors": {
+      "username_required": "Veuillez entrer votre nom d'utilisateur",
+      "password_required": "Veuillez entrer votre mot de passe",
+      "invalid_credentials": "Identifiants incorrects",
+      "login_success": "Connexion réussie !"
+    },
+    "modal": {
+      "terms_title": "Conditions d'utilisation",
+      "privacy_title": "Politique de confidentialité"
+    }
+  },
+  "register": {
+    "title": "Créer un compte",
+    "subtitle": "Rejoignez la communauté MauriLink",
+    "account_type": {
+      "candidate": "Candidat",
+      "company": "Entreprise"
+    },
+    "first_name": "Prénom",
+    "last_name": "Nom",
+    "username": "Nom d'utilisateur",
+    "username_placeholder": "Nom d'utilisateur",
+    "email": "Email",
+    "email_placeholder": "votre@email.com",
+    "phone": "Téléphone",
+    "phone_placeholder": "+33 6 12 34 56 78",
+    "password": "Mot de passe",
+    "password_placeholder": "Mot de passe",
+    "password_confirm": "Confirmer le mot de passe",
+    "password_confirm_placeholder": "Confirmer le mot de passe",
+    "required_field": "Requis",
+    "terms_accept": "J'accepte les",
+    "terms_and": "et la",
+    "terms_of_service": "Conditions d'utilisation",
+    "privacy_policy": "Politique de confidentialité",
+    "register_button": "S'inscrire",
+    "registering": "Inscription en cours...",
+    "separator": "Ou",
+    "have_account": "Déjà un compte ?",
+    "login_link": "Se connecter",
+    "footer_text": "En vous inscrivant, vous acceptez nos",
+    "errors": {
+      "accept_terms": "Veuillez accepter les conditions d'utilisation",
+      "password_mismatch": "Les mots de passe ne correspondent pas",
+      "registration_failed": "Erreur lors de l'inscription",
+      "registration_success": "Inscription réussie ! Bienvenue sur MauriLink 🎉"
+    },
+    "modal": {
+      "terms_title": "Conditions d'utilisation",
+      "privacy_title": "Politique de confidentialité"
+    }
+  },
+  "privacy": {
+    "hero_text": "🔒 Chez MauriLink, nous protégeons vos données personnelles avec la plus grande attention.",
+    "data_collected": {
+      "title": "1. Données collectées",
+      "identification": "Identification :",
+      "identification_desc": "Nom, email, téléphone",
+      "profile": "Profil :",
+      "profile_desc": "Photo, biographie, préférences",
+      "usage": "Utilisation :",
+      "usage_desc": "Historique de connexion, pages visitées",
+      "payment": "Paiement :",
+      "payment_desc": "Informations bancaires (sécurisées)"
+    },
+    "data_usage": {
+      "title": "2. Utilisation des données",
+      "item1": "Fournir et améliorer nos services",
+      "item2": "Gérer votre compte et abonnement",
+      "item3": "Communiquer les mises à jour et offres",
+      "item4": "Personnaliser votre expérience",
+      "item5": "Prévenir la fraude et activités illégales"
+    },
+    "cookies": {
+      "title": "3. Cookies",
+      "description": "Nous utilisons des cookies pour améliorer votre expérience, mémoriser vos préférences et analyser le trafic. Vous pouvez contrôler les cookies via les paramètres de votre navigateur."
+    },
+    "info_sharing": {
+      "title": "4. Partage des informations",
+      "description": "Nous ne vendons pas vos données personnelles. Nous pouvons partager vos informations dans les cas suivants :",
+      "item1": "Avec votre consentement explicite",
+      "item2": "Pour nous conformer aux obligations légales",
+      "item3": "Avec nos partenaires de confiance",
+      "item4": "Dans le cadre d'une fusion ou acquisition"
+    },
+    "data_security": {
+      "title": "5. Sécurité des données",
+      "description": "Nous utilisons le chiffrement, l'authentification à deux facteurs et des audits réguliers pour protéger vos données contre tout accès non autorisé."
+    },
+    "your_rights": {
+      "title": "6. Vos droits (RGPD)",
+      "item1": "Droit d'accès à vos données",
+      "item2": "Droit de rectification",
+      "item3": "Droit à l'effacement (\"droit à l'oubli\")",
+      "item4": "Droit à la portabilité des données",
+      "item5": "Droit d'opposition au traitement"
+    },
+    "data_retention": {
+      "title": "7. Conservation des données",
+      "description": "Nous conservons vos données aussi longtemps que votre compte est actif. En cas de suppression de votre compte, nous conservons certaines données pendant une période supplémentaire pour nous conformer aux obligations légales."
+    },
+    "contact": {
+      "title": "Contact DPO",
+      "email": "Email",
+      "phone": "Tél",
+      "address": "Adresse",
+      "address_value": "Nouakchott, Mauritanie"
+    },
+    "last_update": "Dernière mise à jour",
+    "january": "janvier"
+  },
+  "terms": {
+    "hero_text_short": "📖 En utilisant MauriLink, vous acceptez ces conditions. Veuillez les lire attentivement.",
+    "acceptance": {
+      "title": "1. Acceptation des conditions",
+      "description": "En accédant et en utilisant MauriLink, vous acceptez d'être lié par ces conditions d'utilisation, toutes les lois et réglementations applicables. Si vous n'êtes pas d'accord, vous êtes interdit d'utiliser ou d'accéder à ce site."
+    },
+    "user_account": {
+      "title": "2. Comptes utilisateur",
+      "responsible_for": "Vous êtes responsable de :",
+      "item1": "Maintenir la confidentialité de votre mot de passe",
+      "item2": "Toutes les activités sous votre compte",
+      "item3": "Nous informer de toute utilisation non autorisée",
+      "item4": "Fournir des informations exactes et à jour"
+    },
+    "subscriptions": {
+      "title": "3. Abonnements et paiements",
+      "item1": "Les frais sont facturés à l'avance (mensuel ou annuel)",
+      "item2": "Les abonnements sont automatiquement renouvelés",
+      "item3": "Annulation possible depuis les paramètres du compte",
+      "item4": "Aucun remboursement pour les périodes partielles"
+    },
+    "user_content": {
+      "title": "4. Contenu utilisateur",
+      "description": "Vous conservez tous vos droits sur le contenu que vous publiez sur MauriLink. En publiant du contenu, vous accordez à MauriLink une licence mondiale, non exclusive et libre de droits pour utiliser, reproduire et distribuer votre contenu dans le cadre de la fourniture de nos services."
+    },
+    "prohibited_conduct": {
+      "title": "5. Comportement interdit",
+      "item1": "Utilisation à des fins illégales",
+      "item2": "Contenu offensant ou haineux",
+      "item3": "Harcèlement ou intimidation",
+      "item4": "Accès non autorisé aux systèmes",
+      "item5": "Utilisation de robots ou méthodes automatisées"
+    },
+    "termination": {
+      "title": "6. Résiliation",
+      "description": "Nous nous réservons le droit de résilier ou suspendre votre compte immédiatement, sans préavis, si vous violez ces conditions. Après résiliation, votre droit d'utiliser le service cessera immédiatement."
+    },
+    "limitation_liability": {
+      "title": "7. Limitation de responsabilité",
+      "description": "MauriLink ne sera pas responsable des dommages indirects, accessoires ou consécutifs découlant de l'utilisation ou de l'incapacité à utiliser nos services, même si nous avons été informés de la possibilité de tels dommages."
+    },
+    "contact": {
+      "title": "Contact",
+      "questions": "Questions ? Contactez-nous"
+    },
+    "last_update": "Dernière mise à jour",
+    "january": "janvier"
+  },
+
+  "jobs": {
+    "hero": {
+      "title": "Trouvez votre prochain défi professionnel",
+      "subtitle": "{{count}} offres disponibles actuellement"
+    },
+    "publish_button": "Publier une offre",
+    "stats": {
+      "companies": "Entreprises",
+      "contract_types": "Types de contrat",
+      "avg_salary": "Salaire moyen",
+      "last_job": "Dernière offre"
+    },
+    "search_placeholder": "Titre du poste, mots-clés, compétences...",
+    "filters_button": "Filtres",
+    "sort_by": "Trier par",
+    "clear_filters": "Effacer les filtres",
+    "loading": "Chargement des offres...",
+    "sort": {
+      "newest": "Plus récentes",
+      "oldest": "Plus anciennes",
+      "salary_high": "Salaire plus élevé",
+      "salary_low": "Salaire plus bas"
+    },
+    "filters": {
+      "contract_type": "Type de contrat",
+      "all_types": "Tous les types",
+      "location": "Localisation",
+      "all_cities": "Toutes les villes",
+      "salary_min": "Salaire minimum (MRU)",
+      "salary_max": "Salaire maximum (MRU)",
+      "min_placeholder": "Minimum",
+      "max_placeholder": "Maximum"
+    },
+    "no_results": {
+      "title": "Aucune offre trouvée",
+      "subtitle": "Aucune offre ne correspond à vos critères de recherche",
+      "clear_filters": "Effacer tous les filtres"
+    },
+    "errors": {
+      "load_error": "Erreur lors du chargement des offres"
+    },
+    "success": {
+      "create_success": "Offre créée avec succès !"
+    }
+  },
+  "jobCard": {
+    "not_specified": "Non spécifié",
+    "company": "Entreprise",
+    "new_badge": "Nouveau",
+    "view_details": "Voir détails",
+    "view_job": "Voir l'offre",
+    "published_on": "Publiée le",
+    "contract_types": {
+      "cdi": "CDI",
+      "cdd": "CDD",
+      "stage": "Stage",
+      "alternance": "Alternance",
+      "freelance": "Freelance"
+    }
+  },
+
+  "jobDetail": {
+    "not_specified": "Non spécifié",
+    "company": "Entreprise",
+    "urgent": "Urgent",
+    "featured": "À la une",
+    "location": "Localisation",
+    "salary": "Salaire",
+    "published_on": "Publiée le",
+    "applications": "Candidatures",
+    "deadline": "Date limite",
+    "required_experience": "Expérience requise",
+    "technical_skills": "Compétences techniques",
+    "experience": "Expérience",
+    "education": "Niveau d'études",
+    "languages": "Langues",
+    "website": "Site web",
+    "ready_to_apply": "Prêt à postuler ?",
+    "join_dynamic_team": "Rejoignez une équipe dynamique",
+    "apply_now": "Postuler maintenant",
+    "application_sent": "Candidature envoyée",
+    "company_will_review": "L'entreprise examinera votre profil",
+    "similar_jobs": "Offres similaires",
+    "about_company": "À propos de {{company}}",
+    "apply_to_job": "Postuler à l'offre",
+    "resume": "CV",
+    "cover_letter": "Lettre de motivation",
+    "no_resume": "Vous n'avez pas encore de CV.",
+    "create_resume": "Créer mon CV",
+    "select_resume_option": "Sélectionnez un CV",
+    "default": "Par défaut",
+    "cover_letter_placeholder": "Décrivez votre motivation, vos compétences et pourquoi vous êtes le candidat idéal...",
+    "characters": "caractères",
+    "good_to_know": "À savoir",
+    "application_info": "Votre candidature sera examinée par l'équipe recrutement. Assurez-vous que votre CV est à jour.",
+    "send_application": "Envoyer ma candidature",
+    "sending": "Envoi en cours...",
+    "cancel": "Annuler",
+    "summary": "Récapitulatif",
+    "date": "Date",
+    "application_for": "Votre candidature pour",
+    "has_been_sent": "a bien été envoyée",
+    "back_to_jobs": "Retour aux offres",
+    "contract_types": {
+      "cdi": "CDI",
+      "cdd": "CDD",
+      "stage": "Stage",
+      "alternance": "Alternance",
+      "freelance": "Freelance"
+    },
+    "tabs": {
+      "description": "Description",
+      "requirements": "Prérequis",
+      "benefits": "Avantages"
+    },
+    "benefits": {
+      "career_growth": "Évolution de carrière",
+      "pro_environment": "Environnement pro",
+      "paid_vacation": "Congés payés",
+      "health_insurance": "Mutuelle",
+      "dynamic_team": "Équipe dynamique",
+      "training": "Formation continue"
+    },
+    "not_found": {
+      "title": "Offre non trouvée",
+      "subtitle": "L'offre que vous recherchez n'existe pas ou a été supprimée"
+    },
+    "messages": {
+      "removed_favorites": "Offre retirée des favoris",
+      "added_favorites": "Offre ajoutée aux favoris",
+      "link_copied": "Lien copié dans le presse-papier !",
+      "copy_error": "Impossible de copier automatiquement. Voici le lien : ",
+      "login_to_apply": "Veuillez vous connecter pour postuler",
+      "select_resume": "Veuillez sélectionner un CV",
+      "add_cover_letter": "Veuillez ajouter une lettre de motivation"
+    },
+    "errors": {
+      "load_error": "Impossible de charger l'offre d'emploi",
+      "application_error": "Une erreur est survenue lors de la candidature"
+    }
+  },
+  "rfps": {
+    "not_specified": "Non spécifié",
+    "header": {
+      "title": "Appels d'offres",
+      "subtitle": "Opportunités de projets",
+      "description": "Découvrez les appels d'offres des entreprises et proposez vos services"
+    },
+    "search_placeholder": "Rechercher par titre, entreprise ou localisation...",
+    "results_count": "{{count}} appel(s) d'offres trouvé(s)",
+    "deadline": "Date limite",
+    "published_on": "Publié le",
+    "view_details": "Voir détails",
+    "attachment": "Fichier joint",
+    "status": {
+      "closed": "Fermé",
+      "expired": "Expiré",
+      "urgent": "Urgent",
+      "open": "Ouvert",
+      "days": "j"
+    },
+    "filters": {
+      "all": "Tous",
+      "open": "Ouverts",
+      "urgent": "Urgents",
+      "closed": "Fermés"
+    },
+    "no_results": {
+      "title": "Aucun appel d'offres trouvé",
+      "subtitle": "Essayez de modifier vos critères de recherche"
+    },
+    "errors": {
+      "load_error": "Impossible de charger les appels d'offres"
+    }
+  },
+  "resumes": {
+    "page_title": "Mes CVs",
+    "page_subtitle": "Gérez vos CVs et créez-en de nouveaux",
+    "create_button": "Créer un CV",
+    "untitled": "Sans titre",
+    "default_badge": "Par défaut",
+    "view": "Voir",
+    "pdf_button": "PDF",
+    "set_default": "Définir comme CV par défaut",
+    "preview_title": "Aperçu du CV",
+    "download_pdf": "Télécharger PDF",
+    "about_me": "À propos de moi",
+    "experience_title": "Expériences Professionnelles",
+    "education_title": "Formation",
+    "skills_title": "Compétences",
+    "languages_title": "Langues",
+    "present": "Présent",
+    "in_progress": "En cours",
+    "start": "début",
+    "updated_on": "Mis à jour le",
+    "created_on": "Créé le",
+    "default_title": "CV Professionnel",
+    "no_resumes_title": "Aucun CV",
+    "no_resumes_subtitle": "Vous n'avez pas encore créé de CV",
+    "create_first": "Créer mon premier CV",
+    "pdf": {
+      "about_me": "À propos de moi",
+      "experience": "Expériences Professionnelles",
+      "education": "Formation",
+      "skills": "Compétences",
+      "languages": "Langues"
+    },
+    "messages": {
+      "update_success": "CV mis à jour avec succès",
+      "create_success": "CV créé avec succès",
+      "delete_success": "CV supprimé avec succès",
+      "default_updated": "CV par défaut mis à jour",
+      "pdf_success": "PDF généré avec succès",
+      "confirm_delete": "Êtes-vous sûr de vouloir supprimer ce CV ?"
+    },
+    "errors": {
+      "load_error": "Erreur lors du chargement des CVs",
+      "save_error": "Erreur lors de la sauvegarde",
+      "delete_error": "Erreur lors de la suppression",
+      "default_error": "Erreur lors de la mise à jour",
+      "pdf_error": "Erreur lors de la génération du PDF"
+    }
+  },
+  "recruiter": {
+    "refresh": "Actualiser",
+    "loading": "Chargement des offres...",
+    "not_specified": "Non spécifié",
+    "errors": {
+      "load_error": "Erreur lors du chargement des offres"
+    },
+   
+    "badge": "Espace Recruteur",
+    "title": "Gérez votre recrutement efficacement",
+    "subtitle": "Une plateforme complète pour trouver les meilleurs talents et gérer vos recrutements",
+    "stats": {
+      "active_jobs": "Offres actives",
+      "total_applications": "Candidatures totales",
+      "views": "Vues",
+      "matches": "Correspondances"
+    },
+    "quick_actions": {
+      "title": "Actions rapides",
+      "get_started": "Commencer",
+      "post_job": {
+        "title": "Publier une offre",
+        "description": "Créez une nouvelle offre d'emploi pour attirer les meilleurs talents"
+      },
+      "manage_jobs": {
+        "title": "Gérer les offres",
+        "description": "Modifiez, archivez ou dupliquez vos offres existantes"
+      },
+      "view_applications": {
+        "title": "Candidatures",
+        "description": "Consultez et gérez les candidatures reçues"
+      },
+      "rfps": {
+        "title": "Appels d'offres",
+        "description": "Publiez et gérez vos appels d'offres"
+      }
+    },
+    "featured_jobs": {
+      "title": "Offres mises en avant",
+      "view_all": "Voir toutes",
+      "active": "Active",
+      "applications": "candidatures",
+      "days_left": "Plus que {{days}} jours",
+      "manage": "Gérer l'offre",
+      "no_jobs": "Aucune offre d'emploi publiée",
+      "create_first": "Créer ma première offre",
+      "closed": "Fermée",
+      "senior_dev": {
+        "title": "Développeur Full Stack Senior"
+      },
+      "product_manager": {
+        "title": "Chef de Produit"
+      }
+    },
+    "tips": {
+      "badge": "Conseils",
+      "title": "Astuces pour un recrutement réussi",
+      "description": "Optimisez votre processus de recrutement avec ces conseils :",
+      "tip1": "Rédigez des descriptions de poste claires et détaillées",
+      "tip2": "Répondez rapidement aux candidatures",
+      "tip3": "Utilisez les filtres avancés pour trouver les profils correspondants"
+    }
+  },
+  "myJobs": {
+    "title": "Mes offres d'emploi",
+    "total_offers": "{{count}} offre(s) au total",
+    "create_job": "Créer une offre",
+    "refresh": "Actualiser",
+    "loading": "Chargement de vos offres...",
+    "search_placeholder": "Rechercher par titre ou localisation...",
+    "clear_filters": "Effacer les filtres",
+    "showing_results": "Affichage de {{count}} offre(s) sur {{total}}",
+    "not_specified": "Non spécifié",
+    "confirm_delete": "Êtes-vous sûr de vouloir supprimer cette offre ?",
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "filter": {
+      "all_status": "Tous les statuts",
+      "active": "Actives",
+      "inactive": "Inactives",
+      "all_contracts": "Tous les contrats"
+    },
+    "actions": {
+      "view": "Voir l'offre",
+      "edit": "Modifier",
+      "delete": "Supprimer",
+      "download": "Télécharger"
+    },
+    "no_jobs": {
+      "title": "Aucune offre d'emploi",
+      "subtitle": "Vous n'avez pas encore publié d'offres d'emploi"
+    },
+    "no_results": {
+      "title": "Aucun résultat trouvé",
+      "subtitle": "Aucune offre ne correspond à vos critères de recherche"
+    },
+    "create_first": "Créer ma première offre",
+    "errors": {
+      "load_error": "Erreur lors du chargement de vos offres",
+      "delete_error": "Erreur lors de la suppression"
+    },
+    "success": {
+      "delete_success": "Offre supprimée avec succès"
+    }
+  },
+  "myRfps": {
+    "title": "Mes appels d'offres",
+    "subtitle": "Gérez vos appels d'offres publiés",
+    "create_button": "Nouvel appel d'offres",
+    "loading": "Chargement de vos appels d'offres...",
+    "not_specified": "Non spécifié",
+    "deadline": "Date limite",
+    "published_on": "Publié le",
+    "confirm_delete": "Êtes-vous sûr de vouloir supprimer cet appel d'offres ?",
+    "status": {
+      "closed": "Fermé",
+      "expired": "Expiré",
+      "urgent": "Urgent",
+      "open": "Ouvert",
+      "days": "j"
+    },
+    "stats": {
+      "total": "Total",
+      "open": "Ouverts",
+      "proposals": "Propositions"
+    },
+    "actions": {
+      "view": "Voir",
+      "edit": "Modifier",
+      "delete": "Supprimer"
+    },
+    "no_rfps": {
+      "title": "Aucun appel d'offres publié",
+      "create_first": "Créer mon premier appel d'offres"
+    },
+    "errors": {
+      "load_error": "Impossible de charger vos appels d'offres",
+      "delete_error": "Erreur lors de la suppression"
+    },
+    "success": {
+      "delete_success": "Appel d'offres supprimé avec succès"
+    }
+  },
+  "rfpDetail": {
+    "back_button": "Retour aux appels d'offres",
+    "location": "Localisation",
+    "budget": "Budget",
+    "deadline": "Date limite",
+    "duration": "Durée",
+    "project_description": "Description du projet",
+    "requirements": "Prérequis",
+    "evaluation_criteria": "Critères d'évaluation",
+    "attachments": "Documents joints",
+    "download_file": "Télécharger le fichier",
+    "submit_proposal": "Soumettre une proposition",
+    "view_proposals": "Voir les propositions ({{count}})",
+    "not_specified": "Non spécifié",
+    "cover_letter": "Lettre de motivation",
+    "cover_letter_placeholder": "Présentez-vous, expliquez votre expérience et pourquoi vous êtes le bon candidat...",
+    "proposed_amount": "Montant proposé",
+    "proposed_timeline": "Délai proposé",
+    "amount_placeholder": "Ex: 20000",
+    "timeline_placeholder": "Ex: 2.5 mois",
+    "proposal_document": "Document de proposition (CV, portfolio...)",
+    "send_proposal": "Envoyer la proposition",
+    "sending": "Envoi en cours...",
+    "cancel": "Annuler",
+    "received_proposals": "Propositions reçues",
+    "loading_proposals": "Chargement des propositions...",
+    "no_proposals": "Aucune proposition reçue pour le moment",
+    "submitted_on": "Soumis le",
+    "download_document": "Télécharger le document",
+    "recruiter_notes": "Notes du recruteur",
+    "accept": "Accepter",
+    "reject": "Refuser",
+    "rfp_status": {
+      "closed": "Fermé",
+      "expired": "Expiré",
+      "urgent": "Urgent",
+      "open": "Ouvert",
+      "days_left": "jours restants"
+    },
+    "proposal_status": {
+      "pending": "En attente",
+      "accepted": "Acceptée",
+      "rejected": "Refusée",
+      "reviewed": "En cours"
+    },
+    "criteria": {
+      "experience": "Expérience requise",
+      "education": "Niveau d'études",
+      "skills": "Compétences requises",
+      "certifications": "Certifications",
+      "portfolio": "Portfolio exigé"
+    },
+    "messages": {
+      "login_to_submit": "Veuillez vous connecter pour soumettre une proposition",
+      "only_candidates": "Seuls les candidats peuvent soumettre des propositions",
+      "proposal_sent": "Proposition soumise avec succès !",
+      "accepted": "Proposition acceptée avec succès",
+      "rejected": "Proposition refusée avec succès"
+    },
+    "errors": {
+      "load_error": "Impossible de charger l'appel d'offres",
+      "submit_error": "Erreur lors de la soumission de la proposition",
+      "status_update_error": "Erreur lors de la mise à jour du statut"
+    }
+  },
+
+  "applications": {
+    "title": "Gestion des candidatures",
+    "subtitle": "Consultez et gérez toutes les candidatures reçues",
+    "refresh": "Actualiser",
+    "loading": "Chargement des candidatures...",
+    "unknown_date": "Date inconnue",
+    "details": "Détails",
+    "accept": "Accepter",
+    "reject": "Refuser",
+    "email": "Email",
+    "phone": "Téléphone",
+    "application_date": "Date de candidature",
+    "location": "Localisation",
+    "job_offer": "Offre d'emploi",
+    "cover_letter": "Lettre de motivation",
+    "accept_application": "Accepter la candidature",
+    "reject_application": "Refuser la candidature",
+    "search_placeholder": "Rechercher par nom, email ou offre...",
+    "status": {
+      "pending": "En attente",
+      "accepted": "Acceptée",
+      "rejected": "Refusée"
+    },
+    "stats": {
+      "total": "Total candidatures",
+      "pending": "En attente",
+      "accepted": "Acceptées",
+      "rejected": "Refusées"
+    },
+    "filters": {
+      "all": "Tous",
+      "pending": "En attente",
+      "accepted": "Acceptées",
+      "rejected": "Refusées"
+    },
+    "modal": {
+      "title": "Détail de la candidature",
+      "subtitle": "Consultez toutes les informations du candidat"
+    },
+    "no_applications": {
+      "title": "Aucune candidature",
+      "subtitle": "Vous n'avez pas encore reçu de candidatures"
+    },
+    "no_results": {
+      "title": "Aucun résultat",
+      "subtitle": "Aucune candidature ne correspond à vos critères"
+    },
+    "errors": {
+      "load_error": "Erreur lors du chargement des candidatures",
+      "not_found": "Candidature non trouvée",
+      "update_error": "Erreur lors de la mise à jour du statut"
+    },
+    "messages": {
+      "accepted": "Candidature acceptée avec succès",
+      "rejected": "Candidature refusée avec succès"
+    }
+  },
+  "companyProposals": {
+    "title": "Propositions reçues",
+    "subtitle": "Gérez les propositions des candidats pour vos appels d'offres",
+    "back": "Retour",
+    "loading": "Chargement des propositions...",
+    "unknown_date": "Date inconnue",
+    "view_rfp": "Voir l'appel d'offres",
+    "rfp_title": "Appel d'offres",
+    "proposed_amount": "Montant proposé",
+    "proposed_timeline": "Délai proposé",
+    "cover_letter": "Lettre de motivation",
+    "download_document": "Télécharger le document",
+    "recruiter_notes": "Notes du recruteur",
+    "accept": "Accepter",
+    "reject": "Refuser",
+    "submitted_on": "Soumis le",
+    "no_proposals": "Aucune proposition trouvée",
+    "status": {
+      "pending": "En attente",
+      "accepted": "Acceptée",
+      "rejected": "Refusée",
+      "reviewed": "En cours"
+    },
+    "stats": {
+      "total": "Total",
+      "pending": "En attente",
+      "accepted": "Acceptées",
+      "rejected": "Refusées"
+    },
+    "filters": {
+      "all": "Toutes",
+      "pending": "En attente",
+      "accepted": "Acceptées",
+      "rejected": "Refusées"
+    },
+    "unauthorized": {
+      "title": "Accès non autorisé",
+      "subtitle": "Cette page est réservée aux entreprises",
+      "back_home": "Retour à l'accueil"
+    },
+    "errors": {
+      "load_error": "Impossible de charger les propositions",
+      "status_update_error": "Erreur lors de la mise à jour du statut"
+    },
+    "messages": {
+      "accepted": "Proposition acceptée avec succès",
+      "rejected": "Proposition refusée avec succès"
+    }
+  }
+
+
+
+
+
+
+}
