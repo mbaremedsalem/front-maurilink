@@ -162,7 +162,7 @@ const Jobs = () => {
   const getLogoUrl = (logoPath) => {
     if (!logoPath) return null;
     if (logoPath.startsWith('http')) return logoPath;
-    const baseUrl = process.env.REACT_APP_API_URL || 'https://142.93.61.53';
+    const baseUrl = process.env.REACT_APP_API_URL || 'https://back.maurilink.site';
     return `${baseUrl}${logoPath}`;
   };
 

@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { toast } from 'react-toastify';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://142.93.61.53/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://back.maurilink.site/api';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
