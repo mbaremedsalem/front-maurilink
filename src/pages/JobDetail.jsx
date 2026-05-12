@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { jobService, applicationService, resumeService } from '../api/services';
@@ -39,6 +39,7 @@ import { toast } from 'react-toastify';
 const JobDetail = () => {
   const { t, i18n } = useTranslation();
   const { id } = useParams();
+  const navigate = useNavigate();
   const isRTL = i18n.language === 'ar';
   
   const [job, setJob] = useState(null);
@@ -132,6 +133,13 @@ const JobDetail = () => {
   };
 
   const handleSave = () => {
+    if (!isAuthenticated) {
+      toast.warning(t('jobDetail.messages.login_to_save'));
+      setTimeout(() => {
+        navigate('/login');
+      }, 1500);
+      return;
+    }
     setSaved(!saved);
     toast.success(saved ? t('jobDetail.messages.removed_favorites') : t('jobDetail.messages.added_favorites'));
   };
@@ -185,15 +193,18 @@ const JobDetail = () => {
     }
   };
 
-  const handleApply = async () => {
+  const handleOpenApplyModal = () => {
     if (!isAuthenticated) {
       toast.warning(t('jobDetail.messages.login_to_apply'));
       setTimeout(() => {
-        window.location.href = '/login';
+        navigate('/login');
       }, 1500);
       return;
     }
+    setShowApplyModal(true);
+  };
 
+  const handleApply = async () => {
     if (!selectedResume) {
       toast.warning(t('jobDetail.messages.select_resume'));
       return;
@@ -330,7 +341,7 @@ const JobDetail = () => {
               to="/jobs"
               className="inline-flex items-center gap-1.5 sm:gap-2 text-gray-600 hover:text-blue-600 transition-colors group text-sm sm:text-base"
             >
-              <HiArrowLeft className={`group-hover:${isRTL ? '-translate-x-1' : '-translate-x-1'} transition-transform h-3.5 w-3.5 sm:h-4 sm:w-4 md:h-4.5 md:w-4.5 lg:h-5 lg:w-5`} />
+              <HiArrowLeft className={`group-hover:${isRTL ? '-translate-x-1' : 'translate-x-1'} transition-transform h-3.5 w-3.5 sm:h-4 sm:w-4 md:h-4.5 md:w-4.5 lg:h-5 lg:w-5`} />
               <span className="hidden xs:inline">{t('jobDetail.back_to_jobs')}</span>
             </Link>
             <div className={`flex gap-1.5 sm:gap-2 md:gap-2.5 ${isRTL ? 'flex-row-reverse' : ''}`}>
@@ -679,7 +690,7 @@ const JobDetail = () => {
                   <p className="text-gray-600 text-xs sm:text-sm">{t('jobDetail.join_dynamic_team')}</p>
                 </div>
 
-                {hasApplied ? (
+                {hasApplied && isAuthenticated ? (
                   <div className="text-center">
                     <div className={`inline-flex items-center gap-1.5 bg-green-100 text-green-700 px-3 sm:px-4 md:px-5 py-1.5 sm:py-2 md:py-2.5 rounded-xl font-semibold text-xs sm:text-sm ${isRTL ? 'flex-row-reverse' : ''}`}>
                       <HiCheck className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
@@ -691,7 +702,7 @@ const JobDetail = () => {
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    onClick={() => setShowApplyModal(true)}
+                    onClick={handleOpenApplyModal}
                     className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-2.5 sm:py-3 md:py-3.5 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all text-sm sm:text-base"
                   >
                     {t('jobDetail.apply_now')}
@@ -785,9 +796,9 @@ const JobDetail = () => {
         </motion.div>
       </div>
 
-      {/* Apply Modal */}
+      {/* Apply Modal - UNIQUEMENT pour utilisateurs connectés */}
       <AnimatePresence>
-        {showApplyModal && (
+        {showApplyModal && isAuthenticated && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
