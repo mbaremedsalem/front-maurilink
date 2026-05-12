@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
@@ -54,17 +54,28 @@ const JobDetail = () => {
   const [hasApplied, setHasApplied] = useState(false);
   const [activeTab, setActiveTab] = useState('description');
   const [similarJobs, setSimilarJobs] = useState([]);
+  
+  // États pour la candidature sans connexion
+  const [showGuestApplyModal, setShowGuestApplyModal] = useState(false);
+  const [guestFormData, setGuestFormData] = useState({
+    candidate_name: '',
+    candidate_email: '',
+    candidate_phone: '',
+    cover_letter: ''
+  });
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [guestSubmitting, setGuestSubmitting] = useState(false);
+  const fileInputRef = useRef(null);
 
   const isAuthenticated = !!localStorage.getItem('access_token');
 
   const getLogoUrl = (logoPath) => {
     if (!logoPath) return null;
     if (logoPath.startsWith('http')) return logoPath;
-    const baseUrl = process.env.REACT_APP_API_URL || 'https://back.maurilink.site';
+    const baseUrl = process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000';
     return `${baseUrl}${logoPath}`;
   };
 
-  // Helper pour la direction RTL
   const getArrowIcon = () => {
     if (isRTL) {
       return <span className="transform group-hover:-translate-x-1 transition-transform">←</span>;
@@ -194,14 +205,11 @@ const JobDetail = () => {
   };
 
   const handleOpenApplyModal = () => {
-    if (!isAuthenticated) {
-      toast.warning(t('jobDetail.messages.login_to_apply'));
-      setTimeout(() => {
-        navigate('/login');
-      }, 1500);
-      return;
+    if (isAuthenticated) {
+      setShowApplyModal(true);
+    } else {
+      setShowGuestApplyModal(true);
     }
-    setShowApplyModal(true);
   };
 
   const handleApply = async () => {
@@ -243,6 +251,95 @@ const JobDetail = () => {
       toast.error(errorMessage);
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleGuestApply = async () => {
+    if (!guestFormData.candidate_name.trim()) {
+      toast.warning(t('jobDetail.messages.enter_name'));
+      return;
+    }
+    
+    if (!guestFormData.candidate_email.trim()) {
+      toast.warning(t('jobDetail.messages.enter_email'));
+      return;
+    }
+    
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(guestFormData.candidate_email)) {
+      toast.warning(t('jobDetail.messages.invalid_email'));
+      return;
+    }
+    
+    if (!selectedFile) {
+      toast.warning(t('jobDetail.messages.select_cv_file'));
+      return;
+    }
+    
+    if (!guestFormData.cover_letter.trim()) {
+      toast.warning(t('jobDetail.messages.add_cover_letter'));
+      return;
+    }
+
+    setGuestSubmitting(true);
+
+    try {
+      const formData = new FormData();
+      formData.append('job_offer', id);
+      formData.append('candidate_name', guestFormData.candidate_name);
+      formData.append('candidate_email', guestFormData.candidate_email);
+      formData.append('candidate_phone', guestFormData.candidate_phone);
+      formData.append('cover_letter', guestFormData.cover_letter);
+      formData.append('attached_cv', selectedFile);
+
+      const response = await applicationService.applyAsGuest(formData);
+      
+      setApplicationResult(response.data);
+      toast.success(t('jobDetail.messages.application_sent'));
+      
+      setTimeout(() => {
+        setShowGuestApplyModal(false);
+        setApplicationResult(null);
+        setGuestFormData({
+          candidate_name: '',
+          candidate_email: '',
+          candidate_phone: '',
+          cover_letter: ''
+        });
+        setSelectedFile(null);
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
+      }, 3000);
+      
+    } catch (error) {
+      console.error('Error applying as guest:', error);
+      const errorMessage = error.response?.data?.detail || 
+                          error.response?.data?.message || 
+                          t('jobDetail.errors.application_error');
+      toast.error(errorMessage);
+    } finally {
+      setGuestSubmitting(false);
+    }
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+      if (!allowedTypes.includes(file.type)) {
+        toast.warning(t('jobDetail.messages.invalid_file_type'));
+        e.target.value = '';
+        return;
+      }
+      
+      if (file.size > 10 * 1024 * 1024) {
+        toast.warning(t('jobDetail.messages.file_too_large'));
+        e.target.value = '';
+        return;
+      }
+      
+      setSelectedFile(file);
     }
   };
 
@@ -386,7 +483,6 @@ const JobDetail = () => {
                     
                     <div className="relative z-10">
                       <div className={`flex flex-col xs:flex-row gap-3 sm:gap-4 md:gap-5 lg:gap-6 items-start xs:items-center ${isRTL ? 'xs:flex-row-reverse' : ''}`}>
-                        {/* Logo */}
                         <div className="flex-shrink-0 self-center xs:self-auto">
                           {getLogoUrl(job.company_details?.logo) ? (
                             <div className="w-12 h-12 xs:w-14 xs:h-14 sm:w-16 sm:h-16 md:w-18 md:h-18 lg:w-24 lg:h-24 bg-white rounded-lg xs:rounded-xl sm:rounded-2xl shadow-lg overflow-hidden flex items-center justify-center p-1 xs:p-1.5 sm:p-2">
@@ -408,7 +504,6 @@ const JobDetail = () => {
                         </div>
                         
                         <div className={`flex-1 text-center xs:text-left w-full ${isRTL ? 'xs:text-right' : ''}`}>
-                          {/* Badges */}
                           <div className={`flex flex-wrap items-center justify-center xs:justify-start gap-1 sm:gap-1.5 md:gap-2 mb-1.5 sm:mb-2 md:mb-2.5 ${isRTL ? 'xs:justify-end' : ''}`}>
                             <span className={`inline-flex items-center gap-0.5 sm:gap-1 px-1.5 sm:px-2 md:px-2.5 py-0.5 sm:py-1 rounded-full text-[10px] xs:text-xs sm:text-xs font-semibold ${getContractTypeColor(job.contract_type)}`}>
                               {getContractTypeIcon(job.contract_type)}
@@ -440,7 +535,6 @@ const JobDetail = () => {
                   </div>
                 </div>
 
-                {/* Quick Info Bar */}
                 <div className="grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-2.5 md:gap-3 p-3 sm:p-3.5 md:p-4 border-b border-gray-100 bg-gray-50/50">
                   {[
                     { icon: HiLocationMarker, label: t('jobDetail.location'), value: job.location || t('jobDetail.not_specified'), color: 'blue' },
@@ -460,7 +554,6 @@ const JobDetail = () => {
                   ))}
                 </div>
 
-                {/* Tabs */}
                 <div className="border-b border-gray-200 px-3 sm:px-4 md:px-6 overflow-x-auto">
                   <div className={`flex gap-3 sm:gap-4 md:gap-6 lg:gap-8 min-w-max ${isRTL ? 'flex-row-reverse' : ''}`}>
                     {[
@@ -490,7 +583,6 @@ const JobDetail = () => {
                   </div>
                 </div>
 
-                {/* Tab Content */}
                 <div className={`p-3 sm:p-4 md:p-5 lg:p-6 ${isRTL ? 'text-right' : ''}`}>
                   {activeTab === 'description' && (
                     <motion.div
@@ -796,7 +888,7 @@ const JobDetail = () => {
         </motion.div>
       </div>
 
-      {/* Apply Modal - UNIQUEMENT pour utilisateurs connectés */}
+      {/* Modal pour utilisateur connecté */}
       <AnimatePresence>
         {showApplyModal && isAuthenticated && (
           <motion.div
@@ -930,6 +1022,219 @@ const JobDetail = () => {
                       >
                         {t('jobDetail.cancel')}
                       </button>
+                    </div>
+                  </div>
+                </>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Modal pour utilisateur non connecté */}
+      <AnimatePresence>
+        {showGuestApplyModal && !isAuthenticated && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-3 sm:p-4"
+            onClick={() => !guestSubmitting && !applicationResult && setShowGuestApplyModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white rounded-xl sm:rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {applicationResult ? (
+                <div className="text-center p-4 sm:p-6 md:p-8">
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: "spring", stiffness: 200, damping: 20 }}
+                    className="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4"
+                  >
+                    <HiCheck className="h-7 w-7 sm:h-8 sm:w-8 md:h-10 md:w-10 text-green-600" />
+                  </motion.div>
+                  <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 mb-1.5 sm:mb-2">
+                    {t('jobDetail.application_sent')}
+                  </h3>
+                  <p className="text-gray-600 text-sm sm:text-base mb-3 sm:mb-4">
+                    {t('jobDetail.application_for')} <strong>{job.title}</strong> {t('jobDetail.has_been_sent')}
+                  </p>
+                  <div className={`bg-blue-50 rounded-xl p-3 sm:p-4 mb-4 sm:mb-6 ${isRTL ? 'text-right' : 'text-left'}`}>
+                    <p className="text-xs sm:text-sm font-semibold text-gray-700 mb-1.5 sm:mb-2">📋 {t('jobDetail.summary')}</p>
+                    <p className="text-xs sm:text-sm text-gray-600">👤 {t('jobDetail.candidate')} : {applicationResult.candidate_name}</p>
+                    <p className="text-xs sm:text-sm text-gray-600">📧 {t('jobDetail.email')} : {applicationResult.candidate_email}</p>
+                    <p className="text-xs sm:text-sm text-gray-600">
+                      📅 {t('jobDetail.date')} : {new Date(applicationResult.applied_date).toLocaleString(i18n.language === 'ar' ? 'ar-MR' : 'fr-FR')}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setShowGuestApplyModal(false);
+                      setApplicationResult(null);
+                    }}
+                    className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2.5 rounded-xl font-semibold text-sm sm:text-base"
+                  >
+                    {t('jobDetail.close')}
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-4 sm:px-6 py-4 sm:py-6 text-white sticky top-0">
+                    <h3 className="text-lg sm:text-xl md:text-2xl font-bold mb-1 sm:mb-2">
+                      {t('jobDetail.apply_without_account')}
+                    </h3>
+                    <p className="text-blue-100 text-sm sm:text-base">{job.title}</p>
+                    <p className="text-blue-100 text-xs sm:text-sm mt-0.5 sm:mt-1">{job.company_details?.company_name}</p>
+                  </div>
+
+                  <div className={`p-4 sm:p-6 ${isRTL ? 'text-right' : ''}`}>
+                    <div className="mb-4 sm:mb-5">
+                      <label className="block text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">
+                        {t('jobDetail.full_name')} *
+                      </label>
+                      <input
+                        type="text"
+                        value={guestFormData.candidate_name}
+                        onChange={(e) => setGuestFormData({ ...guestFormData, candidate_name: e.target.value })}
+                        className={`w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base ${isRTL ? 'text-right' : ''}`}
+                        placeholder={t('jobDetail.name_placeholder')}
+                      />
+                    </div>
+
+                    <div className="mb-4 sm:mb-5">
+                      <label className="block text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">
+                        {t('jobDetail.email')} *
+                      </label>
+                      <input
+                        type="email"
+                        value={guestFormData.candidate_email}
+                        onChange={(e) => setGuestFormData({ ...guestFormData, candidate_email: e.target.value })}
+                        className={`w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base ${isRTL ? 'text-right' : ''}`}
+                        placeholder={t('jobDetail.email_placeholder')}
+                      />
+                    </div>
+
+                    <div className="mb-4 sm:mb-5">
+                      <label className="block text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">
+                        {t('jobDetail.phone')} ({t('jobDetail.optional')})
+                      </label>
+                      <input
+                        type="tel"
+                        value={guestFormData.candidate_phone}
+                        onChange={(e) => setGuestFormData({ ...guestFormData, candidate_phone: e.target.value })}
+                        className={`w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base ${isRTL ? 'text-right' : ''}`}
+                        placeholder={t('jobDetail.phone_placeholder')}
+                      />
+                    </div>
+
+                    <div className="mb-4 sm:mb-5">
+                      <label className="block text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">
+                        {t('jobDetail.cv_file')} *
+                      </label>
+                      <div className="mt-1 flex justify-center px-4 sm:px-6 pt-4 sm:pt-5 pb-3 sm:pb-4 border-2 border-gray-300 border-dashed rounded-xl hover:border-blue-500 transition-colors">
+                        <div className="space-y-1 text-center">
+                          <HiDocumentText className="mx-auto h-10 w-10 sm:h-12 sm:w-12 text-gray-400" />
+                          <div className="flex text-xs sm:text-sm text-gray-600">
+                            <label
+                              htmlFor="cv-upload"
+                              className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500"
+                            >
+                              <span>{t('jobDetail.upload_cv')}</span>
+                              <input
+                                id="cv-upload"
+                                type="file"
+                                ref={fileInputRef}
+                                className="sr-only"
+                                accept=".pdf,.doc,.docx"
+                                onChange={handleFileChange}
+                              />
+                            </label>
+                            <p className="pl-1">{t('jobDetail.or_drag')}</p>
+                          </div>
+                          <p className="text-[10px] sm:text-xs text-gray-500">
+                            {t('jobDetail.file_types')}
+                          </p>
+                          {selectedFile && (
+                            <p className="text-xs text-green-600 mt-2">
+                              ✓ {selectedFile.name}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="mb-4 sm:mb-5 md:mb-6">
+                      <label className="block text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">
+                        {t('jobDetail.cover_letter')} *
+                      </label>
+                      <textarea
+                        value={guestFormData.cover_letter}
+                        onChange={(e) => setGuestFormData({ ...guestFormData, cover_letter: e.target.value })}
+                        rows={6}
+                        className={`w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base ${isRTL ? 'text-right' : ''}`}
+                        placeholder={t('jobDetail.cover_letter_placeholder')}
+                      />
+                      <p className="text-xs text-gray-500 mt-1">
+                        {guestFormData.cover_letter.length} {t('jobDetail.characters')}
+                      </p>
+                    </div>
+
+                    <div className="bg-blue-50 rounded-xl p-3 sm:p-4 mb-4 sm:mb-5 md:mb-6">
+                      <div className={`flex items-start gap-1.5 sm:gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                        <HiInformationCircle className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                        <div>
+                          <p className="text-xs sm:text-sm text-blue-800 font-medium mb-0.5 sm:mb-1">{t('jobDetail.good_to_know')}</p>
+                          <p className="text-xs text-blue-700">
+                            {t('jobDetail.guest_application_info')}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className={`flex gap-2 sm:gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={handleGuestApply}
+                        disabled={guestSubmitting}
+                        className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-2.5 sm:py-3 rounded-xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
+                      >
+                        {guestSubmitting ? (
+                          <div className={`flex items-center justify-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                            <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-b-2 border-white"></div>
+                            {t('jobDetail.sending')}
+                          </div>
+                        ) : (
+                          t('jobDetail.send_application')
+                        )}
+                      </motion.button>
+                      <button
+                        onClick={() => setShowGuestApplyModal(false)}
+                        disabled={guestSubmitting}
+                        className="px-4 sm:px-6 py-2.5 sm:py-3 border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors disabled:opacity-50 text-sm sm:text-base"
+                      >
+                        {t('jobDetail.cancel')}
+                      </button>
+                    </div>
+
+                    <div className="text-center mt-4 pt-3 border-t border-gray-100">
+                      <p className="text-xs sm:text-sm text-gray-600">
+                        {t('jobDetail.have_account')}{' '}
+                        <button
+                          onClick={() => {
+                            setShowGuestApplyModal(false);
+                            navigate('/login');
+                          }}
+                          className="text-blue-600 hover:text-blue-700 font-medium"
+                        >
+                          {t('jobDetail.login_to_apply_with_profile')}
+                        </button>
+                      </p>
                     </div>
                   </div>
                 </>

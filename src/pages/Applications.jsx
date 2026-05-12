@@ -27,7 +27,8 @@ import {
   HiAcademicCap,
   HiCog,
   HiOfficeBuilding,
-  HiX
+  HiX,
+  HiDownload
 } from 'react-icons/hi';
 
 const Applications = () => {
@@ -35,6 +36,7 @@ const Applications = () => {
   const isRTL = i18n.language === 'ar';
   
   const [applications, setApplications] = useState([]);
+  const [companyStats, setCompanyStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedApplication, setSelectedApplication] = useState(null);
   const [filter, setFilter] = useState('all');
@@ -51,11 +53,59 @@ const Applications = () => {
     try {
       setLoading(true);
       const response = await applicationService.getCompanyApplications();
-      const appsData = response.data?.results || response.data || [];
-      setApplications(appsData);
+      
+      const data = response.data;
+      
+      console.log('API Response:', data); // Pour debug
+      
+      // Vérifier la structure de la réponse
+      if (data && data.offers && Array.isArray(data.offers)) {
+        setCompanyStats({
+          companyName: data.company_name || 'Entreprise',
+          totalOffers: data.total_offers || 0,
+          totalApplications: data.total_applications || 0
+        });
+        
+        const allApplications = [];
+        data.offers.forEach(offer => {
+          if (offer.applications && Array.isArray(offer.applications)) {
+            offer.applications.forEach(app => {
+              allApplications.push({
+                ...app,
+                offer_details: offer.offer_details,
+                applications_stats: offer.applications_stats
+              });
+            });
+          }
+        });
+        setApplications(allApplications);
+      } else if (Array.isArray(data)) {
+        setApplications(data);
+        setCompanyStats({
+          companyName: 'Mes candidatures',
+          totalOffers: data.length,
+          totalApplications: data.length
+        });
+      } else if (data && data.results && Array.isArray(data.results)) {
+        setApplications(data.results);
+        setCompanyStats({
+          companyName: 'Mes candidatures',
+          totalOffers: data.count || data.results.length,
+          totalApplications: data.count || data.results.length
+        });
+      } else {
+        setApplications([]);
+        setCompanyStats({
+          companyName: 'Entreprise',
+          totalOffers: 0,
+          totalApplications: 0
+        });
+      }
+      
     } catch (error) {
       console.error('Error fetching applications:', error);
       toast.error(t('applications.errors.load_error'));
+      setApplications([]);
     } finally {
       setLoading(false);
     }
@@ -135,16 +185,69 @@ const Applications = () => {
     );
   };
 
+  const getCandidateName = (application) => {
+    if (application.candidate_details) {
+      return `${application.candidate_details.first_name || ''} ${application.candidate_details.last_name || ''}`.trim() || application.candidate_details.username;
+    }
+    if (application.candidate_name) {
+      return application.candidate_name;
+    }
+    return t('applications.anonymous_candidate');
+  };
+
+  const getCandidateEmail = (application) => {
+    if (application.candidate_details?.email) {
+      return application.candidate_details.email;
+    }
+    if (application.candidate_email) {
+      return application.candidate_email;
+    }
+    return t('applications.not_provided');
+  };
+
+  const getCandidatePhone = (application) => {
+    if (application.candidate_details?.phone) {
+      return application.candidate_details.phone;
+    }
+    if (application.candidate_phone) {
+      return application.candidate_phone;
+    }
+    return null;
+  };
+
+  const getCoverLetter = (application) => {
+    return application.cover_letter || null;
+  };
+
+  const getCVUrl = (application) => {
+    return application.attached_cv_url || application.attached_cv || null;
+  };
+
+  const getResumeDetails = (application) => {
+    return application.resume_details || null;
+  };
+
+  const hasResumeDetails = (application) => {
+    return application.resume_details !== null && application.resume_details !== undefined;
+  };
+
+  const hasAttachedCV = (application) => {
+    return (application.attached_cv_url || application.attached_cv) !== null;
+  };
+
   const getFilteredApplications = () => {
     let filtered = applications;
     if (filter !== 'all') filtered = filtered.filter(app => app.status === filter);
     if (searchTerm) {
-      filtered = filtered.filter(app => 
-        app.candidate_details?.first_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        app.candidate_details?.last_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        app.candidate_details?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        app.job_details?.title?.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+      const searchLower = searchTerm.toLowerCase();
+      filtered = filtered.filter(app => {
+        const candidateName = getCandidateName(app).toLowerCase();
+        const candidateEmail = getCandidateEmail(app).toLowerCase();
+        const jobTitle = app.offer_details?.title?.toLowerCase() || app.job_details?.title?.toLowerCase() || '';
+        return candidateName.includes(searchLower) || 
+               candidateEmail.includes(searchLower) || 
+               jobTitle.includes(searchLower);
+      });
     }
     return filtered;
   };
@@ -182,9 +285,11 @@ const Applications = () => {
   );
 
   const ApplicationCard = ({ application, index }) => {
-    const candidate = application.candidate_details;
-    const job = application.job_details;
+    const job = application.offer_details || application.job_details;
     const isUpdating = updatingId === application.id;
+    const candidateName = getCandidateName(application);
+    const candidateEmail = getCandidateEmail(application);
+    const candidatePhone = getCandidatePhone(application);
     
     return (
       <motion.div
@@ -202,12 +307,12 @@ const Applications = () => {
               <div className={`flex items-center gap-3 mb-2 flex-wrap ${isRTL ? 'flex-row-reverse' : ''}`}>
                 <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-md">
                   <span className="text-white font-bold text-lg">
-                    {candidate?.first_name?.charAt(0)}{candidate?.last_name?.charAt(0)}
+                    {candidateName.charAt(0).toUpperCase()}
                   </span>
                 </div>
                 <div className={isRTL ? 'text-right' : ''}>
                   <h3 className="font-bold text-gray-900 text-lg">
-                    {candidate?.first_name} {candidate?.last_name}
+                    {candidateName}
                   </h3>
                   <p className="text-blue-600 text-sm font-medium">{job?.title}</p>
                 </div>
@@ -219,12 +324,12 @@ const Applications = () => {
           <div className={`grid grid-cols-2 gap-3 mb-4 ${isRTL ? 'text-right' : ''}`}>
             <div className={`flex items-center gap-2 text-gray-500 text-sm ${isRTL ? 'flex-row-reverse' : ''}`}>
               <HiMail className="w-4 h-4 flex-shrink-0" />
-              <span className="truncate">{candidate?.email}</span>
+              <span className="truncate">{candidateEmail}</span>
             </div>
-            {candidate?.phone && (
+            {candidatePhone && (
               <div className={`flex items-center gap-2 text-gray-500 text-sm ${isRTL ? 'flex-row-reverse' : ''}`}>
                 <HiPhone className="w-4 h-4 flex-shrink-0" />
-                <span>{candidate?.phone}</span>
+                <span>{candidatePhone}</span>
               </div>
             )}
             <div className={`flex items-center gap-2 text-gray-500 text-sm ${isRTL ? 'flex-row-reverse' : ''}`}>
@@ -239,10 +344,10 @@ const Applications = () => {
             )}
           </div>
 
-          {application.cover_letter && (
+          {getCoverLetter(application) && (
             <div className="mb-4 p-3 bg-gradient-to-r from-gray-50 to-gray-50/50 rounded-xl">
               <p className="text-sm text-gray-600 line-clamp-2">
-                <span className="font-semibold text-gray-700">💬 {t('applications.cover_letter')} :</span> {application.cover_letter}
+                <span className="font-semibold text-gray-700">💬 {t('applications.cover_letter')} :</span> {getCoverLetter(application)}
               </p>
             </div>
           )}
@@ -294,171 +399,324 @@ const Applications = () => {
     );
   };
 
-  const ApplicationDetailModal = ({ application, onClose }) => {
-    const candidate = application.candidate_details;
-    const job = application.job_details;
-    const resume = application.resume_details;
-    const isUpdating = updatingId === application.id;
-    
-    return (
+const ApplicationDetailModal = ({ application, onClose }) => {
+  const job = application.offer_details || application.job_details;
+  const resume = getResumeDetails(application);
+  const cvUrl = getCVUrl(application);
+  const hasResume = hasResumeDetails(application);
+  const hasCV = hasAttachedCV(application);
+  const isUpdating = updatingId === application.id;
+  const candidateName = getCandidateName(application);
+  const candidateEmail = getCandidateEmail(application);
+  const candidatePhone = getCandidatePhone(application);
+  const coverLetter = getCoverLetter(application);
+  
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+      onClick={onClose}
+    >
       <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-        onClick={onClose}
+        initial={{ scale: 0.9, opacity: 0, y: 20 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        exit={{ scale: 0.9, opacity: 0, y: 20 }}
+        className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
       >
-        <motion.div
-          initial={{ scale: 0.9, opacity: 0, y: 20 }}
-          animate={{ scale: 1, opacity: 1, y: 0 }}
-          exit={{ scale: 0.9, opacity: 0, y: 20 }}
-          className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-2xl"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <div className="sticky top-0 bg-gradient-to-r from-blue-600 to-indigo-600 p-6 text-white">
-            <div className={`flex justify-between items-start ${isRTL ? 'flex-row-reverse' : ''}`}>
-              <div className={isRTL ? 'text-right' : ''}>
-                <h2 className="text-2xl font-bold mb-1">{t('applications.modal.title')}</h2>
-                <p className="text-blue-100">{t('applications.modal.subtitle')}</p>
+        <div className="sticky top-0 bg-gradient-to-r from-blue-600 to-indigo-600 p-6 text-white">
+          <div className={`flex justify-between items-start ${isRTL ? 'flex-row-reverse' : ''}`}>
+            <div className={isRTL ? 'text-right' : ''}>
+              <h2 className="text-2xl font-bold mb-1">{t('applications.modal.title')}</h2>
+              <p className="text-blue-100">{t('applications.modal.subtitle')}</p>
+            </div>
+            <button onClick={onClose} className="p-2 hover:bg-white/20 rounded-xl transition-all">
+              <HiX className="w-6 h-6" />
+            </button>
+          </div>
+        </div>
+        
+        <div className="overflow-y-auto max-h-[calc(90vh-120px)] p-6">
+          {/* En-tête du candidat */}
+          <div className="mb-8 pb-6 border-b">
+            <div className={`flex items-start gap-4 mb-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
+              <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg">
+                <span className="text-white font-bold text-2xl">
+                  {candidateName.charAt(0).toUpperCase()}
+                </span>
               </div>
-              <button onClick={onClose} className="p-2 hover:bg-white/20 rounded-xl transition-all">
-                <HiX className="w-6 h-6" />
-              </button>
+              <div className={`flex-1 ${isRTL ? 'text-right' : ''}`}>
+                <h3 className="text-2xl font-bold text-gray-900">
+                  {candidateName}
+                </h3>
+                <p className="text-blue-600 font-medium mt-1">{job?.title}</p>
+                <div className="mt-2">{getStatusBadge(application.status)}</div>
+              </div>
+            </div>
+            
+            {/* Informations de contact */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className={`flex items-center gap-3 p-3 bg-gray-50 rounded-xl ${isRTL ? 'flex-row-reverse' : ''}`}>
+                <HiMail className="w-5 h-5 text-gray-400" />
+                <div className={isRTL ? 'text-right' : ''}>
+                  <p className="text-xs text-gray-500">{t('applications.email')}</p>
+                  <p className="text-sm font-medium text-gray-900">{candidateEmail}</p>
+                </div>
+              </div>
+              {candidatePhone && (
+                <div className={`flex items-center gap-3 p-3 bg-gray-50 rounded-xl ${isRTL ? 'flex-row-reverse' : ''}`}>
+                  <HiPhone className="w-5 h-5 text-gray-400" />
+                  <div className={isRTL ? 'text-right' : ''}>
+                    <p className="text-xs text-gray-500">{t('applications.phone')}</p>
+                    <p className="text-sm font-medium text-gray-900">{candidatePhone}</p>
+                  </div>
+                </div>
+              )}
+              <div className={`flex items-center gap-3 p-3 bg-gray-50 rounded-xl ${isRTL ? 'flex-row-reverse' : ''}`}>
+                <HiCalendar className="w-5 h-5 text-gray-400" />
+                <div className={isRTL ? 'text-right' : ''}>
+                  <p className="text-xs text-gray-500">{t('applications.application_date')}</p>
+                  <p className="text-sm font-medium text-gray-900">{formatDate(application.applied_date)}</p>
+                </div>
+              </div>
+              {job?.location && (
+                <div className={`flex items-center gap-3 p-3 bg-gray-50 rounded-xl ${isRTL ? 'flex-row-reverse' : ''}`}>
+                  <HiLocationMarker className="w-5 h-5 text-gray-400" />
+                  <div className={isRTL ? 'text-right' : ''}>
+                    <p className="text-xs text-gray-500">{t('applications.location')}</p>
+                    <p className="text-sm font-medium text-gray-900">{job.location}</p>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
-          
-          <div className="overflow-y-auto max-h-[calc(90vh-120px)] p-6">
-            <div className="mb-8 pb-6 border-b">
-              <div className={`flex items-start gap-4 mb-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
-                <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg">
-                  <span className="text-white font-bold text-2xl">
-                    {candidate?.first_name?.charAt(0)}{candidate?.last_name?.charAt(0)}
-                  </span>
-                </div>
-                <div className={`flex-1 ${isRTL ? 'text-right' : ''}`}>
-                  <h3 className="text-2xl font-bold text-gray-900">
-                    {candidate?.first_name} {candidate?.last_name}
-                  </h3>
-                  <p className="text-blue-600 font-medium mt-1">{job?.title}</p>
-                  <div className="mt-2">{getStatusBadge(application.status)}</div>
-                </div>
+
+          {/* Détails de l'offre d'emploi */}
+          <div className="mb-8">
+            <h4 className={`text-lg font-bold text-gray-900 mb-3 flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+              <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
+                <HiBriefcase className="w-4 h-4 text-white" />
               </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <div className={`flex items-center gap-3 p-3 bg-gray-50 rounded-xl ${isRTL ? 'flex-row-reverse' : ''}`}>
-                  <HiMail className="w-5 h-5 text-gray-400" />
-                  <div className={isRTL ? 'text-right' : ''}>
-                    <p className="text-xs text-gray-500">{t('applications.email')}</p>
-                    <p className="text-sm font-medium text-gray-900">{candidate?.email}</p>
-                  </div>
-                </div>
-                {candidate?.phone && (
-                  <div className={`flex items-center gap-3 p-3 bg-gray-50 rounded-xl ${isRTL ? 'flex-row-reverse' : ''}`}>
-                    <HiPhone className="w-5 h-5 text-gray-400" />
-                    <div className={isRTL ? 'text-right' : ''}>
-                      <p className="text-xs text-gray-500">{t('applications.phone')}</p>
-                      <p className="text-sm font-medium text-gray-900">{candidate?.phone}</p>
-                    </div>
-                  </div>
-                )}
-                <div className={`flex items-center gap-3 p-3 bg-gray-50 rounded-xl ${isRTL ? 'flex-row-reverse' : ''}`}>
-                  <HiCalendar className="w-5 h-5 text-gray-400" />
-                  <div className={isRTL ? 'text-right' : ''}>
-                    <p className="text-xs text-gray-500">{t('applications.application_date')}</p>
-                    <p className="text-sm font-medium text-gray-900">{formatDate(application.applied_date)}</p>
-                  </div>
-                </div>
-                {job?.location && (
-                  <div className={`flex items-center gap-3 p-3 bg-gray-50 rounded-xl ${isRTL ? 'flex-row-reverse' : ''}`}>
-                    <HiLocationMarker className="w-5 h-5 text-gray-400" />
-                    <div className={isRTL ? 'text-right' : ''}>
-                      <p className="text-xs text-gray-500">{t('applications.location')}</p>
-                      <p className="text-sm font-medium text-gray-900">{job.location}</p>
-                    </div>
-                  </div>
+              {t('applications.job_offer')}
+            </h4>
+            <div className="bg-gradient-to-r from-gray-50 to-gray-50/50 rounded-xl p-4">
+              <p className={`font-semibold text-gray-900 mb-2 ${isRTL ? 'text-right' : ''}`}>{job?.title}</p>
+              <p className={`text-sm text-gray-600 mb-3 ${isRTL ? 'text-right' : ''}`}>{job?.description}</p>
+              <div className={`flex flex-wrap gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                {job?.location && <span className="text-xs bg-white px-2.5 py-1 rounded-lg shadow-sm">📍 {job.location}</span>}
+                {job?.contract_type && <span className="text-xs bg-white px-2.5 py-1 rounded-lg shadow-sm">📄 {job.contract_type}</span>}
+                {job?.salary_min && job?.salary_max && (
+                  <span className="text-xs bg-white px-2.5 py-1 rounded-lg shadow-sm">💰 {job.salary_min} - {job.salary_max} MRU</span>
                 )}
               </div>
             </div>
+          </div>
 
+          {/* CV attaché (pour les candidats sans compte) */}
+          {hasCV && cvUrl && (
             <div className="mb-8">
               <h4 className={`text-lg font-bold text-gray-900 mb-3 flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
-                <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
-                  <HiBriefcase className="w-4 h-4 text-white" />
+                <div className="w-8 h-8 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-lg flex items-center justify-center">
+                  <HiDownload className="w-4 h-4 text-white" />
                 </div>
-                {t('applications.job_offer')}
+                {t('applications.cv_file')}
               </h4>
               <div className="bg-gradient-to-r from-gray-50 to-gray-50/50 rounded-xl p-4">
-                <p className={`font-semibold text-gray-900 mb-2 ${isRTL ? 'text-right' : ''}`}>{job?.title}</p>
-                <p className={`text-sm text-gray-600 mb-3 ${isRTL ? 'text-right' : ''}`}>{job?.description}</p>
-                <div className={`flex flex-wrap gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
-                  {job?.location && <span className="text-xs bg-white px-2.5 py-1 rounded-lg shadow-sm">📍 {job.location}</span>}
-                  {job?.contract_type && <span className="text-xs bg-white px-2.5 py-1 rounded-lg shadow-sm">📄 {job.contract_type}</span>}
-                  {job?.salary_min && job?.salary_max && (
-                    <span className="text-xs bg-white px-2.5 py-1 rounded-lg shadow-sm">💰 {job.salary_min} - {job.salary_max} MRU</span>
-                  )}
-                </div>
+                <a
+                  href={cvUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium"
+                >
+                  <HiDownload className="w-4 h-4" />
+                  {t('applications.download_cv')}
+                </a>
               </div>
             </div>
+          )}
 
-            {application.cover_letter && (
-              <div className="mb-8">
-                <h4 className={`text-lg font-bold text-gray-900 mb-3 flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
-                  <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-600 rounded-lg flex items-center justify-center">
-                    <HiDocumentText className="w-4 h-4 text-white" />
+          {/* CV du profil (pour les candidats connectés) - Affichage détaillé */}
+          {hasResume && resume && (
+            <div className="mb-8">
+              <h4 className={`text-lg font-bold text-gray-900 mb-3 flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                <div className="w-8 h-8 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-lg flex items-center justify-center">
+                  <HiDocumentDuplicate className="w-4 h-4 text-white" />
+                </div>
+                {t('applications.resume')} : {resume.title}
+              </h4>
+              
+              <div className="space-y-4">
+                {/* Informations personnelles */}
+                {resume.personal_info && (
+                  <div className="bg-gradient-to-r from-gray-50 to-gray-50/50 rounded-xl p-4">
+                    <h5 className={`font-semibold text-gray-800 mb-3 flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                      <HiUser className="w-4 h-4 text-blue-600" />
+                      {t('applications.personal_info')}
+                    </h5>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                      {resume.personal_info.first_name && resume.personal_info.last_name && (
+                        <p><span className="font-semibold">{t('applications.full_name')} :</span> {resume.personal_info.first_name} {resume.personal_info.last_name}</p>
+                      )}
+                      {resume.personal_info.email && <p><span className="font-semibold">📧 Email :</span> {resume.personal_info.email}</p>}
+                      {resume.personal_info.phone && <p><span className="font-semibold">📞 {t('applications.phone')} :</span> {resume.personal_info.phone}</p>}
+                      {resume.personal_info.address && <p><span className="font-semibold">📍 {t('applications.address')} :</span> {resume.personal_info.address}</p>}
+                      {resume.personal_info.birth_date && <p><span className="font-semibold">🎂 {t('applications.birth_date')} :</span> {resume.personal_info.birth_date}</p>}
+                      {resume.personal_info.niveau_etude && <p><span className="font-semibold">🎓 {t('applications.education_level')} :</span> {resume.personal_info.niveau_etude}</p>}
+                      {resume.personal_info.domaine_etude && <p><span className="font-semibold">📚 {t('applications.field_of_study')} :</span> {resume.personal_info.domaine_etude}</p>}
+                    </div>
+                    {resume.personal_info.apropos && (
+                      <div className="mt-3 pt-3 border-t border-gray-200">
+                        <p className="text-sm"><span className="font-semibold">📝 {t('applications.about')} :</span></p>
+                        <p className="text-sm text-gray-600 mt-1">{resume.personal_info.apropos}</p>
+                      </div>
+                    )}
                   </div>
-                  {t('applications.cover_letter')}
-                </h4>
-                <div className="bg-gray-50 rounded-xl p-4">
-                  <p className={`text-gray-700 ${isRTL ? 'text-right' : ''}`}>{application.cover_letter}</p>
-                </div>
-              </div>
-            )}
+                )}
 
-            {application.status === 'pending' && (
-              <div className="sticky bottom-0 bg-white pt-4 border-t">
-                <div className={`flex gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
-                  <button
-                    onClick={() => {
-                      updateStatus(application.id, 'accepted');
-                      onClose();
-                    }}
-                    disabled={isUpdating}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl hover:shadow-lg transition-all font-medium disabled:opacity-50"
-                  >
-                    {isUpdating ? (
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                    ) : (
-                      <>
-                        <HiCheckCircle className="w-5 h-5" />
-                        {t('applications.accept_application')}
-                      </>
-                    )}
-                  </button>
-                  <button
-                    onClick={() => {
-                      updateStatus(application.id, 'rejected');
-                      onClose();
-                    }}
-                    disabled={isUpdating}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-rose-500 to-red-600 text-white rounded-xl hover:shadow-lg transition-all font-medium disabled:opacity-50"
-                  >
-                    {isUpdating ? (
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                    ) : (
-                      <>
-                        <HiXCircle className="w-5 h-5" />
-                        {t('applications.reject_application')}
-                      </>
-                    )}
-                  </button>
-                </div>
+                {/* Expériences professionnelles */}
+                {resume.experience && resume.experience.length > 0 && (
+                  <div className="bg-gradient-to-r from-gray-50 to-gray-50/50 rounded-xl p-4">
+                    <h5 className={`font-semibold text-gray-800 mb-3 flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                      <HiBriefcase className="w-4 h-4 text-blue-600" />
+                      {t('applications.work_experience')}
+                    </h5>
+                    <div className="space-y-3">
+                      {resume.experience.map((exp, idx) => (
+                        <div key={idx} className="border-l-2 border-blue-200 pl-3">
+                          <p className="font-medium text-gray-800">{exp.title}</p>
+                          <p className="text-sm text-gray-600">{exp.company} - {exp.location}</p>
+                          <p className="text-xs text-gray-500">
+                            {exp.start_date} - {exp.end_date || t('applications.present')}
+                          </p>
+                          {exp.description && (
+                            <p className="text-sm text-gray-600 mt-1 line-clamp-3">{exp.description}</p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Formations */}
+                {resume.education && resume.education.length > 0 && (
+                  <div className="bg-gradient-to-r from-gray-50 to-gray-50/50 rounded-xl p-4">
+                    <h5 className={`font-semibold text-gray-800 mb-3 flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                      <HiAcademicCap className="w-4 h-4 text-blue-600" />
+                      {t('applications.education')}
+                    </h5>
+                    <div className="space-y-3">
+                      {resume.education.map((edu, idx) => (
+                        <div key={idx} className="border-l-2 border-green-200 pl-3">
+                          <p className="font-medium text-gray-800">{edu.degree}</p>
+                          <p className="text-sm text-gray-600">{edu.school} - {edu.location}</p>
+                          <p className="text-xs text-gray-500">{edu.year}</p>
+                          {edu.description && <p className="text-sm text-gray-600 mt-1">{edu.description}</p>}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Compétences */}
+                {resume.skills && resume.skills.length > 0 && (
+                  <div className="bg-gradient-to-r from-gray-50 to-gray-50/50 rounded-xl p-4">
+                    <h5 className={`font-semibold text-gray-800 mb-3 flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                      <HiCog className="w-4 h-4 text-blue-600" />
+                      {t('applications.skills')}
+                    </h5>
+                    <div className="flex flex-wrap gap-2">
+                      {resume.skills.map((skill, idx) => (
+                        <span key={idx} className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm">
+                          {typeof skill === 'string' ? skill : skill.name} {skill.level && `(${skill.level})`}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Langues */}
+                {resume.languages && resume.languages.length > 0 && (
+                  <div className="bg-gradient-to-r from-gray-50 to-gray-50/50 rounded-xl p-4">
+                    <h5 className={`font-semibold text-gray-800 mb-3 flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                      <HiOfficeBuilding className="w-4 h-4 text-blue-600" />
+                      {t('applications.languages')}
+                    </h5>
+                    <div className="flex flex-wrap gap-2">
+                      {resume.languages.map((lang, idx) => (
+                        <span key={idx} className="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-sm">
+                          {typeof lang === 'string' ? lang : lang.name} {lang.level && `(${lang.level})`}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
-        </motion.div>
+            </div>
+          )}
+
+          {/* Lettre de motivation */}
+          {coverLetter && (
+            <div className="mb-8">
+              <h4 className={`text-lg font-bold text-gray-900 mb-3 flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-600 rounded-lg flex items-center justify-center">
+                  <HiDocumentText className="w-4 h-4 text-white" />
+                </div>
+                {t('applications.cover_letter')}
+              </h4>
+              <div className="bg-gray-50 rounded-xl p-4">
+                <p className={`text-gray-700 whitespace-pre-wrap ${isRTL ? 'text-right' : ''}`}>{coverLetter}</p>
+              </div>
+            </div>
+          )}
+
+          {/* Boutons d'action pour les candidatures en attente */}
+          {application.status === 'pending' && (
+            <div className="sticky bottom-0 bg-white pt-4 border-t">
+              <div className={`flex gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                <button
+                  onClick={() => {
+                    updateStatus(application.id, 'accepted');
+                    onClose();
+                  }}
+                  disabled={isUpdating}
+                  className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl hover:shadow-lg transition-all font-medium disabled:opacity-50"
+                >
+                  {isUpdating ? (
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                  ) : (
+                    <>
+                      <HiCheckCircle className="w-5 h-5" />
+                      {t('applications.accept_application')}
+                    </>
+                  )}
+                </button>
+                <button
+                  onClick={() => {
+                    updateStatus(application.id, 'rejected');
+                    onClose();
+                  }}
+                  disabled={isUpdating}
+                  className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-rose-500 to-red-600 text-white rounded-xl hover:shadow-lg transition-all font-medium disabled:opacity-50"
+                >
+                  {isUpdating ? (
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                  ) : (
+                    <>
+                      <HiXCircle className="w-5 h-5" />
+                      {t('applications.reject_application')}
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       </motion.div>
-    );
-  };
+    </motion.div>
+  );
+};
 
   const { items: paginatedApps, totalPages } = getPaginatedApplications();
 
@@ -501,7 +759,9 @@ const Applications = () => {
                 </div>
                 <h1 className="text-3xl font-bold text-gray-900">{t('applications.title')}</h1>
               </div>
-              <p className={`text-gray-500 ${isRTL ? 'mr-12' : 'ml-12'}`}>{t('applications.subtitle')}</p>
+              <p className={`text-gray-500 ${isRTL ? 'mr-12' : 'ml-12'}`}>
+                {companyStats?.companyName} - {t('applications.subtitle')}
+              </p>
             </div>
             <button
               onClick={fetchApplications}
@@ -513,6 +773,7 @@ const Applications = () => {
           </div>
         </motion.div>
 
+        {/* Statistiques */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
           <StatCard title={t('applications.stats.total')} value={stats.total} icon={HiBriefcase} gradient="from-blue-500 to-indigo-600" />
           <StatCard title={t('applications.stats.pending')} value={stats.pending} icon={HiClock} gradient="from-amber-500 to-orange-600" />
@@ -520,6 +781,7 @@ const Applications = () => {
           <StatCard title={t('applications.stats.rejected')} value={stats.rejected} icon={HiXCircle} gradient="from-rose-500 to-red-600" />
         </div>
 
+        {/* Barre de recherche et filtres */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -562,6 +824,7 @@ const Applications = () => {
           </div>
         </motion.div>
 
+        {/* Liste des candidatures */}
         {applications.length === 0 ? (
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
@@ -590,6 +853,7 @@ const Applications = () => {
               ))}
             </div>
 
+            {/* Pagination */}
             {totalPages > 1 && (
               <div className={`flex justify-center gap-2 mt-8 ${isRTL ? 'flex-row-reverse' : ''}`}>
                 <button
@@ -627,6 +891,7 @@ const Applications = () => {
         )}
       </div>
 
+      {/* Modal de détail */}
       <AnimatePresence>
         {selectedApplication && (
           <ApplicationDetailModal

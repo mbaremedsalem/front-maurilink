@@ -74,13 +74,30 @@ export const resumeService = {
 };
 
 // Applications Services
+
 // Dans applicationService.js
 export const applicationService = {
+  // Méthode pour utilisateur connecté (JSON avec token)
   apply: (data) => api.post('/applications/apply/', data),
+  
+  // NOUVELLE MÉTHODE pour utilisateur non connecté (FormData avec fichier)
+  applyAsGuest: (formData) => api.post('/applications/apply/', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  }),
+  
   getMyApplications: () => api.get('/applications/my-applications/'),
   getCompanyApplications: () => api.get('/applications/company-applications/'),
   updateStatus: (id, data) => api.put(`/applications/applications/${id}/update-status/`, data),
 };
+
+// export const applicationService = {
+//   apply: (data) => api.post('/applications/apply/', data),
+//   getMyApplications: () => api.get('/applications/my-applications/'),
+//   getCompanyApplications: () => api.get('/applications/company-applications/'),
+//   updateStatus: (id, data) => api.put(`/applications/applications/${id}/update-status/`, data),
+// };
 
 // Advertising Services
 export const advertisingService = {
