@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { applicationService } from '../api/services';
@@ -30,6 +30,8 @@ import {
   HiX,
   HiDownload
 } from 'react-icons/hi';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 const Applications = () => {
   const { t, i18n } = useTranslation();
@@ -48,6 +50,160 @@ const Applications = () => {
   useEffect(() => {
     fetchApplications();
   }, []);
+
+// Ajoutez cette fonction après les autres fonctions
+const exportToPDF = async (application, type = 'resume') => {
+  try {
+    toast.info(t('applications.generating_pdf'));
+    
+    if (type === 'attached_cv' && getCVUrl(application)) {
+      // Pour les CV attachés, on télécharge directement le fichier
+      const cvUrl = getCVUrl(application);
+      const link = document.createElement('a');
+      link.href = cvUrl;
+      link.target = '_blank';
+      link.download = `CV_${getCandidateName(application).replace(/\s/g, '_')}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      toast.success(t('applications.cv_downloaded'));
+    } else if (type === 'resume_details' && getResumeDetails(application)) {
+      // Pour les résumés détaillés, on génère un PDF à partir du contenu HTML
+      const resume = getResumeDetails(application);
+      const candidateName = getCandidateName(application);
+      
+      // Créer un élément temporaire pour le contenu du PDF
+      const pdfContent = document.createElement('div');
+      pdfContent.style.width = '800px';
+      pdfContent.style.padding = '40px';
+      pdfContent.style.backgroundColor = 'white';
+      pdfContent.style.fontFamily = 'Arial, sans-serif';
+      pdfContent.style.color = '#333';
+      
+      // Générer le HTML du CV
+      pdfContent.innerHTML = `
+        <div style="text-align: center; margin-bottom: 30px;">
+          <h1 style="color: #2563eb; margin-bottom: 10px;">${candidateName}</h1>
+          <h2 style="color: #4b5563; font-size: 18px;">${resume.title || 'Curriculum Vitae'}</h2>
+          <hr style="border: 1px solid #e5e7eb; margin: 20px 0;">
+        </div>
+        
+        ${resume.personal_info ? `
+          <div style="margin-bottom: 25px;">
+            <h3 style="color: #2563eb; border-bottom: 2px solid #2563eb; padding-bottom: 5px; margin-bottom: 15px;">Informations Personnelles</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+              ${resume.personal_info.first_name && resume.personal_info.last_name ? `<p><strong>Nom complet:</strong> ${resume.personal_info.first_name} ${resume.personal_info.last_name}</p>` : ''}
+              ${resume.personal_info.email ? `<p><strong>Email:</strong> ${resume.personal_info.email}</p>` : ''}
+              ${resume.personal_info.phone ? `<p><strong>Téléphone:</strong> ${resume.personal_info.phone}</p>` : ''}
+              ${resume.personal_info.address ? `<p><strong>Adresse:</strong> ${resume.personal_info.address}</p>` : ''}
+              ${resume.personal_info.birth_date ? `<p><strong>Date de naissance:</strong> ${resume.personal_info.birth_date}</p>` : ''}
+              ${resume.personal_info.niveau_etude ? `<p><strong>Niveau d'étude:</strong> ${resume.personal_info.niveau_etude}</p>` : ''}
+            </div>
+            ${resume.personal_info.apropos ? `<p style="margin-top: 10px;"><strong>À propos:</strong><br>${resume.personal_info.apropos}</p>` : ''}
+          </div>
+        ` : ''}
+        
+        ${resume.experience && resume.experience.length > 0 ? `
+          <div style="margin-bottom: 25px;">
+            <h3 style="color: #2563eb; border-bottom: 2px solid #2563eb; padding-bottom: 5px; margin-bottom: 15px;">Expériences Professionnelles</h3>
+            ${resume.experience.map(exp => `
+              <div style="margin-bottom: 15px;">
+                <p style="font-weight: bold; margin-bottom: 5px;">${exp.title}</p>
+                <p style="color: #4b5563; margin-bottom: 5px;">${exp.company} - ${exp.location}</p>
+                <p style="color: #6b7280; font-size: 12px; margin-bottom: 5px;">${exp.start_date} - ${exp.end_date || 'Présent'}</p>
+                ${exp.description ? `<p style="font-size: 12px; line-height: 1.5;">${exp.description}</p>` : ''}
+              </div>
+            `).join('')}
+          </div>
+        ` : ''}
+        
+        ${resume.education && resume.education.length > 0 ? `
+          <div style="margin-bottom: 25px;">
+            <h3 style="color: #2563eb; border-bottom: 2px solid #2563eb; padding-bottom: 5px; margin-bottom: 15px;">Formations</h3>
+            ${resume.education.map(edu => `
+              <div style="margin-bottom: 15px;">
+                <p style="font-weight: bold; margin-bottom: 5px;">${edu.degree}</p>
+                <p style="color: #4b5563; margin-bottom: 5px;">${edu.school} - ${edu.location}</p>
+                <p style="color: #6b7280; font-size: 12px;">${edu.year}</p>
+                ${edu.description ? `<p style="font-size: 12px; margin-top: 5px;">${edu.description}</p>` : ''}
+              </div>
+            `).join('')}
+          </div>
+        ` : ''}
+        
+        ${resume.skills && resume.skills.length > 0 ? `
+          <div style="margin-bottom: 25px;">
+            <h3 style="color: #2563eb; border-bottom: 2px solid #2563eb; padding-bottom: 5px; margin-bottom: 15px;">Compétences</h3>
+            <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+              ${resume.skills.map(skill => `
+                <span style="background-color: #dbeafe; color: #1e40af; padding: 5px 10px; border-radius: 5px; font-size: 12px;">
+                  ${typeof skill === 'string' ? skill : skill.name} ${skill.level ? `(${skill.level})` : ''}
+                </span>
+              `).join('')}
+            </div>
+          </div>
+        ` : ''}
+        
+        ${resume.languages && resume.languages.length > 0 ? `
+          <div style="margin-bottom: 25px;">
+            <h3 style="color: #2563eb; border-bottom: 2px solid #2563eb; padding-bottom: 5px; margin-bottom: 15px;">Langues</h3>
+            <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+              ${resume.languages.map(lang => `
+                <span style="background-color: #f3e8ff; color: #6b21a5; padding: 5px 10px; border-radius: 5px; font-size: 12px;">
+                  ${typeof lang === 'string' ? lang : lang.name} ${lang.level ? `(${lang.level})` : ''}
+                </span>
+              `).join('')}
+            </div>
+          </div>
+        ` : ''}
+        
+        <div style="text-align: center; margin-top: 40px; font-size: 10px; color: #9ca3af;">
+          Généré le ${new Date().toLocaleDateString()}
+        </div>
+      `;
+      
+      document.body.appendChild(pdfContent);
+      
+      // Utiliser html2canvas pour convertir le HTML en image
+      const canvas = await html2canvas(pdfContent, {
+        scale: 2,
+        logging: false,
+        useCORS: true
+      });
+      
+      document.body.removeChild(pdfContent);
+      
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      });
+      
+      const imgWidth = 210; // A4 width in mm
+      const pageHeight = 297; // A4 height in mm
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      let heightLeft = imgHeight;
+      let position = 0;
+      
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+      
+      while (heightLeft >= 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+      
+      pdf.save(`CV_${candidateName.replace(/\s/g, '_')}.pdf`);
+      toast.success(t('applications.pdf_generated'));
+    }
+  } catch (error) {
+    console.error('Error exporting PDF:', error);
+    toast.error(t('applications.pdf_error'));
+  }
+};
 
   const fetchApplications = async () => {
     try {
@@ -514,28 +670,63 @@ const ApplicationDetailModal = ({ application, onClose }) => {
             </div>
           </div>
 
-          {/* CV attaché (pour les candidats sans compte) */}
-          {hasCV && cvUrl && (
-            <div className="mb-8">
-              <h4 className={`text-lg font-bold text-gray-900 mb-3 flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+        {/* CV attaché (pour les candidats sans compte) */}
+        {hasCV && cvUrl && (
+          <div className="mb-8">
+            <div className={`flex justify-between items-center mb-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
+              <h4 className={`text-lg font-bold text-gray-900 flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                 <div className="w-8 h-8 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-lg flex items-center justify-center">
                   <HiDownload className="w-4 h-4 text-white" />
                 </div>
                 {t('applications.cv_file')}
               </h4>
-              <div className="bg-gradient-to-r from-gray-50 to-gray-50/50 rounded-xl p-4">
-                <a
-                  href={cvUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium"
-                >
-                  <HiDownload className="w-4 h-4" />
-                  {t('applications.download_cv')}
-                </a>
-              </div>
+              <button
+                onClick={() => exportToPDF(application, 'attached_cv')}
+                className="flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-all text-sm"
+              >
+                <HiDownload className="w-4 h-4" />
+                {t('applications.export_cv')}
+              </button>
             </div>
-          )}
+            <div className="bg-gradient-to-r from-gray-50 to-gray-50/50 rounded-xl p-4">
+              <a
+                href={cvUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium"
+              >
+                <HiDownload className="w-4 h-4" />
+                {t('applications.download_cv')}
+              </a>
+            </div>
+          </div>
+        )}
+
+        {/* CV du profil (pour les candidats connectés) - Affichage détaillé */}
+        {hasResume && resume && (
+          <div className="mb-8">
+            <div className={`flex justify-between items-center mb-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
+              <h4 className={`text-lg font-bold text-gray-900 flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                <div className="w-8 h-8 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-lg flex items-center justify-center">
+                  <HiDocumentDuplicate className="w-4 h-4 text-white" />
+                </div>
+                {t('applications.resume')} : {resume.title}
+              </h4>
+              <button
+                onClick={() => exportToPDF(application, 'resume_details')}
+                className="flex items-center gap-2 px-3 py-1.5 bg-emerald-50 text-emerald-600 rounded-lg hover:bg-emerald-100 transition-all text-sm"
+              >
+                <HiDownload className="w-4 h-4" />
+                {t('applications.export_resume')}
+              </button>
+            </div>
+            
+            {/* Le reste du contenu du CV reste identique */}
+            <div className="space-y-4">
+              {/* ... tout le contenu existant du CV ... */}
+            </div>
+          </div>
+        )}
 
           {/* CV du profil (pour les candidats connectés) - Affichage détaillé */}
           {hasResume && resume && (

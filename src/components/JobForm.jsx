@@ -13,13 +13,16 @@ import {
   HiAcademicCap, 
   HiCode, 
   HiOfficeBuilding, 
-  HiStar 
+  HiStar,
+  HiPaperClip
 } from 'react-icons/hi';
 
-const JobForm = ({ isOpen, onClose, onSuccess, initialData = null }) => {
+const JobForm = ({ isOpen, onClose, onSuccess, initialData = null, refreshJobs }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [skillInput, setSkillInput] = useState('');
   const [errors, setErrors] = useState({});
+  const [selectedFile, setSelectedFile] = useState(null);
+  
   const [newJob, setNewJob] = useState(
     initialData || {
       title: '',
@@ -39,16 +42,15 @@ const JobForm = ({ isOpen, onClose, onSuccess, initialData = null }) => {
   const contractTypes = ['CDI', 'CDD', 'FREELANCE', 'STAGE', 'ALTERNANCE'];
   const locations = ['Paris', 'Lyon', 'Marseille', 'Bordeaux', 'Lille', 'Toulouse', 'Nantes', 'Strasbourg', 'Remote'];
 
+  const getToken = () => {
+    return localStorage.getItem('access_token');
+  };
+
   const validateForm = () => {
     const newErrors = {};
     if (!newJob.title.trim()) newErrors.title = 'Le titre est requis';
     if (!newJob.description.trim()) newErrors.description = 'La description est requise';
     if (!newJob.location) newErrors.location = 'La localisation est requise';
-    if (!newJob.salary_min) newErrors.salary_min = 'Le salaire minimum est requis';
-    if (!newJob.salary_max) newErrors.salary_max = 'Le salaire maximum est requis';
-    if (newJob.salary_min && newJob.salary_max && parseFloat(newJob.salary_min) >= parseFloat(newJob.salary_max)) {
-      newErrors.salary = 'Le salaire minimum doit être inférieur au salaire maximum';
-    }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -68,69 +70,120 @@ const JobForm = ({ isOpen, onClose, onSuccess, initialData = null }) => {
       }
     });
     setSkillInput('');
+    setSelectedFile(null);
     setErrors({});
   };
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  if (!validateForm()) return;
-  
-  setIsSubmitting(true);
-  
-  try {
-    const jobData = {
-      title: newJob.title,
-      description: newJob.description,
-      criteria: {
-        experience: newJob.criteria.experience,
-        education: newJob.criteria.education,
-        skills: newJob.criteria.skills
-      },
-      location: newJob.location,
-      salary_min: parseFloat(newJob.salary_min),
-      salary_max: parseFloat(newJob.salary_max),
-      contract_type: newJob.contract_type
-    };
-    
-    let response;
-    
-    // Si initialData existe (mode édition), on update, sinon on crée
-    if (initialData && initialData.id) {
-      response = await jobService.update(initialData.id, jobData);
-      toast.success('Offre modifiée avec succès !');
-    } else {
-      response = await jobService.create(jobData);
-      toast.success('Offre créée avec succès !');
-    }
-    
-    if (onSuccess) {
-      onSuccess(response.data);
-    }
-    
-    resetForm();
-    onClose();
-  } catch (error) {
-    console.error('Error saving job:', error);
-    
-    if (error.response?.data) {
-      const apiErrors = error.response.data;
-      
-      // Afficher les erreurs champ par champ
-      if (typeof apiErrors === 'object') {
-        Object.keys(apiErrors).forEach(key => {
-          const messages = Array.isArray(apiErrors[key]) 
-            ? apiErrors[key].join(', ') 
-            : apiErrors[key];
-          toast.error(`${key}: ${messages}`);
-        });
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Vérifier que c'est bien un PDF
+      if (file.type === 'application/pdf') {
+        setSelectedFile(file);
+        console.log('Fichier sélectionné:', file.name, file.type, file.size);
+      } else {
+        toast.error('Seuls les fichiers PDF sont acceptés');
+        e.target.value = '';
       }
-    } else {
-      toast.error('Erreur de connexion au serveur');
     }
-  } finally {
-    setIsSubmitting(false);
-  }
-};
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!validateForm()) return;
+    
+    setIsSubmitting(true);
+    
+    try {
+      const formData = new FormData();
+      formData.append('title', newJob.title);
+      formData.append('description', newJob.description);
+      formData.append('location', newJob.location);
+      formData.append('contract_type', newJob.contract_type);
+      
+      // Ajouter les salaires seulement s'ils sont remplis
+      if (newJob.salary_min && newJob.salary_min !== '') {
+        formData.append('salary_min', parseFloat(newJob.salary_min));
+      }
+      if (newJob.salary_max && newJob.salary_max !== '') {
+        formData.append('salary_max', parseFloat(newJob.salary_max));
+      }
+      
+      // Construire l'objet criteria
+      const criteriaObj = {};
+      
+      if (newJob.criteria.skills && newJob.criteria.skills.length > 0) {
+        criteriaObj.technologies = newJob.criteria.skills;
+      } else {
+        criteriaObj.technologies = [];
+      }
+      
+      if (newJob.criteria.experience && newJob.criteria.experience !== '') {
+        criteriaObj.experience = newJob.criteria.experience;
+      }
+      
+      if (newJob.criteria.education && newJob.criteria.education !== '') {
+        criteriaObj.education = newJob.criteria.education;
+      }
+      
+      formData.append('criteria', JSON.stringify(criteriaObj));
+      
+      // Ajouter le fichier - CORRECTION IMPORTANTE
+      if (selectedFile) {
+        // S'assurer que le fichier est bien un objet File
+        formData.append('job_description_file', selectedFile, selectedFile.name);
+        console.log('Fichier ajouté au FormData:', selectedFile.name);
+      }
+      
+      const token = getToken();
+      const url = initialData && initialData.id 
+        ? `https://back.maurilink.site/api/jobs/offers/${initialData.id}/`
+        : 'https://back.maurilink.site/api/jobs/offers/';
+      
+      // IMPORTANT: Ne pas définir Content-Type, laisser le navigateur le faire
+      const response = await fetch(url, {
+        method: initialData && initialData.id ? 'PUT' : 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+        body: formData
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        console.error('Erreur API:', data);
+        if (data && typeof data === 'object') {
+          Object.keys(data).forEach(key => {
+            const messages = Array.isArray(data[key]) ? data[key].join(', ') : data[key];
+            toast.error(`${key}: ${messages}`);
+          });
+        }
+        throw new Error(JSON.stringify(data));
+      }
+      
+      console.log('Succès:', data);
+      toast.success(initialData ? 'Offre modifiée avec succès !' : 'Offre créée avec succès !');
+      
+      if (onSuccess) {
+        onSuccess(data);
+      }
+      
+      if (refreshJobs) {
+        refreshJobs();
+      }
+      
+      resetForm();
+      onClose();
+    } catch (error) {
+      console.error('Error saving job:', error);
+      if (!error.response) {
+        toast.error('Erreur de connexion au serveur');
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const handleAddSkill = () => {
     if (skillInput.trim() && !newJob.criteria.skills.includes(skillInput.trim())) {
@@ -190,7 +243,6 @@ const handleSubmit = async (e) => {
             exit={{ scale: 0.9, opacity: 0, y: 20 }}
             className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl"
           >
-            {/* Header */}
             <div className="sticky top-0 bg-gradient-to-r from-blue-600 to-indigo-600 p-6 text-white z-10">
               <div className="flex justify-between items-start">
                 <div>
@@ -204,24 +256,20 @@ const handleSubmit = async (e) => {
                     {initialData ? 'Modifiez les informations de votre offre' : 'Publiez une offre d\'emploi pour trouver les meilleurs talents'}
                   </p>
                 </div>
-                <button 
-                  onClick={onClose} 
-                  className="p-2 hover:bg-white/20 rounded-xl transition-all duration-200"
-                >
+                <button onClick={onClose} className="p-2 hover:bg-white/20 rounded-xl">
                   <HiX className="w-6 h-6" />
                 </button>
               </div>
             </div>
 
             <form onSubmit={handleSubmit} className="p-6 space-y-6">
-              {/* Section 1: Informations générales */}
+              {/* Informations générales */}
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2 pb-2 border-b">
                   <HiStar className="w-5 h-5 text-blue-600" />
                   Informations générales
                 </h3>
 
-                {/* Titre */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     <HiBriefcase className="inline w-4 h-4 mr-1 text-blue-600" />
@@ -234,14 +282,13 @@ const handleSubmit = async (e) => {
                     value={newJob.title}
                     onChange={handleInputChange}
                     placeholder="Ex: Développeur Full Stack Senior"
-                    className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
-                      errors.title ? 'border-red-500 bg-red-50' : 'border-gray-300 hover:border-gray-400'
+                    className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 ${
+                      errors.title ? 'border-red-500 bg-red-50' : 'border-gray-300'
                     }`}
                   />
                   {errors.title && <p className="mt-1 text-xs text-red-500">{errors.title}</p>}
                 </div>
 
-                {/* Description */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     <HiDocumentText className="inline w-4 h-4 mr-1 text-blue-600" />
@@ -253,16 +300,16 @@ const handleSubmit = async (e) => {
                     rows="5"
                     value={newJob.description}
                     onChange={handleInputChange}
-                    placeholder="Décrivez les missions, responsabilités et conditions du poste..."
-                    className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none transition-all ${
-                      errors.description ? 'border-red-500 bg-red-50' : 'border-gray-300 hover:border-gray-400'
+                    placeholder="Décrivez les missions..."
+                    className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 ${
+                      errors.description ? 'border-red-500 bg-red-50' : 'border-gray-300'
                     }`}
                   />
                   {errors.description && <p className="mt-1 text-xs text-red-500">{errors.description}</p>}
                 </div>
               </div>
 
-              {/* Section 2: Détails du poste */}
+              {/* Détails du poste */}
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2 pb-2 border-b">
                   <HiOfficeBuilding className="w-5 h-5 text-blue-600" />
@@ -270,7 +317,6 @@ const handleSubmit = async (e) => {
                 </h3>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Localisation */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       <HiLocationMarker className="inline w-4 h-4 mr-1 text-blue-600" />
@@ -281,8 +327,8 @@ const handleSubmit = async (e) => {
                       required
                       value={newJob.location}
                       onChange={handleInputChange}
-                      className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
-                        errors.location ? 'border-red-500 bg-red-50' : 'border-gray-300 hover:border-gray-400'
+                      className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 ${
+                        errors.location ? 'border-red-500 bg-red-50' : 'border-gray-300'
                       }`}
                     >
                       <option value="">Sélectionnez une ville</option>
@@ -293,18 +339,16 @@ const handleSubmit = async (e) => {
                     {errors.location && <p className="mt-1 text-xs text-red-500">{errors.location}</p>}
                   </div>
 
-                  {/* Type de contrat */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       <HiBriefcase className="inline w-4 h-4 mr-1 text-blue-600" />
-                      Type de contrat <span className="text-red-500">*</span>
+                      Type de contrat
                     </label>
                     <select
                       name="contract_type"
-                      required
                       value={newJob.contract_type}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all hover:border-gray-400"
+                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg"
                     >
                       {contractTypes.map(type => (
                         <option key={type} value={type}>{type}</option>
@@ -313,53 +357,78 @@ const handleSubmit = async (e) => {
                   </div>
                 </div>
 
-                {/* Salaire */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       <HiCurrencyDollar className="inline w-4 h-4 mr-1 text-blue-600" />
-                      Salaire minimum (MRU) <span className="text-red-500">*</span>
+                      Salaire minimum (Optionnel)
                     </label>
                     <input
                       type="number"
                       name="salary_min"
-                      required
                       value={newJob.salary_min}
                       onChange={handleInputChange}
-                      placeholder="Ex: 35000"
-                      className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
-                        errors.salary_min ? 'border-red-500 bg-red-50' : 'border-gray-300 hover:border-gray-400'
-                      }`}
+                      placeholder="Ex: 45000"
+                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg"
                     />
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       <HiCurrencyDollar className="inline w-4 h-4 mr-1 text-blue-600" />
-                      Salaire maximum (MRU) <span className="text-red-500">*</span>
+                      Salaire maximum (Optionnel)
                     </label>
                     <input
                       type="number"
                       name="salary_max"
-                      required
                       value={newJob.salary_max}
                       onChange={handleInputChange}
-                      placeholder="Ex: 55000"
-                      className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
-                        errors.salary_max ? 'border-red-500 bg-red-50' : 'border-gray-300 hover:border-gray-400'
-                      }`}
+                      placeholder="Ex: 60000"
+                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg"
                     />
                   </div>
                 </div>
-                {errors.salary && <p className="mt-1 text-xs text-red-500">{errors.salary}</p>}
               </div>
 
-              {/* Section 3: Critères de sélection */}
+              {/* Compétences */}
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2 pb-2 border-b">
-                  <HiUserGroup className="w-5 h-5 text-blue-600" />
-                  Critères de sélection
+                  <HiCode className="w-5 h-5 text-blue-600" />
+                  Compétences requises
                 </h3>
+
+                <div>
+                  <div className="flex gap-2 mb-3">
+                    <input
+                      type="text"
+                      value={skillInput}
+                      onChange={(e) => setSkillInput(e.target.value)}
+                      onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddSkill())}
+                      placeholder="Ex: React, Python, Django..."
+                      className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleAddSkill}
+                      className="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg"
+                    >
+                      Ajouter
+                    </button>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {newJob.criteria.skills.map((skill, index) => (
+                      <span
+                        key={index}
+                        className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-700 rounded-full"
+                      >
+                        {skill}
+                        <button type="button" onClick={() => handleRemoveSkill(skill)}>
+                          <HiX className="w-3 h-3" />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                </div>
 
                 {/* Expérience */}
                 <div>
@@ -370,7 +439,7 @@ const handleSubmit = async (e) => {
                   <select
                     value={newJob.criteria.experience}
                     onChange={(e) => handleCriteriaChange('experience', e.target.value)}
-                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all hover:border-gray-400"
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg"
                   >
                     <option value="">Sélectionnez l'expérience</option>
                     <option value="0-1 an">0-1 an</option>
@@ -390,7 +459,7 @@ const handleSubmit = async (e) => {
                   <select
                     value={newJob.criteria.education}
                     onChange={(e) => handleCriteriaChange('education', e.target.value)}
-                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all hover:border-gray-400"
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg"
                   >
                     <option value="">Sélectionnez le niveau</option>
                     <option value="Bac">Bac</option>
@@ -400,67 +469,43 @@ const handleSubmit = async (e) => {
                     <option value="Bac+8">Bac+8</option>
                   </select>
                 </div>
+              </div>
 
-                {/* Compétences */}
+              {/* Fichier PDF */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2 pb-2 border-b">
+                  <HiPaperClip className="w-5 h-5 text-blue-600" />
+                  Fichier PDF (Optionnel)
+                </h3>
+
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    <HiCode className="inline w-4 h-4 mr-1 text-blue-600" />
-                    Compétences requises
-                  </label>
-                  <div className="flex gap-2 mb-3">
-                    <input
-                      type="text"
-                      value={skillInput}
-                      onChange={(e) => setSkillInput(e.target.value)}
-                      onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddSkill())}
-                      placeholder="Ex: React, Python, Django..."
-                      className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all hover:border-gray-400"
-                    />
-                    <button
-                      type="button"
-                      onClick={handleAddSkill}
-                      className="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:shadow-lg transition-all duration-200 font-medium"
-                    >
-                      Ajouter
-                    </button>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {newJob.criteria.skills.map((skill, index) => (
-                      <motion.span
-                        key={index}
-                        initial={{ scale: 0.8, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        exit={{ scale: 0.8, opacity: 0 }}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 rounded-full text-sm font-medium border border-blue-200"
-                      >
-                        <HiCode className="w-3.5 h-3.5" />
-                        {skill}
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveSkill(skill)}
-                          className="ml-1 hover:text-blue-900 transition-colors"
-                        >
-                          <HiX className="w-3.5 h-3.5" />
-                        </button>
-                      </motion.span>
-                    ))}
-                  </div>
+                  <input
+                    type="file"
+                    accept=".pdf"
+                    onChange={handleFileChange}
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg file:mr-4 file:py-2 file:px-4 file:rounded-l-lg file:border-0 file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                  />
+                  {selectedFile && (
+                    <p className="mt-2 text-sm text-green-600">
+                      ✓ Fichier sélectionné : {selectedFile.name} ({(selectedFile.size / 1024).toFixed(2)} KB)
+                    </p>
+                  )}
                 </div>
               </div>
 
-              {/* Boutons d'action */}
-              <div className="flex gap-3 pt-6 border-t sticky bottom-0 bg-white py-4 -mb-6">
+              {/* Boutons */}
+              <div className="flex gap-3 pt-6 border-t">
                 <button
                   type="button"
                   onClick={onClose}
-                  className="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-all duration-200 font-medium"
+                  className="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
                 >
                   Annuler
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="flex-1 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:shadow-lg transition-all duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:shadow-lg disabled:opacity-50"
                 >
                   {isSubmitting ? (
                     <div className="flex items-center justify-center gap-2">
@@ -470,7 +515,7 @@ const handleSubmit = async (e) => {
                   ) : (
                     <div className="flex items-center justify-center gap-2">
                       <HiCheckCircle className="w-5 h-5" />
-                      Publier l'offre
+                      {initialData ? 'Modifier l\'offre' : 'Publier l\'offre'}
                     </div>
                   )}
                 </button>

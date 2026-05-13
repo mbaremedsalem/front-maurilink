@@ -353,6 +353,16 @@
     "application_for": "Votre candidature pour",
     "has_been_sent": "a bien été envoyée",
     "back_to_jobs": "Retour aux offres",
+    "apply_without_account": "Postuler sans compte",
+    "full_name": "Nom complet",
+    "cv_file": "CV (fichier)",
+    "upload_cv": "Télécharger un CV",
+    "or_drag": "ou glissez-déposez",
+    "file_types": "PDF, DOC, DOCX (max. 10MB)",
+    "candidate": "Candidat",
+    "guest_application_info": "Votre candidature sera envoyée directement. Un lien de suivi vous sera envoyé par email.",
+    "have_account": "Vous avez déjà un compte ?",
+    "login_to_apply_with_profile": "Connectez-vous pour postuler avec votre profil",
     "contract_types": {
       "cdi": "CDI",
       "cdd": "CDD",
@@ -378,6 +388,12 @@
       "subtitle": "L'offre que vous recherchez n'existe pas ou a été supprimée"
     },
     "messages": {
+      "enter_name": "Veuillez entrer votre nom complet",
+      "enter_email": "Veuillez entrer votre adresse email",
+      "invalid_email": "Veuillez entrer une adresse email valide",
+      "select_cv_file": "Veuillez sélectionner un fichier CV",
+      "invalid_file_type": "Format de fichier non supporté. Utilisez PDF, DOC ou DOCX",
+      "file_too_large": "Le fichier est trop volumineux. Taille maximale: 10MB",
       "removed_favorites": "Offre retirée des favoris",
       "added_favorites": "Offre ajoutée aux favoris",
       "link_copied": "Lien copié dans le presse-papier !",
@@ -702,6 +718,12 @@
     "accept_application": "Accepter la candidature",
     "reject_application": "Refuser la candidature",
     "search_placeholder": "Rechercher par nom, email ou offre...",
+        "generating_pdf": "Génération du PDF en cours...",
+    "pdf_generated": "PDF généré avec succès !",
+    "pdf_error": "Erreur lors de la génération du PDF",
+    "cv_downloaded": "CV téléchargé avec succès",
+    "export_cv": "Exporter le CV",
+    "export_resume": "Exporter le CV",
     "status": {
       "pending": "En attente",
       "accepted": "Acceptée",
@@ -790,6 +812,7 @@
       "rejected": "Proposition refusée avec succès"
     }
   }
+
 
 
 
