@@ -136,8 +136,8 @@ const JobForm = ({ isOpen, onClose, onSuccess, initialData = null, refreshJobs }
       
       const token = getToken();
       const url = initialData && initialData.id 
-        ? `http://127.0.0.1:8000/api/jobs/offers/${initialData.id}/`
-        : 'http://127.0.0.1:8000/api/jobs/offers/';
+        ? `https://back.maurilink.site/api/jobs/offers/${initialData.id}/`
+        : 'https://back.maurilink.site/api/jobs/offers/';
       
       const response = await fetch(url, {
         method: initialData && initialData.id ? 'PUT' : 'POST',
