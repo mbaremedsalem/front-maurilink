@@ -77,10 +77,8 @@ const JobForm = ({ isOpen, onClose, onSuccess, initialData = null, refreshJobs }
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      // Vérifier que c'est bien un PDF
       if (file.type === 'application/pdf') {
         setSelectedFile(file);
-        console.log('Fichier sélectionné:', file.name, file.type, file.size);
       } else {
         toast.error('Seuls les fichiers PDF sont acceptés');
         e.target.value = '';
@@ -101,46 +99,46 @@ const JobForm = ({ isOpen, onClose, onSuccess, initialData = null, refreshJobs }
       formData.append('location', newJob.location);
       formData.append('contract_type', newJob.contract_type);
       
-      // Ajouter les salaires seulement s'ils sont remplis
       if (newJob.salary_min && newJob.salary_min !== '') {
-        formData.append('salary_min', parseFloat(newJob.salary_min));
+        formData.append('salary_min', newJob.salary_min);
       }
       if (newJob.salary_max && newJob.salary_max !== '') {
-        formData.append('salary_max', parseFloat(newJob.salary_max));
+        formData.append('salary_max', newJob.salary_max);
       }
       
-      // Construire l'objet criteria
+      // CORRECTION: Construire l'objet criteria exactement comme dans le curl
       const criteriaObj = {};
       
-      if (newJob.criteria.skills && newJob.criteria.skills.length > 0) {
-        criteriaObj.technologies = newJob.criteria.skills;
-      } else {
-        criteriaObj.technologies = [];
-      }
-      
+      // Ajouter l'expérience si présente
       if (newJob.criteria.experience && newJob.criteria.experience !== '') {
         criteriaObj.experience = newJob.criteria.experience;
       }
       
+      // Ajouter l'éducation si présente
       if (newJob.criteria.education && newJob.criteria.education !== '') {
         criteriaObj.education = newJob.criteria.education;
       }
       
+      // Ajouter les skills (technologies)
+      if (newJob.criteria.skills && newJob.criteria.skills.length > 0) {
+        criteriaObj.skills = newJob.criteria.skills;
+      } else {
+        criteriaObj.skills = [];
+      }
+      
+      // Stringifier l'objet criteria
       formData.append('criteria', JSON.stringify(criteriaObj));
       
-      // Ajouter le fichier - CORRECTION IMPORTANTE
+      // Ajouter le fichier
       if (selectedFile) {
-        // S'assurer que le fichier est bien un objet File
-        formData.append('job_description_file', selectedFile, selectedFile.name);
-        console.log('Fichier ajouté au FormData:', selectedFile.name);
+        formData.append('job_description_file', selectedFile);
       }
       
       const token = getToken();
       const url = initialData && initialData.id 
-        ? `https://back.maurilink.site/api/jobs/offers/${initialData.id}/`
-        : 'https://back.maurilink.site/api/jobs/offers/';
+        ? `http://127.0.0.1:8000/api/jobs/offers/${initialData.id}/`
+        : 'http://127.0.0.1:8000/api/jobs/offers/';
       
-      // IMPORTANT: Ne pas définir Content-Type, laisser le navigateur le faire
       const response = await fetch(url, {
         method: initialData && initialData.id ? 'PUT' : 'POST',
         headers: {
@@ -162,7 +160,6 @@ const JobForm = ({ isOpen, onClose, onSuccess, initialData = null, refreshJobs }
         throw new Error(JSON.stringify(data));
       }
       
-      console.log('Succès:', data);
       toast.success(initialData ? 'Offre modifiée avec succès !' : 'Offre créée avec succès !');
       
       if (onSuccess) {
@@ -177,9 +174,7 @@ const JobForm = ({ isOpen, onClose, onSuccess, initialData = null, refreshJobs }
       onClose();
     } catch (error) {
       console.error('Error saving job:', error);
-      if (!error.response) {
-        toast.error('Erreur de connexion au serveur');
-      }
+      toast.error('Erreur lors de la sauvegarde');
     } finally {
       setIsSubmitting(false);
     }
@@ -278,7 +273,6 @@ const JobForm = ({ isOpen, onClose, onSuccess, initialData = null, refreshJobs }
                   <input
                     type="text"
                     name="title"
-                    required
                     value={newJob.title}
                     onChange={handleInputChange}
                     placeholder="Ex: Développeur Full Stack Senior"
@@ -296,11 +290,10 @@ const JobForm = ({ isOpen, onClose, onSuccess, initialData = null, refreshJobs }
                   </label>
                   <textarea
                     name="description"
-                    required
                     rows="5"
                     value={newJob.description}
                     onChange={handleInputChange}
-                    placeholder="Décrivez les missions..."
+                    placeholder="Décrivez les missions, l'environnement technique..."
                     className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 ${
                       errors.description ? 'border-red-500 bg-red-50' : 'border-gray-300'
                     }`}
@@ -324,7 +317,6 @@ const JobForm = ({ isOpen, onClose, onSuccess, initialData = null, refreshJobs }
                     </label>
                     <select
                       name="location"
-                      required
                       value={newJob.location}
                       onChange={handleInputChange}
                       className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 ${
@@ -364,7 +356,7 @@ const JobForm = ({ isOpen, onClose, onSuccess, initialData = null, refreshJobs }
                       Salaire minimum (Optionnel)
                     </label>
                     <input
-                      type="number"
+                      type="text"
                       name="salary_min"
                       value={newJob.salary_min}
                       onChange={handleInputChange}
@@ -379,7 +371,7 @@ const JobForm = ({ isOpen, onClose, onSuccess, initialData = null, refreshJobs }
                       Salaire maximum (Optionnel)
                     </label>
                     <input
-                      type="number"
+                      type="text"
                       name="salary_max"
                       value={newJob.salary_max}
                       onChange={handleInputChange}
@@ -404,33 +396,39 @@ const JobForm = ({ isOpen, onClose, onSuccess, initialData = null, refreshJobs }
                       value={skillInput}
                       onChange={(e) => setSkillInput(e.target.value)}
                       onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddSkill())}
-                      placeholder="Ex: React, Python, Django..."
+                      placeholder="Ex: React, Python, Django, Product management..."
                       className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg"
                     />
                     <button
                       type="button"
                       onClick={handleAddSkill}
-                      className="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg"
+                      className="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:shadow-lg"
                     >
                       Ajouter
                     </button>
                   </div>
-                  <div className="flex flex-wrap gap-2">
-                    {newJob.criteria.skills.map((skill, index) => (
-                      <span
-                        key={index}
-                        className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-700 rounded-full"
-                      >
-                        {skill}
-                        <button type="button" onClick={() => handleRemoveSkill(skill)}>
-                          <HiX className="w-3 h-3" />
-                        </button>
-                      </span>
-                    ))}
-                  </div>
+                  
+                  {newJob.criteria.skills.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {newJob.criteria.skills.map((skill, index) => (
+                        <span
+                          key={index}
+                          className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm"
+                        >
+                          {skill}
+                          <button 
+                            type="button" 
+                            onClick={() => handleRemoveSkill(skill)}
+                            className="hover:text-blue-900"
+                          >
+                            <HiX className="w-3 h-3" />
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
-                {/* Expérience */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     <HiClock className="inline w-4 h-4 mr-1 text-blue-600" />
@@ -446,11 +444,12 @@ const JobForm = ({ isOpen, onClose, onSuccess, initialData = null, refreshJobs }
                     <option value="1-2 ans">1-2 ans</option>
                     <option value="2-3 ans">2-3 ans</option>
                     <option value="3-5 ans">3-5 ans</option>
+                    <option value="4-6 ans">4-6 ans</option>
+                    <option value="5-7 ans">5-7 ans</option>
                     <option value="5+ ans">5+ ans</option>
                   </select>
                 </div>
 
-                {/* Niveau d'études */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     <HiAcademicCap className="inline w-4 h-4 mr-1 text-blue-600" />
@@ -465,8 +464,10 @@ const JobForm = ({ isOpen, onClose, onSuccess, initialData = null, refreshJobs }
                     <option value="Bac">Bac</option>
                     <option value="Bac+2">Bac+2</option>
                     <option value="Bac+3">Bac+3</option>
+                    <option value="Bac+4">Bac+4</option>
                     <option value="Bac+5">Bac+5</option>
                     <option value="Bac+8">Bac+8</option>
+                    <option value="Master en Marketing Digital ou Management">Master Marketing Digital</option>
                   </select>
                 </div>
               </div>

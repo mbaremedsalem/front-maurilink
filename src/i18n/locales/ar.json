@@ -309,102 +309,7 @@
       "freelance": "عمل حر"
     }
   },
-  "jobDetail": {
-    "not_specified": "غير محدد",
-    "company": "شركة",
-    "urgent": "عاجل",
-    "featured": "مميز",
-    "location": "الموقع",
-    "salary": "الراتب",
-    "published_on": "نشرت في",
-    "applications": "الطلبات",
-    "deadline": "الموعد النهائي",
-    "required_experience": "الخبرة المطلوبة",
-    "technical_skills": "المهارات التقنية",
-    "experience": "الخبرة",
-    "education": "المستوى التعليمي",
-    "languages": "اللغات",
-    "website": "الموقع الإلكتروني",
-    "ready_to_apply": "مستعد للتقديم؟",
-    "join_dynamic_team": "انضم إلى فريق ديناميكي",
-    "apply_now": "تقدم الآن",
-    "application_sent": "تم إرسال الطلب",
-    "company_will_review": "ستقوم الشركة بمراجعة ملفك الشخصي",
-    "similar_jobs": "وظائف مشابهة",
-    "about_company": "حول {{company}}",
-    "apply_to_job": "التقدم للوظيفة",
-    "resume": "السيرة الذاتية",
-    "cover_letter": "خطاب التحفيز",
-    "no_resume": "ليس لديك سيرة ذاتية بعد.",
-    "create_resume": "إنشاء سيرتي الذاتية",
-    "select_resume_option": "اختر سيرة ذاتية",
-    "default": "افتراضي",
-    "cover_letter_placeholder": "صف حافزك ومهاراتك ولماذا أنت المرشح المثالي...",
-    "characters": "حرف",
-    "good_to_know": "معلومة مهمة",
-    "application_info": "سيتم مراجعة طلبك من قبل فريق التوظيف. تأكد من أن سيرتك الذاتية محدثة.",
-    "send_application": "إرسال طلبي",
-    "sending": "جاري الإرسال...",
-    "cancel": "إلغاء",
-    "summary": "ملخص",
-    "date": "التاريخ",
-    "application_for": "تم إرسال طلبك لوظيفة",
-    "has_been_sent": "بنجاح",
-    "back_to_jobs": "العودة إلى الوظائف",
-    "apply_without_account": "تقديم طلب بدون حساب",
-    "full_name": "الاسم الكامل",
-    "cv_file": "السيرة الذاتية (ملف)",
-    "upload_cv": "تحميل السيرة الذاتية",
-    "or_drag": "أو اسحب وأفلت",
-    "file_types": "PDF، DOC، DOCX (الحد الأقصى 10 ميغابايت)",
-    "candidate": "مرشح",
-    "guest_application_info": "سيتم إرسال طلبك مباشرة. سيتم إرسال رابط المتابعة إلى بريدك الإلكتروني.",
-    "have_account": "هل لديك حساب بالفعل؟",
-    "login_to_apply_with_profile": "تسجيل الدخول للتقديم باستخدام ملفك الشخصي",
-    "contract_types": {
-      "cdi": "CDI",
-      "cdd": "CDD",
-      "stage": "تدريب",
-      "alternance": "تناوب",
-      "freelance": "عمل حر"
-    },
-    "tabs": {
-      "description": "الوصف",
-      "requirements": "المتطلبات",
-      "benefits": "المزايا"
-    },
-    "benefits": {
-      "career_growth": "تطور مهني",
-      "pro_environment": "بيئة احترافية",
-      "paid_vacation": "إجازات مدفوعة",
-      "health_insurance": "تأمين صحي",
-      "dynamic_team": "فريق ديناميكي",
-      "training": "تدريب مستمر"
-    },
-    "not_found": {
-      "title": "الوظيفة غير موجودة",
-      "subtitle": "الوظيفة التي تبحث عنها غير موجودة أو تم حذفها"
-    },
-    "messages": {
-      "enter_name": "الرجاء إدخال اسمك الكامل",
-      "enter_email": "الرجاء إدخال بريدك الإلكتروني",
-      "invalid_email": "الرجاء إدخال بريد إلكتروني صحيح",
-      "select_cv_file": "الرجاء اختيار ملف السيرة الذاتية",
-      "invalid_file_type": "صيغة الملف غير مدعومة. استخدم PDF، DOC أو DOCX",
-      "file_too_large": "الملف كبير جداً. الحد الأقصى: 10 ميغابايت",
-      "removed_favorites": "تمت إزالة الوظيفة من المفضلة",
-      "added_favorites": "تمت إضافة الوظيفة إلى المفضلة",
-      "link_copied": "تم نسخ الرابط إلى الحافظة!",
-      "copy_error": "لا يمكن النسخ التلقائي. هذا هو الرابط: ",
-      "login_to_apply": "الرجاء تسجيل الدخول للتقديم",
-      "select_resume": "الرجاء اختيار سيرة ذاتية",
-      "add_cover_letter": "الرجاء إضافة خطاب تحفيز"
-    },
-    "errors": {
-      "load_error": "لا يمكن تحميل عرض العمل",
-      "application_error": "حدث خطأ أثناء التقديم"
-    }
-  },
+
   "rfps": {
     "not_specified": "غير محدد",
     "header": {
@@ -801,15 +706,103 @@
       "rejected": "تم رفض المقترح بنجاح"
     }
   },
-  
+
   "jobDetail": {
+    "job_description": "الوصف التفصيلي للوظيفة",
+    "view_pdf": "عرض PDF",
+    "download_pdf": "تحميل PDF",
+    "pdf_available": "يتوفر وصف تفصيلي للوظيفة بصيغة PDF",
+    "pdf_description": "PDF مفصل",
+    "pdf_info_title": "معلومة",
+    "pdf_info_text": "يحتوي هذا المستند PDF على الوصف الكامل للوظيفة. يمكنك عرضه مباشرة في هذه الصفحة أو تحميله.",
+    "view": "عرض",
+    "download": "تحميل",
+    "not_specified": "غير محدد",
+    "urgent": "عاجل",
+    "featured": "مميز",
+    "company": "الشركة",
+    "location": "الموقع",
+    "salary": "الراتب",
+    "published_on": "تاريخ النشر",
+    "applications": "الطلبات",
+    "ready_to_apply": "جاهز للتقديم؟",
+    "join_dynamic_team": "انضم إلى فريقنا الديناميكي",
+    "apply_now": "تقدم الآن",
+    "application_sent": "تم إرسال الطلب",
+    "company_will_review": "ستقوم الشركة بمراجعة طلبك",
+    "deadline": "الموعد النهائي",
+    "required_experience": "الخبرة المطلوبة",
+    "similar_jobs": "وظائف مشابهة",
+    "back_to_jobs": "العودة إلى الوظائف",
+    "about_company": "نبذة عن {{company}}",
+    "website": "الموقع الإلكتروني",
+    "technical_skills": "المهارات التقنية",
+    "experience": "الخبرة",
+    "education": "التعليم",
+    "languages": "اللغات",
+    "apply_to_job": "التقديم على الوظيفة",
+    "resume": "السيرة الذاتية",
+    "select_resume_option": "اختر السيرة الذاتية",
+    "default": "افتراضي",
+    "cover_letter": "خطاب التحفيز",
+    "cover_letter_placeholder": "اكتب رسالة التحفيز الخاصة بك هنا...",
+    "characters": "حروف",
+    "good_to_know": "معلومة مفيدة",
+    "application_info": "سيتلقى صاحب العمل طلبك وسيتواصل معك إذا كانت مؤهلاتك مطابقة.",
+    "sending": "جاري الإرسال...",
+    "send_application": "إرسال الطلب",
+    "cancel": "إلغاء",
+    "close": "إغلاق",
+    "summary": "ملخص",
+    "date": "التاريخ",
+    "no_resume": "ليس لديك سيرة ذاتية بعد. قم بإنشاء واحدة أولاً.",
+    "create_resume": "إنشاء سيرة ذاتية",
+    "application_for": "طلب التقديم لـ",
+    "has_been_sent": "تم إرساله بنجاح",
     "messages": {
+      "login_to_save": "يرجى تسجيل الدخول لحفظ الوظائف",
+      "removed_favorites": "تمت الإزالة من المفضلة",
+      "added_favorites": "تمت الإضافة إلى المفضلة",
+      "link_copied": "تم نسخ الرابط",
+      "copy_error": "فشل نسخ الرابط: ",
+      "login_to_apply": "يرجى تسجيل الدخول للتقديم على الوظيفة",
+      "select_resume": "يرجى اختيار السيرة الذاتية",
+      "add_cover_letter": "يرجى إضافة خطاب تحفيز",
+      "application_sent": "تم إرسال طلبك بنجاح!",
       "enter_name": "الرجاء إدخال اسمك الكامل",
       "enter_email": "الرجاء إدخال بريدك الإلكتروني",
       "invalid_email": "الرجاء إدخال بريد إلكتروني صحيح",
       "select_cv_file": "الرجاء اختيار ملف السيرة الذاتية",
       "invalid_file_type": "صيغة الملف غير مدعومة. استخدم PDF، DOC أو DOCX",
       "file_too_large": "الملف كبير جداً. الحد الأقصى: 10 ميغابايت"
+    },
+    "errors": {
+      "load_error": "خطأ في تحميل تفاصيل الوظيفة",
+      "application_error": "خطأ في إرسال الطلب. يرجى المحاولة مرة أخرى"
+    },
+    "not_found": {
+      "title": "الوظيفة غير موجودة",
+      "subtitle": "عذراً، لم نتمكن من العثور على الوظيفة التي تبحث عنها"
+    },
+    "tabs": {
+      "description": "وصف الوظيفة",
+      "requirements": "المتطلبات",
+      "benefits": "المزايا"
+    },
+    "contract_types": {
+      "cdi": "عقد غير محدد المدة",
+      "cdd": "عقد محدد المدة",
+      "stage": "تدريب",
+      "alternance": "الدراسة بالعمل",
+      "freelance": "عمل حر"
+    },
+    "benefits": {
+      "career_growth": "تطور مهني",
+      "pro_environment": "بيئة عمل احترافية",
+      "paid_vacation": "إجازات مدفوعة",
+      "health_insurance": "تأمين صحي",
+      "dynamic_team": "فريق ديناميكي",
+      "training": "تدريب مستمر"
     },
     "apply_without_account": "تقديم طلب بدون حساب",
     "full_name": "الاسم الكامل",
@@ -820,8 +813,14 @@
     "candidate": "مرشح",
     "guest_application_info": "سيتم إرسال طلبك مباشرة. سيتم إرسال رابط المتابعة إلى بريدك الإلكتروني.",
     "have_account": "هل لديك حساب بالفعل؟",
-    "login_to_apply_with_profile": "تسجيل الدخول للتقديم باستخدام ملفك الشخصي"
+    "login_to_apply_with_profile": "تسجيل الدخول للتقديم باستخدام ملفك الشخصي",
+    "name_placeholder": "أدخل اسمك الكامل",
+    "email_placeholder": "example@email.com",
+    "phone_placeholder": "+222 12 345 678",
+    "optional": "اختياري"
   }
+  
+
 
 
 }

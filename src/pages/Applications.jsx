@@ -51,173 +51,166 @@ const Applications = () => {
     fetchApplications();
   }, []);
 
-// Ajoutez cette fonction après les autres fonctions
-const exportToPDF = async (application, type = 'resume') => {
-  try {
-    toast.info(t('applications.generating_pdf'));
-    
-    if (type === 'attached_cv' && getCVUrl(application)) {
-      // Pour les CV attachés, on télécharge directement le fichier
-      const cvUrl = getCVUrl(application);
-      const link = document.createElement('a');
-      link.href = cvUrl;
-      link.target = '_blank';
-      link.download = `CV_${getCandidateName(application).replace(/\s/g, '_')}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      toast.success(t('applications.cv_downloaded'));
-    } else if (type === 'resume_details' && getResumeDetails(application)) {
-      // Pour les résumés détaillés, on génère un PDF à partir du contenu HTML
-      const resume = getResumeDetails(application);
-      const candidateName = getCandidateName(application);
+  const exportToPDF = async (application, type = 'resume') => {
+    try {
+      toast.info(t('applications.generating_pdf'));
       
-      // Créer un élément temporaire pour le contenu du PDF
-      const pdfContent = document.createElement('div');
-      pdfContent.style.width = '800px';
-      pdfContent.style.padding = '40px';
-      pdfContent.style.backgroundColor = 'white';
-      pdfContent.style.fontFamily = 'Arial, sans-serif';
-      pdfContent.style.color = '#333';
-      
-      // Générer le HTML du CV
-      pdfContent.innerHTML = `
-        <div style="text-align: center; margin-bottom: 30px;">
-          <h1 style="color: #2563eb; margin-bottom: 10px;">${candidateName}</h1>
-          <h2 style="color: #4b5563; font-size: 18px;">${resume.title || 'Curriculum Vitae'}</h2>
-          <hr style="border: 1px solid #e5e7eb; margin: 20px 0;">
-        </div>
+      if (type === 'attached_cv' && getCVUrl(application)) {
+        const cvUrl = getCVUrl(application);
+        const link = document.createElement('a');
+        link.href = cvUrl;
+        link.target = '_blank';
+        link.download = `CV_${getCandidateName(application).replace(/\s/g, '_')}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        toast.success(t('applications.cv_downloaded'));
+      } else if (type === 'resume_details' && getResumeDetails(application)) {
+        const resume = getResumeDetails(application);
+        const candidateName = getCandidateName(application);
         
-        ${resume.personal_info ? `
-          <div style="margin-bottom: 25px;">
-            <h3 style="color: #2563eb; border-bottom: 2px solid #2563eb; padding-bottom: 5px; margin-bottom: 15px;">Informations Personnelles</h3>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-              ${resume.personal_info.first_name && resume.personal_info.last_name ? `<p><strong>Nom complet:</strong> ${resume.personal_info.first_name} ${resume.personal_info.last_name}</p>` : ''}
-              ${resume.personal_info.email ? `<p><strong>Email:</strong> ${resume.personal_info.email}</p>` : ''}
-              ${resume.personal_info.phone ? `<p><strong>Téléphone:</strong> ${resume.personal_info.phone}</p>` : ''}
-              ${resume.personal_info.address ? `<p><strong>Adresse:</strong> ${resume.personal_info.address}</p>` : ''}
-              ${resume.personal_info.birth_date ? `<p><strong>Date de naissance:</strong> ${resume.personal_info.birth_date}</p>` : ''}
-              ${resume.personal_info.niveau_etude ? `<p><strong>Niveau d'étude:</strong> ${resume.personal_info.niveau_etude}</p>` : ''}
+        const pdfContent = document.createElement('div');
+        pdfContent.style.width = '800px';
+        pdfContent.style.padding = '40px';
+        pdfContent.style.backgroundColor = 'white';
+        pdfContent.style.fontFamily = 'Arial, sans-serif';
+        pdfContent.style.color = '#333';
+        pdfContent.style.direction = isRTL ? 'rtl' : 'ltr';
+        
+        pdfContent.innerHTML = `
+          <div style="text-align: center; margin-bottom: 30px;">
+            <h1 style="color: #2563eb; margin-bottom: 10px;">${candidateName}</h1>
+            <h2 style="color: #4b5563; font-size: 18px;">${resume.title || t('applications.cv_title')}</h2>
+            <hr style="border: 1px solid #e5e7eb; margin: 20px 0;">
+          </div>
+          
+          ${resume.personal_info ? `
+            <div style="margin-bottom: 25px;">
+              <h3 style="color: #2563eb; border-bottom: 2px solid #2563eb; padding-bottom: 5px; margin-bottom: 15px;">${t('applications.personal_info')}</h3>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                ${resume.personal_info.first_name && resume.personal_info.last_name ? `<p><strong>${t('applications.full_name')}:</strong> ${resume.personal_info.first_name} ${resume.personal_info.last_name}</p>` : ''}
+                ${resume.personal_info.email ? `<p><strong>${t('applications.email')}:</strong> ${resume.personal_info.email}</p>` : ''}
+                ${resume.personal_info.phone ? `<p><strong>${t('applications.phone')}:</strong> ${resume.personal_info.phone}</p>` : ''}
+                ${resume.personal_info.address ? `<p><strong>${t('applications.address')}:</strong> ${resume.personal_info.address}</p>` : ''}
+                ${resume.personal_info.birth_date ? `<p><strong>${t('applications.birth_date')}:</strong> ${resume.personal_info.birth_date}</p>` : ''}
+                ${resume.personal_info.niveau_etude ? `<p><strong>${t('applications.education_level')}:</strong> ${resume.personal_info.niveau_etude}</p>` : ''}
+              </div>
+              ${resume.personal_info.apropos ? `<p style="margin-top: 10px;"><strong>${t('applications.about')}:</strong><br>${resume.personal_info.apropos}</p>` : ''}
             </div>
-            ${resume.personal_info.apropos ? `<p style="margin-top: 10px;"><strong>À propos:</strong><br>${resume.personal_info.apropos}</p>` : ''}
-          </div>
-        ` : ''}
-        
-        ${resume.experience && resume.experience.length > 0 ? `
-          <div style="margin-bottom: 25px;">
-            <h3 style="color: #2563eb; border-bottom: 2px solid #2563eb; padding-bottom: 5px; margin-bottom: 15px;">Expériences Professionnelles</h3>
-            ${resume.experience.map(exp => `
-              <div style="margin-bottom: 15px;">
-                <p style="font-weight: bold; margin-bottom: 5px;">${exp.title}</p>
-                <p style="color: #4b5563; margin-bottom: 5px;">${exp.company} - ${exp.location}</p>
-                <p style="color: #6b7280; font-size: 12px; margin-bottom: 5px;">${exp.start_date} - ${exp.end_date || 'Présent'}</p>
-                ${exp.description ? `<p style="font-size: 12px; line-height: 1.5;">${exp.description}</p>` : ''}
-              </div>
-            `).join('')}
-          </div>
-        ` : ''}
-        
-        ${resume.education && resume.education.length > 0 ? `
-          <div style="margin-bottom: 25px;">
-            <h3 style="color: #2563eb; border-bottom: 2px solid #2563eb; padding-bottom: 5px; margin-bottom: 15px;">Formations</h3>
-            ${resume.education.map(edu => `
-              <div style="margin-bottom: 15px;">
-                <p style="font-weight: bold; margin-bottom: 5px;">${edu.degree}</p>
-                <p style="color: #4b5563; margin-bottom: 5px;">${edu.school} - ${edu.location}</p>
-                <p style="color: #6b7280; font-size: 12px;">${edu.year}</p>
-                ${edu.description ? `<p style="font-size: 12px; margin-top: 5px;">${edu.description}</p>` : ''}
-              </div>
-            `).join('')}
-          </div>
-        ` : ''}
-        
-        ${resume.skills && resume.skills.length > 0 ? `
-          <div style="margin-bottom: 25px;">
-            <h3 style="color: #2563eb; border-bottom: 2px solid #2563eb; padding-bottom: 5px; margin-bottom: 15px;">Compétences</h3>
-            <div style="display: flex; flex-wrap: wrap; gap: 10px;">
-              ${resume.skills.map(skill => `
-                <span style="background-color: #dbeafe; color: #1e40af; padding: 5px 10px; border-radius: 5px; font-size: 12px;">
-                  ${typeof skill === 'string' ? skill : skill.name} ${skill.level ? `(${skill.level})` : ''}
-                </span>
+          ` : ''}
+          
+          ${resume.experience && resume.experience.length > 0 ? `
+            <div style="margin-bottom: 25px;">
+              <h3 style="color: #2563eb; border-bottom: 2px solid #2563eb; padding-bottom: 5px; margin-bottom: 15px;">${t('applications.work_experience')}</h3>
+              ${resume.experience.map(exp => `
+                <div style="margin-bottom: 15px;">
+                  <p style="font-weight: bold; margin-bottom: 5px;">${exp.title}</p>
+                  <p style="color: #4b5563; margin-bottom: 5px;">${exp.company} - ${exp.location}</p>
+                  <p style="color: #6b7280; font-size: 12px; margin-bottom: 5px;">${exp.start_date} - ${exp.end_date || t('applications.present')}</p>
+                  ${exp.description ? `<p style="font-size: 12px; line-height: 1.5;">${exp.description}</p>` : ''}
+                </div>
               `).join('')}
             </div>
-          </div>
-        ` : ''}
-        
-        ${resume.languages && resume.languages.length > 0 ? `
-          <div style="margin-bottom: 25px;">
-            <h3 style="color: #2563eb; border-bottom: 2px solid #2563eb; padding-bottom: 5px; margin-bottom: 15px;">Langues</h3>
-            <div style="display: flex; flex-wrap: wrap; gap: 10px;">
-              ${resume.languages.map(lang => `
-                <span style="background-color: #f3e8ff; color: #6b21a5; padding: 5px 10px; border-radius: 5px; font-size: 12px;">
-                  ${typeof lang === 'string' ? lang : lang.name} ${lang.level ? `(${lang.level})` : ''}
-                </span>
+          ` : ''}
+          
+          ${resume.education && resume.education.length > 0 ? `
+            <div style="margin-bottom: 25px;">
+              <h3 style="color: #2563eb; border-bottom: 2px solid #2563eb; padding-bottom: 5px; margin-bottom: 15px;">${t('applications.education')}</h3>
+              ${resume.education.map(edu => `
+                <div style="margin-bottom: 15px;">
+                  <p style="font-weight: bold; margin-bottom: 5px;">${edu.degree}</p>
+                  <p style="color: #4b5563; margin-bottom: 5px;">${edu.school} - ${edu.location}</p>
+                  <p style="color: #6b7280; font-size: 12px;">${edu.year}</p>
+                  ${edu.description ? `<p style="font-size: 12px; margin-top: 5px;">${edu.description}</p>` : ''}
+                </div>
               `).join('')}
             </div>
+          ` : ''}
+          
+          ${resume.skills && resume.skills.length > 0 ? `
+            <div style="margin-bottom: 25px;">
+              <h3 style="color: #2563eb; border-bottom: 2px solid #2563eb; padding-bottom: 5px; margin-bottom: 15px;">${t('applications.skills')}</h3>
+              <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                ${resume.skills.map(skill => `
+                  <span style="background-color: #dbeafe; color: #1e40af; padding: 5px 10px; border-radius: 5px; font-size: 12px;">
+                    ${typeof skill === 'string' ? skill : skill.name} ${skill.level ? `(${skill.level})` : ''}
+                  </span>
+                `).join('')}
+              </div>
+            </div>
+          ` : ''}
+          
+          ${resume.languages && resume.languages.length > 0 ? `
+            <div style="margin-bottom: 25px;">
+              <h3 style="color: #2563eb; border-bottom: 2px solid #2563eb; padding-bottom: 5px; margin-bottom: 15px;">${t('applications.languages')}</h3>
+              <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                ${resume.languages.map(lang => `
+                  <span style="background-color: #f3e8ff; color: #6b21a5; padding: 5px 10px; border-radius: 5px; font-size: 12px;">
+                    ${typeof lang === 'string' ? lang : lang.name} ${lang.level ? `(${lang.level})` : ''}
+                  </span>
+                `).join('')}
+              </div>
+            </div>
+          ` : ''}
+          
+          <div style="text-align: center; margin-top: 40px; font-size: 10px; color: #9ca3af;">
+            ${t('applications.generated_on')} ${new Date().toLocaleDateString(i18n.language === 'ar' ? 'ar-MR' : 'fr-FR')}
           </div>
-        ` : ''}
+        `;
         
-        <div style="text-align: center; margin-top: 40px; font-size: 10px; color: #9ca3af;">
-          Généré le ${new Date().toLocaleDateString()}
-        </div>
-      `;
-      
-      document.body.appendChild(pdfContent);
-      
-      // Utiliser html2canvas pour convertir le HTML en image
-      const canvas = await html2canvas(pdfContent, {
-        scale: 2,
-        logging: false,
-        useCORS: true
-      });
-      
-      document.body.removeChild(pdfContent);
-      
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4'
-      });
-      
-      const imgWidth = 210; // A4 width in mm
-      const pageHeight = 297; // A4 height in mm
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      let heightLeft = imgHeight;
-      let position = 0;
-      
-      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
-      
-      while (heightLeft >= 0) {
-        position = heightLeft - imgHeight;
-        pdf.addPage();
+        document.body.appendChild(pdfContent);
+        
+        const canvas = await html2canvas(pdfContent, {
+          scale: 2,
+          logging: false,
+          useCORS: true
+        });
+        
+        document.body.removeChild(pdfContent);
+        
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new jsPDF({
+          orientation: 'portrait',
+          unit: 'mm',
+          format: 'a4'
+        });
+        
+        const imgWidth = 210;
+        const pageHeight = 297;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        let heightLeft = imgHeight;
+        let position = 0;
+        
         pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
         heightLeft -= pageHeight;
+        
+        while (heightLeft >= 0) {
+          position = heightLeft - imgHeight;
+          pdf.addPage();
+          pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+          heightLeft -= pageHeight;
+        }
+        
+        pdf.save(`CV_${candidateName.replace(/\s/g, '_')}.pdf`);
+        toast.success(t('applications.pdf_generated'));
       }
-      
-      pdf.save(`CV_${candidateName.replace(/\s/g, '_')}.pdf`);
-      toast.success(t('applications.pdf_generated'));
+    } catch (error) {
+      console.error('Error exporting PDF:', error);
+      toast.error(t('applications.pdf_error'));
     }
-  } catch (error) {
-    console.error('Error exporting PDF:', error);
-    toast.error(t('applications.pdf_error'));
-  }
-};
+  };
 
   const fetchApplications = async () => {
     try {
       setLoading(true);
       const response = await applicationService.getCompanyApplications();
-      
       const data = response.data;
       
-      console.log('API Response:', data); // Pour debug
+      console.log('API Response:', data);
       
-      // Vérifier la structure de la réponse
       if (data && data.offers && Array.isArray(data.offers)) {
         setCompanyStats({
-          companyName: data.company_name || 'Entreprise',
+          companyName: data.company_name || t('applications.company'),
           totalOffers: data.total_offers || 0,
           totalApplications: data.total_applications || 0
         });
@@ -238,21 +231,21 @@ const exportToPDF = async (application, type = 'resume') => {
       } else if (Array.isArray(data)) {
         setApplications(data);
         setCompanyStats({
-          companyName: 'Mes candidatures',
+          companyName: t('applications.my_applications'),
           totalOffers: data.length,
           totalApplications: data.length
         });
       } else if (data && data.results && Array.isArray(data.results)) {
         setApplications(data.results);
         setCompanyStats({
-          companyName: 'Mes candidatures',
+          companyName: t('applications.my_applications'),
           totalOffers: data.count || data.results.length,
           totalApplications: data.count || data.results.length
         });
       } else {
         setApplications([]);
         setCompanyStats({
-          companyName: 'Entreprise',
+          companyName: t('applications.company'),
           totalOffers: 0,
           totalApplications: 0
         });
@@ -555,359 +548,342 @@ const exportToPDF = async (application, type = 'resume') => {
     );
   };
 
-const ApplicationDetailModal = ({ application, onClose }) => {
-  const job = application.offer_details || application.job_details;
-  const resume = getResumeDetails(application);
-  const cvUrl = getCVUrl(application);
-  const hasResume = hasResumeDetails(application);
-  const hasCV = hasAttachedCV(application);
-  const isUpdating = updatingId === application.id;
-  const candidateName = getCandidateName(application);
-  const candidateEmail = getCandidateEmail(application);
-  const candidatePhone = getCandidatePhone(application);
-  const coverLetter = getCoverLetter(application);
-  
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-      onClick={onClose}
-    >
+  const ApplicationDetailModal = ({ application, onClose }) => {
+    const job = application.offer_details || application.job_details;
+    const resume = getResumeDetails(application);
+    const cvUrl = getCVUrl(application);
+    const hasResume = hasResumeDetails(application);
+    const hasCV = hasAttachedCV(application);
+    const isUpdating = updatingId === application.id;
+    const candidateName = getCandidateName(application);
+    const candidateEmail = getCandidateEmail(application);
+    const candidatePhone = getCandidatePhone(application);
+    const coverLetter = getCoverLetter(application);
+    
+    return (
       <motion.div
-        initial={{ scale: 0.9, opacity: 0, y: 20 }}
-        animate={{ scale: 1, opacity: 1, y: 0 }}
-        exit={{ scale: 0.9, opacity: 0, y: 20 }}
-        className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-2xl"
-        onClick={(e) => e.stopPropagation()}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+        onClick={onClose}
       >
-        <div className="sticky top-0 bg-gradient-to-r from-blue-600 to-indigo-600 p-6 text-white">
-          <div className={`flex justify-between items-start ${isRTL ? 'flex-row-reverse' : ''}`}>
-            <div className={isRTL ? 'text-right' : ''}>
-              <h2 className="text-2xl font-bold mb-1">{t('applications.modal.title')}</h2>
-              <p className="text-blue-100">{t('applications.modal.subtitle')}</p>
-            </div>
-            <button onClick={onClose} className="p-2 hover:bg-white/20 rounded-xl transition-all">
-              <HiX className="w-6 h-6" />
-            </button>
-          </div>
-        </div>
-        
-        <div className="overflow-y-auto max-h-[calc(90vh-120px)] p-6">
-          {/* En-tête du candidat */}
-          <div className="mb-8 pb-6 border-b">
-            <div className={`flex items-start gap-4 mb-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
-              <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg">
-                <span className="text-white font-bold text-2xl">
-                  {candidateName.charAt(0).toUpperCase()}
-                </span>
+        <motion.div
+          initial={{ scale: 0.9, opacity: 0, y: 20 }}
+          animate={{ scale: 1, opacity: 1, y: 0 }}
+          exit={{ scale: 0.9, opacity: 0, y: 20 }}
+          className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-2xl"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="sticky top-0 bg-gradient-to-r from-blue-600 to-indigo-600 p-6 text-white">
+            <div className={`flex justify-between items-start ${isRTL ? 'flex-row-reverse' : ''}`}>
+              <div className={isRTL ? 'text-right' : ''}>
+                <h2 className="text-2xl font-bold mb-1">{t('applications.modal.title')}</h2>
+                <p className="text-blue-100">{t('applications.modal.subtitle')}</p>
               </div>
-              <div className={`flex-1 ${isRTL ? 'text-right' : ''}`}>
-                <h3 className="text-2xl font-bold text-gray-900">
-                  {candidateName}
-                </h3>
-                <p className="text-blue-600 font-medium mt-1">{job?.title}</p>
-                <div className="mt-2">{getStatusBadge(application.status)}</div>
-              </div>
-            </div>
-            
-            {/* Informations de contact */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <div className={`flex items-center gap-3 p-3 bg-gray-50 rounded-xl ${isRTL ? 'flex-row-reverse' : ''}`}>
-                <HiMail className="w-5 h-5 text-gray-400" />
-                <div className={isRTL ? 'text-right' : ''}>
-                  <p className="text-xs text-gray-500">{t('applications.email')}</p>
-                  <p className="text-sm font-medium text-gray-900">{candidateEmail}</p>
-                </div>
-              </div>
-              {candidatePhone && (
-                <div className={`flex items-center gap-3 p-3 bg-gray-50 rounded-xl ${isRTL ? 'flex-row-reverse' : ''}`}>
-                  <HiPhone className="w-5 h-5 text-gray-400" />
-                  <div className={isRTL ? 'text-right' : ''}>
-                    <p className="text-xs text-gray-500">{t('applications.phone')}</p>
-                    <p className="text-sm font-medium text-gray-900">{candidatePhone}</p>
-                  </div>
-                </div>
-              )}
-              <div className={`flex items-center gap-3 p-3 bg-gray-50 rounded-xl ${isRTL ? 'flex-row-reverse' : ''}`}>
-                <HiCalendar className="w-5 h-5 text-gray-400" />
-                <div className={isRTL ? 'text-right' : ''}>
-                  <p className="text-xs text-gray-500">{t('applications.application_date')}</p>
-                  <p className="text-sm font-medium text-gray-900">{formatDate(application.applied_date)}</p>
-                </div>
-              </div>
-              {job?.location && (
-                <div className={`flex items-center gap-3 p-3 bg-gray-50 rounded-xl ${isRTL ? 'flex-row-reverse' : ''}`}>
-                  <HiLocationMarker className="w-5 h-5 text-gray-400" />
-                  <div className={isRTL ? 'text-right' : ''}>
-                    <p className="text-xs text-gray-500">{t('applications.location')}</p>
-                    <p className="text-sm font-medium text-gray-900">{job.location}</p>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Détails de l'offre d'emploi */}
-          <div className="mb-8">
-            <h4 className={`text-lg font-bold text-gray-900 mb-3 flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
-              <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
-                <HiBriefcase className="w-4 h-4 text-white" />
-              </div>
-              {t('applications.job_offer')}
-            </h4>
-            <div className="bg-gradient-to-r from-gray-50 to-gray-50/50 rounded-xl p-4">
-              <p className={`font-semibold text-gray-900 mb-2 ${isRTL ? 'text-right' : ''}`}>{job?.title}</p>
-              <p className={`text-sm text-gray-600 mb-3 ${isRTL ? 'text-right' : ''}`}>{job?.description}</p>
-              <div className={`flex flex-wrap gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
-                {job?.location && <span className="text-xs bg-white px-2.5 py-1 rounded-lg shadow-sm">📍 {job.location}</span>}
-                {job?.contract_type && <span className="text-xs bg-white px-2.5 py-1 rounded-lg shadow-sm">📄 {job.contract_type}</span>}
-                {job?.salary_min && job?.salary_max && (
-                  <span className="text-xs bg-white px-2.5 py-1 rounded-lg shadow-sm">💰 {job.salary_min} - {job.salary_max} MRU</span>
-                )}
-              </div>
-            </div>
-          </div>
-
-        {/* CV attaché (pour les candidats sans compte) */}
-        {hasCV && cvUrl && (
-          <div className="mb-8">
-            <div className={`flex justify-between items-center mb-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
-              <h4 className={`text-lg font-bold text-gray-900 flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
-                <div className="w-8 h-8 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-lg flex items-center justify-center">
-                  <HiDownload className="w-4 h-4 text-white" />
-                </div>
-                {t('applications.cv_file')}
-              </h4>
-              <button
-                onClick={() => exportToPDF(application, 'attached_cv')}
-                className="flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-all text-sm"
-              >
-                <HiDownload className="w-4 h-4" />
-                {t('applications.export_cv')}
+              <button onClick={onClose} className="p-2 hover:bg-white/20 rounded-xl transition-all">
+                <HiX className="w-6 h-6" />
               </button>
             </div>
-            <div className="bg-gradient-to-r from-gray-50 to-gray-50/50 rounded-xl p-4">
-              <a
-                href={cvUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium"
-              >
-                <HiDownload className="w-4 h-4" />
-                {t('applications.download_cv')}
-              </a>
-            </div>
           </div>
-        )}
-
-        {/* CV du profil (pour les candidats connectés) - Affichage détaillé */}
-        {hasResume && resume && (
-          <div className="mb-8">
-            <div className={`flex justify-between items-center mb-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
-              <h4 className={`text-lg font-bold text-gray-900 flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
-                <div className="w-8 h-8 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-lg flex items-center justify-center">
-                  <HiDocumentDuplicate className="w-4 h-4 text-white" />
+          
+          <div className="overflow-y-auto max-h-[calc(90vh-120px)] p-6">
+            {/* En-tête du candidat */}
+            <div className="mb-8 pb-6 border-b">
+              <div className={`flex items-start gap-4 mb-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg">
+                  <span className="text-white font-bold text-2xl">
+                    {candidateName.charAt(0).toUpperCase()}
+                  </span>
                 </div>
-                {t('applications.resume')} : {resume.title}
-              </h4>
-              <button
-                onClick={() => exportToPDF(application, 'resume_details')}
-                className="flex items-center gap-2 px-3 py-1.5 bg-emerald-50 text-emerald-600 rounded-lg hover:bg-emerald-100 transition-all text-sm"
-              >
-                <HiDownload className="w-4 h-4" />
-                {t('applications.export_resume')}
-              </button>
-            </div>
-            
-            {/* Le reste du contenu du CV reste identique */}
-            <div className="space-y-4">
-              {/* ... tout le contenu existant du CV ... */}
-            </div>
-          </div>
-        )}
-
-          {/* CV du profil (pour les candidats connectés) - Affichage détaillé */}
-          {hasResume && resume && (
-            <div className="mb-8">
-              <h4 className={`text-lg font-bold text-gray-900 mb-3 flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
-                <div className="w-8 h-8 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-lg flex items-center justify-center">
-                  <HiDocumentDuplicate className="w-4 h-4 text-white" />
+                <div className={`flex-1 ${isRTL ? 'text-right' : ''}`}>
+                  <h3 className="text-2xl font-bold text-gray-900">
+                    {candidateName}
+                  </h3>
+                  <p className="text-blue-600 font-medium mt-1">{job?.title}</p>
+                  <div className="mt-2">{getStatusBadge(application.status)}</div>
                 </div>
-                {t('applications.resume')} : {resume.title}
-              </h4>
+              </div>
               
-              <div className="space-y-4">
-                {/* Informations personnelles */}
-                {resume.personal_info && (
-                  <div className="bg-gradient-to-r from-gray-50 to-gray-50/50 rounded-xl p-4">
-                    <h5 className={`font-semibold text-gray-800 mb-3 flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
-                      <HiUser className="w-4 h-4 text-blue-600" />
-                      {t('applications.personal_info')}
-                    </h5>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-                      {resume.personal_info.first_name && resume.personal_info.last_name && (
-                        <p><span className="font-semibold">{t('applications.full_name')} :</span> {resume.personal_info.first_name} {resume.personal_info.last_name}</p>
-                      )}
-                      {resume.personal_info.email && <p><span className="font-semibold">📧 Email :</span> {resume.personal_info.email}</p>}
-                      {resume.personal_info.phone && <p><span className="font-semibold">📞 {t('applications.phone')} :</span> {resume.personal_info.phone}</p>}
-                      {resume.personal_info.address && <p><span className="font-semibold">📍 {t('applications.address')} :</span> {resume.personal_info.address}</p>}
-                      {resume.personal_info.birth_date && <p><span className="font-semibold">🎂 {t('applications.birth_date')} :</span> {resume.personal_info.birth_date}</p>}
-                      {resume.personal_info.niveau_etude && <p><span className="font-semibold">🎓 {t('applications.education_level')} :</span> {resume.personal_info.niveau_etude}</p>}
-                      {resume.personal_info.domaine_etude && <p><span className="font-semibold">📚 {t('applications.field_of_study')} :</span> {resume.personal_info.domaine_etude}</p>}
-                    </div>
-                    {resume.personal_info.apropos && (
-                      <div className="mt-3 pt-3 border-t border-gray-200">
-                        <p className="text-sm"><span className="font-semibold">📝 {t('applications.about')} :</span></p>
-                        <p className="text-sm text-gray-600 mt-1">{resume.personal_info.apropos}</p>
-                      </div>
-                    )}
+              {/* Informations de contact */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className={`flex items-center gap-3 p-3 bg-gray-50 rounded-xl ${isRTL ? 'flex-row-reverse' : ''}`}>
+                  <HiMail className="w-5 h-5 text-gray-400" />
+                  <div className={isRTL ? 'text-right' : ''}>
+                    <p className="text-xs text-gray-500">{t('applications.email')}</p>
+                    <p className="text-sm font-medium text-gray-900">{candidateEmail}</p>
                   </div>
-                )}
-
-                {/* Expériences professionnelles */}
-                {resume.experience && resume.experience.length > 0 && (
-                  <div className="bg-gradient-to-r from-gray-50 to-gray-50/50 rounded-xl p-4">
-                    <h5 className={`font-semibold text-gray-800 mb-3 flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
-                      <HiBriefcase className="w-4 h-4 text-blue-600" />
-                      {t('applications.work_experience')}
-                    </h5>
-                    <div className="space-y-3">
-                      {resume.experience.map((exp, idx) => (
-                        <div key={idx} className="border-l-2 border-blue-200 pl-3">
-                          <p className="font-medium text-gray-800">{exp.title}</p>
-                          <p className="text-sm text-gray-600">{exp.company} - {exp.location}</p>
-                          <p className="text-xs text-gray-500">
-                            {exp.start_date} - {exp.end_date || t('applications.present')}
-                          </p>
-                          {exp.description && (
-                            <p className="text-sm text-gray-600 mt-1 line-clamp-3">{exp.description}</p>
-                          )}
-                        </div>
-                      ))}
+                </div>
+                {candidatePhone && (
+                  <div className={`flex items-center gap-3 p-3 bg-gray-50 rounded-xl ${isRTL ? 'flex-row-reverse' : ''}`}>
+                    <HiPhone className="w-5 h-5 text-gray-400" />
+                    <div className={isRTL ? 'text-right' : ''}>
+                      <p className="text-xs text-gray-500">{t('applications.phone')}</p>
+                      <p className="text-sm font-medium text-gray-900">{candidatePhone}</p>
                     </div>
                   </div>
                 )}
-
-                {/* Formations */}
-                {resume.education && resume.education.length > 0 && (
-                  <div className="bg-gradient-to-r from-gray-50 to-gray-50/50 rounded-xl p-4">
-                    <h5 className={`font-semibold text-gray-800 mb-3 flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
-                      <HiAcademicCap className="w-4 h-4 text-blue-600" />
-                      {t('applications.education')}
-                    </h5>
-                    <div className="space-y-3">
-                      {resume.education.map((edu, idx) => (
-                        <div key={idx} className="border-l-2 border-green-200 pl-3">
-                          <p className="font-medium text-gray-800">{edu.degree}</p>
-                          <p className="text-sm text-gray-600">{edu.school} - {edu.location}</p>
-                          <p className="text-xs text-gray-500">{edu.year}</p>
-                          {edu.description && <p className="text-sm text-gray-600 mt-1">{edu.description}</p>}
-                        </div>
-                      ))}
-                    </div>
+                <div className={`flex items-center gap-3 p-3 bg-gray-50 rounded-xl ${isRTL ? 'flex-row-reverse' : ''}`}>
+                  <HiCalendar className="w-5 h-5 text-gray-400" />
+                  <div className={isRTL ? 'text-right' : ''}>
+                    <p className="text-xs text-gray-500">{t('applications.application_date')}</p>
+                    <p className="text-sm font-medium text-gray-900">{formatDate(application.applied_date)}</p>
                   </div>
-                )}
-
-                {/* Compétences */}
-                {resume.skills && resume.skills.length > 0 && (
-                  <div className="bg-gradient-to-r from-gray-50 to-gray-50/50 rounded-xl p-4">
-                    <h5 className={`font-semibold text-gray-800 mb-3 flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
-                      <HiCog className="w-4 h-4 text-blue-600" />
-                      {t('applications.skills')}
-                    </h5>
-                    <div className="flex flex-wrap gap-2">
-                      {resume.skills.map((skill, idx) => (
-                        <span key={idx} className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm">
-                          {typeof skill === 'string' ? skill : skill.name} {skill.level && `(${skill.level})`}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Langues */}
-                {resume.languages && resume.languages.length > 0 && (
-                  <div className="bg-gradient-to-r from-gray-50 to-gray-50/50 rounded-xl p-4">
-                    <h5 className={`font-semibold text-gray-800 mb-3 flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
-                      <HiOfficeBuilding className="w-4 h-4 text-blue-600" />
-                      {t('applications.languages')}
-                    </h5>
-                    <div className="flex flex-wrap gap-2">
-                      {resume.languages.map((lang, idx) => (
-                        <span key={idx} className="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-sm">
-                          {typeof lang === 'string' ? lang : lang.name} {lang.level && `(${lang.level})`}
-                        </span>
-                      ))}
+                </div>
+                {job?.location && (
+                  <div className={`flex items-center gap-3 p-3 bg-gray-50 rounded-xl ${isRTL ? 'flex-row-reverse' : ''}`}>
+                    <HiLocationMarker className="w-5 h-5 text-gray-400" />
+                    <div className={isRTL ? 'text-right' : ''}>
+                      <p className="text-xs text-gray-500">{t('applications.location')}</p>
+                      <p className="text-sm font-medium text-gray-900">{job.location}</p>
                     </div>
                   </div>
                 )}
               </div>
             </div>
-          )}
 
-          {/* Lettre de motivation */}
-          {coverLetter && (
+            {/* Détails de l'offre d'emploi */}
             <div className="mb-8">
               <h4 className={`text-lg font-bold text-gray-900 mb-3 flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
-                <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-600 rounded-lg flex items-center justify-center">
-                  <HiDocumentText className="w-4 h-4 text-white" />
+                <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
+                  <HiBriefcase className="w-4 h-4 text-white" />
                 </div>
-                {t('applications.cover_letter')}
+                {t('applications.job_offer')}
               </h4>
-              <div className="bg-gray-50 rounded-xl p-4">
-                <p className={`text-gray-700 whitespace-pre-wrap ${isRTL ? 'text-right' : ''}`}>{coverLetter}</p>
+              <div className="bg-gradient-to-r from-gray-50 to-gray-50/50 rounded-xl p-4">
+                <p className={`font-semibold text-gray-900 mb-2 ${isRTL ? 'text-right' : ''}`}>{job?.title}</p>
+                <p className={`text-sm text-gray-600 mb-3 ${isRTL ? 'text-right' : ''}`}>{job?.description}</p>
+                <div className={`flex flex-wrap gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                  {job?.location && <span className="text-xs bg-white px-2.5 py-1 rounded-lg shadow-sm">📍 {job.location}</span>}
+                  {job?.contract_type && <span className="text-xs bg-white px-2.5 py-1 rounded-lg shadow-sm">📄 {job.contract_type}</span>}
+                  {job?.salary_min && job?.salary_max && (
+                    <span className="text-xs bg-white px-2.5 py-1 rounded-lg shadow-sm">💰 {job.salary_min} - {job.salary_max} MRU</span>
+                  )}
+                </div>
               </div>
             </div>
-          )}
 
-          {/* Boutons d'action pour les candidatures en attente */}
-          {application.status === 'pending' && (
-            <div className="sticky bottom-0 bg-white pt-4 border-t">
-              <div className={`flex gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
-                <button
-                  onClick={() => {
-                    updateStatus(application.id, 'accepted');
-                    onClose();
-                  }}
-                  disabled={isUpdating}
-                  className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl hover:shadow-lg transition-all font-medium disabled:opacity-50"
-                >
-                  {isUpdating ? (
-                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                  ) : (
-                    <>
-                      <HiCheckCircle className="w-5 h-5" />
-                      {t('applications.accept_application')}
-                    </>
-                  )}
-                </button>
-                <button
-                  onClick={() => {
-                    updateStatus(application.id, 'rejected');
-                    onClose();
-                  }}
-                  disabled={isUpdating}
-                  className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-rose-500 to-red-600 text-white rounded-xl hover:shadow-lg transition-all font-medium disabled:opacity-50"
-                >
-                  {isUpdating ? (
-                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                  ) : (
-                    <>
-                      <HiXCircle className="w-5 h-5" />
-                      {t('applications.reject_application')}
-                    </>
-                  )}
-                </button>
+            {/* CV attaché (pour les candidats sans compte) */}
+            {hasCV && cvUrl && (
+              <div className="mb-8">
+                <div className={`flex justify-between items-center mb-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                  <h4 className={`text-lg font-bold text-gray-900 flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                    <div className="w-8 h-8 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-lg flex items-center justify-center">
+                      <HiDownload className="w-4 h-4 text-white" />
+                    </div>
+                    {t('applications.cv_file')}
+                  </h4>
+                  <button
+                    onClick={() => exportToPDF(application, 'attached_cv')}
+                    className="flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-all text-sm"
+                  >
+                    <HiDownload className="w-4 h-4" />
+                    {t('applications.export_cv')}
+                  </button>
+                </div>
+                <div className="bg-gradient-to-r from-gray-50 to-gray-50/50 rounded-xl p-4">
+                  <a
+                    href={cvUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium"
+                  >
+                    <HiDownload className="w-4 h-4" />
+                    {t('applications.download_cv')}
+                  </a>
+                </div>
               </div>
-            </div>
-          )}
-        </div>
+            )}
+
+            {/* CV du profil (pour les candidats connectés) - UNE SEULE FOIS */}
+            {hasResume && resume && (
+              <div className="mb-8">
+                <div className={`flex justify-between items-center mb-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                  <h4 className={`text-lg font-bold text-gray-900 flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                    <div className="w-8 h-8 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-lg flex items-center justify-center">
+                      <HiDocumentDuplicate className="w-4 h-4 text-white" />
+                    </div>
+                    {t('applications.resume')} : {resume.title}
+                  </h4>
+                  <button
+                    onClick={() => exportToPDF(application, 'resume_details')}
+                    className="flex items-center gap-2 px-3 py-1.5 bg-emerald-50 text-emerald-600 rounded-lg hover:bg-emerald-100 transition-all text-sm"
+                  >
+                    <HiDownload className="w-4 h-4" />
+                    {t('applications.export_resume')}
+                  </button>
+                </div>
+                
+                <div className="space-y-4">
+                  {/* Informations personnelles */}
+                  {resume.personal_info && (
+                    <div className="bg-gradient-to-r from-gray-50 to-gray-50/50 rounded-xl p-4">
+                      <h5 className={`font-semibold text-gray-800 mb-3 flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                        <HiUser className="w-4 h-4 text-blue-600" />
+                        {t('applications.personal_info')}
+                      </h5>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                        {resume.personal_info.first_name && resume.personal_info.last_name && (
+                          <p><span className="font-semibold">{t('applications.full_name')} :</span> {resume.personal_info.first_name} {resume.personal_info.last_name}</p>
+                        )}
+                        {resume.personal_info.email && <p><span className="font-semibold">📧 {t('applications.email')} :</span> {resume.personal_info.email}</p>}
+                        {resume.personal_info.phone && <p><span className="font-semibold">📞 {t('applications.phone')} :</span> {resume.personal_info.phone}</p>}
+                        {resume.personal_info.address && <p><span className="font-semibold">📍 {t('applications.address')} :</span> {resume.personal_info.address}</p>}
+                        {resume.personal_info.birth_date && <p><span className="font-semibold">🎂 {t('applications.birth_date')} :</span> {resume.personal_info.birth_date}</p>}
+                        {resume.personal_info.niveau_etude && <p><span className="font-semibold">🎓 {t('applications.education_level')} :</span> {resume.personal_info.niveau_etude}</p>}
+                        {resume.personal_info.domaine_etude && <p><span className="font-semibold">📚 {t('applications.field_of_study')} :</span> {resume.personal_info.domaine_etude}</p>}
+                      </div>
+                      {resume.personal_info.apropos && (
+                        <div className="mt-3 pt-3 border-t border-gray-200">
+                          <p className="text-sm"><span className="font-semibold">📝 {t('applications.about')} :</span></p>
+                          <p className="text-sm text-gray-600 mt-1">{resume.personal_info.apropos}</p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Expériences professionnelles */}
+                  {resume.experience && resume.experience.length > 0 && (
+                    <div className="bg-gradient-to-r from-gray-50 to-gray-50/50 rounded-xl p-4">
+                      <h5 className={`font-semibold text-gray-800 mb-3 flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                        <HiBriefcase className="w-4 h-4 text-blue-600" />
+                        {t('applications.work_experience')}
+                      </h5>
+                      <div className="space-y-3">
+                        {resume.experience.map((exp, idx) => (
+                          <div key={idx} className="border-l-2 border-blue-200 pl-3">
+                            <p className="font-medium text-gray-800">{exp.title}</p>
+                            <p className="text-sm text-gray-600">{exp.company} - {exp.location}</p>
+                            <p className="text-xs text-gray-500">
+                              {exp.start_date} - {exp.end_date || t('applications.present')}
+                            </p>
+                            {exp.description && (
+                              <p className="text-sm text-gray-600 mt-1 line-clamp-3">{exp.description}</p>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Formations */}
+                  {resume.education && resume.education.length > 0 && (
+                    <div className="bg-gradient-to-r from-gray-50 to-gray-50/50 rounded-xl p-4">
+                      <h5 className={`font-semibold text-gray-800 mb-3 flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                        <HiAcademicCap className="w-4 h-4 text-blue-600" />
+                        {t('applications.education')}
+                      </h5>
+                      <div className="space-y-3">
+                        {resume.education.map((edu, idx) => (
+                          <div key={idx} className="border-l-2 border-green-200 pl-3">
+                            <p className="font-medium text-gray-800">{edu.degree}</p>
+                            <p className="text-sm text-gray-600">{edu.school} - {edu.location}</p>
+                            <p className="text-xs text-gray-500">{edu.year}</p>
+                            {edu.description && <p className="text-sm text-gray-600 mt-1">{edu.description}</p>}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Compétences */}
+                  {resume.skills && resume.skills.length > 0 && (
+                    <div className="bg-gradient-to-r from-gray-50 to-gray-50/50 rounded-xl p-4">
+                      <h5 className={`font-semibold text-gray-800 mb-3 flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                        <HiCog className="w-4 h-4 text-blue-600" />
+                        {t('applications.skills')}
+                      </h5>
+                      <div className="flex flex-wrap gap-2">
+                        {resume.skills.map((skill, idx) => (
+                          <span key={idx} className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm">
+                            {typeof skill === 'string' ? skill : skill.name} {skill.level && `(${skill.level})`}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Langues */}
+                  {resume.languages && resume.languages.length > 0 && (
+                    <div className="bg-gradient-to-r from-gray-50 to-gray-50/50 rounded-xl p-4">
+                      <h5 className={`font-semibold text-gray-800 mb-3 flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                        <HiOfficeBuilding className="w-4 h-4 text-blue-600" />
+                        {t('applications.languages')}
+                      </h5>
+                      <div className="flex flex-wrap gap-2">
+                        {resume.languages.map((lang, idx) => (
+                          <span key={idx} className="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-sm">
+                            {typeof lang === 'string' ? lang : lang.name} {lang.level && `(${lang.level})`}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Lettre de motivation */}
+            {coverLetter && (
+              <div className="mb-8">
+                <h4 className={`text-lg font-bold text-gray-900 mb-3 flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                  <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-600 rounded-lg flex items-center justify-center">
+                    <HiDocumentText className="w-4 h-4 text-white" />
+                  </div>
+                  {t('applications.cover_letter')}
+                </h4>
+                <div className="bg-gray-50 rounded-xl p-4">
+                  <p className={`text-gray-700 whitespace-pre-wrap ${isRTL ? 'text-right' : ''}`}>{coverLetter}</p>
+                </div>
+              </div>
+            )}
+
+            {/* Boutons d'action pour les candidatures en attente */}
+            {application.status === 'pending' && (
+              <div className="sticky bottom-0 bg-white pt-4 border-t">
+                <div className={`flex gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                  <button
+                    onClick={() => {
+                      updateStatus(application.id, 'accepted');
+                      onClose();
+                    }}
+                    disabled={isUpdating}
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl hover:shadow-lg transition-all font-medium disabled:opacity-50"
+                  >
+                    {isUpdating ? (
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                    ) : (
+                      <>
+                        <HiCheckCircle className="w-5 h-5" />
+                        {t('applications.accept_application')}
+                      </>
+                    )}
+                  </button>
+                  <button
+                    onClick={() => {
+                      updateStatus(application.id, 'rejected');
+                      onClose();
+                    }}
+                    disabled={isUpdating}
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-rose-500 to-red-600 text-white rounded-xl hover:shadow-lg transition-all font-medium disabled:opacity-50"
+                  >
+                    {isUpdating ? (
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                    ) : (
+                      <>
+                        <HiXCircle className="w-5 h-5" />
+                        {t('applications.reject_application')}
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </motion.div>
       </motion.div>
-    </motion.div>
-  );
-};
+    );
+  };
 
   const { items: paginatedApps, totalPages } = getPaginatedApplications();
 

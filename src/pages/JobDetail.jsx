@@ -31,7 +31,9 @@ import {
   HiCog,
   HiAcademicCap,
   HiLightBulb,
-  HiArrowRight
+  HiArrowRight,
+  HiDocumentDownload,
+  HiEye
 } from 'react-icons/hi';
 import { HiBuildingOffice2 } from 'react-icons/hi2';
 import { toast } from 'react-toastify';
@@ -72,7 +74,7 @@ const JobDetail = () => {
   const getLogoUrl = (logoPath) => {
     if (!logoPath) return null;
     if (logoPath.startsWith('http')) return logoPath;
-    const baseUrl = process.env.REACT_APP_API_URL || 'https://back.maurilink.site';
+    const baseUrl = process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000';
     return `${baseUrl}${logoPath}`;
   };
 
@@ -82,6 +84,12 @@ const JobDetail = () => {
     }
     return <span className="transform group-hover:translate-x-1 transition-transform">→</span>;
   };
+
+  // 👇 AJOUTE CETTE FONCTION ICI
+const getPdfViewerUrl = () => {
+  if (!job?.job_description_file) return null;
+  return `http://127.0.0.1:8000/api/jobs/offers/${job.id}/pdf/`;
+};
 
   useEffect(() => {
     fetchJob();
@@ -390,6 +398,22 @@ const JobDetail = () => {
     return labels[type] || type || t('jobDetail.not_specified');
   };
 
+  // Définition des tabs avec gestion du PDF
+  const getTabs = () => {
+    const tabs = [
+      { id: 'description', label: t('jobDetail.tabs.description'), icon: HiInformationCircle },
+      { id: 'requirements', label: t('jobDetail.tabs.requirements'), icon: HiBadgeCheck },
+      { id: 'benefits', label: t('jobDetail.tabs.benefits'), icon: HiStar }
+    ];
+    
+    // Ajouter l'onglet PDF si un fichier existe
+    if (job?.job_description_file) {
+      tabs.push({ id: 'pdf', label: t('jobDetail.tabs.pdf'), icon: HiDocumentText });
+    }
+    
+    return tabs;
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex justify-center items-center bg-gradient-to-br from-blue-50 via-white to-purple-50">
@@ -427,6 +451,8 @@ const JobDetail = () => {
       </div>
     );
   }
+
+  const tabs = getTabs();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50">
@@ -521,6 +547,19 @@ const JobDetail = () => {
                                 <span className="hidden xs:inline">{t('jobDetail.featured')}</span>
                               </span>
                             )}
+                            {/* Badge PDF */}
+                            {job.job_description_file && (
+                              <a
+                                href={job.job_description_file}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-0.5 sm:gap-1 px-1.5 sm:px-2 md:px-2.5 py-0.5 sm:py-1 bg-red-100 text-red-700 rounded-full text-[10px] xs:text-xs font-semibold hover:bg-red-200 transition-colors"
+                              >
+                                <HiDocumentText className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+                                <span className="hidden xs:inline">{t('jobDetail.pdf_description')}</span>
+                                <HiExternalLink className="h-2 w-2" />
+                              </a>
+                            )}
                           </div>
                           <h1 className="text-base xs:text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-bold mb-1 sm:mb-1.5 md:mb-2 break-words leading-tight">
                             {job.title}
@@ -556,11 +595,7 @@ const JobDetail = () => {
 
                 <div className="border-b border-gray-200 px-3 sm:px-4 md:px-6 overflow-x-auto">
                   <div className={`flex gap-3 sm:gap-4 md:gap-6 lg:gap-8 min-w-max ${isRTL ? 'flex-row-reverse' : ''}`}>
-                    {[
-                      { id: 'description', label: t('jobDetail.tabs.description'), icon: HiInformationCircle },
-                      { id: 'requirements', label: t('jobDetail.tabs.requirements'), icon: HiBadgeCheck },
-                      { id: 'benefits', label: t('jobDetail.tabs.benefits'), icon: HiStar }
-                    ].map((tab) => (
+                    {tabs.map((tab) => (
                       <button
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id)}
@@ -684,6 +719,67 @@ const JobDetail = () => {
                             <span className="text-gray-700 text-xs sm:text-sm">{benefit.label}</span>
                           </div>
                         ))}
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {/* NOUVEAU: Onglet PDF */}
+                  {activeTab === 'pdf' && job.job_description_file && (
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="space-y-4"
+                    >
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <h3 className={`text-base sm:text-lg md:text-xl font-bold text-gray-900 flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                          <HiDocumentText className="h-5 w-5 text-blue-600" />
+                          {t('jobDetail.job_description')}
+                        </h3>
+                        <div className={`flex gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                          <a
+                            href={job.job_description_file}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-xs sm:text-sm"
+                          >
+                            <HiEye className="h-3.5 w-3.5" />
+                            {t('jobDetail.view_pdf')}
+                            <HiExternalLink className="h-3 w-3" />
+                          </a>
+                          <a
+                            href={job.job_description_file}
+                            download
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors text-xs sm:text-sm"
+                          >
+                            <HiDocumentDownload className="h-3.5 w-3.5" />
+                            {t('jobDetail.download_pdf')}
+                          </a>
+                        </div>
+                      </div>
+                      
+                      <div className="bg-gray-50 rounded-xl p-2 sm:p-4">
+                        <div className="w-full border border-gray-200 rounded-lg overflow-hidden bg-white" style={{ height: '70vh', minHeight: '500px' }}>
+                          <iframe
+                            src={`${job.job_description_file}#toolbar=0&navpanes=0&scrollbar=0`}
+                            title={job.title}
+                            className="w-full h-full"
+                            frameBorder="0"
+                          />
+                        </div>
+                      </div>
+                      
+                      <div className="bg-blue-50 rounded-xl p-3 sm:p-4">
+                        <div className={`flex items-start gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                          <HiInformationCircle className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <p className="text-xs sm:text-sm text-blue-800 font-medium mb-0.5">
+                              {t('jobDetail.pdf_info_title')}
+                            </p>
+                            <p className="text-xs text-blue-700">
+                              {t('jobDetail.pdf_info_text')}
+                            </p>
+                          </div>
+                        </div>
                       </div>
                     </motion.div>
                   )}
@@ -824,6 +920,48 @@ const JobDetail = () => {
                   </div>
                 </div>
               </motion.div>
+
+              {/* PDF Card - Dans la sidebar */}
+              {job.job_description_file && (
+                <motion.div
+                  initial={{ opacity: 0, x: isRTL ? -20 : 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.35 }}
+                  className="bg-white rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-5 md:p-6"
+                >
+                  <h3 className={`text-sm sm:text-base md:text-lg font-bold text-gray-900 mb-3 sm:mb-4 flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                    <HiDocumentText className="h-5 w-5 text-blue-600" />
+                    {t('jobDetail.job_description')}
+                  </h3>
+                  <div className="space-y-3">
+                    <div className="bg-blue-50 rounded-lg p-3 sm:p-4 text-center">
+                      <HiDocumentText className="h-8 w-8 sm:h-10 sm:w-10 text-blue-600 mx-auto mb-2" />
+                      <p className="text-xs text-gray-600 mb-3">
+                        {t('jobDetail.pdf_available')}
+                      </p>
+                      <div className={`flex gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                        <a
+                          href={job.job_description_file}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-xs sm:text-sm"
+                        >
+                          <HiEye className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                          {t('jobDetail.view')}
+                        </a>
+                        <a
+                          href={job.job_description_file}
+                          download
+                          className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors text-xs sm:text-sm"
+                        >
+                          <HiDocumentDownload className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                          {t('jobDetail.download')}
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
 
               {/* Similar Jobs */}
               {similarJobs.length > 0 && (
@@ -1243,6 +1381,8 @@ const JobDetail = () => {
           </motion.div>
         )}
       </AnimatePresence>
+    
+    
     </div>
   );
 };

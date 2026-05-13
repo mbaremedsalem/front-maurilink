@@ -311,102 +311,7 @@
     }
   },
 
-  "jobDetail": {
-    "not_specified": "Non spécifié",
-    "company": "Entreprise",
-    "urgent": "Urgent",
-    "featured": "À la une",
-    "location": "Localisation",
-    "salary": "Salaire",
-    "published_on": "Publiée le",
-    "applications": "Candidatures",
-    "deadline": "Date limite",
-    "required_experience": "Expérience requise",
-    "technical_skills": "Compétences techniques",
-    "experience": "Expérience",
-    "education": "Niveau d'études",
-    "languages": "Langues",
-    "website": "Site web",
-    "ready_to_apply": "Prêt à postuler ?",
-    "join_dynamic_team": "Rejoignez une équipe dynamique",
-    "apply_now": "Postuler maintenant",
-    "application_sent": "Candidature envoyée",
-    "company_will_review": "L'entreprise examinera votre profil",
-    "similar_jobs": "Offres similaires",
-    "about_company": "À propos de {{company}}",
-    "apply_to_job": "Postuler à l'offre",
-    "resume": "CV",
-    "cover_letter": "Lettre de motivation",
-    "no_resume": "Vous n'avez pas encore de CV.",
-    "create_resume": "Créer mon CV",
-    "select_resume_option": "Sélectionnez un CV",
-    "default": "Par défaut",
-    "cover_letter_placeholder": "Décrivez votre motivation, vos compétences et pourquoi vous êtes le candidat idéal...",
-    "characters": "caractères",
-    "good_to_know": "À savoir",
-    "application_info": "Votre candidature sera examinée par l'équipe recrutement. Assurez-vous que votre CV est à jour.",
-    "send_application": "Envoyer ma candidature",
-    "sending": "Envoi en cours...",
-    "cancel": "Annuler",
-    "summary": "Récapitulatif",
-    "date": "Date",
-    "application_for": "Votre candidature pour",
-    "has_been_sent": "a bien été envoyée",
-    "back_to_jobs": "Retour aux offres",
-    "apply_without_account": "Postuler sans compte",
-    "full_name": "Nom complet",
-    "cv_file": "CV (fichier)",
-    "upload_cv": "Télécharger un CV",
-    "or_drag": "ou glissez-déposez",
-    "file_types": "PDF, DOC, DOCX (max. 10MB)",
-    "candidate": "Candidat",
-    "guest_application_info": "Votre candidature sera envoyée directement. Un lien de suivi vous sera envoyé par email.",
-    "have_account": "Vous avez déjà un compte ?",
-    "login_to_apply_with_profile": "Connectez-vous pour postuler avec votre profil",
-    "contract_types": {
-      "cdi": "CDI",
-      "cdd": "CDD",
-      "stage": "Stage",
-      "alternance": "Alternance",
-      "freelance": "Freelance"
-    },
-    "tabs": {
-      "description": "Description",
-      "requirements": "Prérequis",
-      "benefits": "Avantages"
-    },
-    "benefits": {
-      "career_growth": "Évolution de carrière",
-      "pro_environment": "Environnement pro",
-      "paid_vacation": "Congés payés",
-      "health_insurance": "Mutuelle",
-      "dynamic_team": "Équipe dynamique",
-      "training": "Formation continue"
-    },
-    "not_found": {
-      "title": "Offre non trouvée",
-      "subtitle": "L'offre que vous recherchez n'existe pas ou a été supprimée"
-    },
-    "messages": {
-      "enter_name": "Veuillez entrer votre nom complet",
-      "enter_email": "Veuillez entrer votre adresse email",
-      "invalid_email": "Veuillez entrer une adresse email valide",
-      "select_cv_file": "Veuillez sélectionner un fichier CV",
-      "invalid_file_type": "Format de fichier non supporté. Utilisez PDF, DOC ou DOCX",
-      "file_too_large": "Le fichier est trop volumineux. Taille maximale: 10MB",
-      "removed_favorites": "Offre retirée des favoris",
-      "added_favorites": "Offre ajoutée aux favoris",
-      "link_copied": "Lien copié dans le presse-papier !",
-      "copy_error": "Impossible de copier automatiquement. Voici le lien : ",
-      "login_to_apply": "Veuillez vous connecter pour postuler",
-      "select_resume": "Veuillez sélectionner un CV",
-      "add_cover_letter": "Veuillez ajouter une lettre de motivation"
-    },
-    "errors": {
-      "load_error": "Impossible de charger l'offre d'emploi",
-      "application_error": "Une erreur est survenue lors de la candidature"
-    }
-  },
+
   "rfps": {
     "not_specified": "Non spécifié",
     "header": {
@@ -701,24 +606,18 @@
   },
 
   "applications": {
-    "title": "Gestion des candidatures",
-    "subtitle": "Consultez et gérez toutes les candidatures reçues",
+    "title": "Candidatures",
+    "subtitle": "Gestion des candidatures reçues",
+    "loading": "Chargement...",
     "refresh": "Actualiser",
-    "loading": "Chargement des candidatures...",
     "unknown_date": "Date inconnue",
-    "details": "Détails",
-    "accept": "Accepter",
-    "reject": "Refuser",
-    "email": "Email",
-    "phone": "Téléphone",
-    "application_date": "Date de candidature",
-    "location": "Localisation",
-    "job_offer": "Offre d'emploi",
-    "cover_letter": "Lettre de motivation",
-    "accept_application": "Accepter la candidature",
-    "reject_application": "Refuser la candidature",
-    "search_placeholder": "Rechercher par nom, email ou offre...",
-        "generating_pdf": "Génération du PDF en cours...",
+    "anonymous_candidate": "Candidat anonyme",
+    "not_provided": "Non fourni",
+    "company": "Entreprise",
+    "my_applications": "Mes candidatures",
+    "cv_title": "Curriculum Vitae",
+    "generated_on": "Généré le",
+    "generating_pdf": "Génération du PDF en cours...",
     "pdf_generated": "PDF généré avec succès !",
     "pdf_error": "Erreur lors de la génération du PDF",
     "cv_downloaded": "CV téléchargé avec succès",
@@ -729,29 +628,17 @@
       "accepted": "Acceptée",
       "rejected": "Refusée"
     },
-    "stats": {
-      "total": "Total candidatures",
-      "pending": "En attente",
-      "accepted": "Acceptées",
-      "rejected": "Refusées"
-    },
     "filters": {
       "all": "Tous",
       "pending": "En attente",
       "accepted": "Acceptées",
       "rejected": "Refusées"
     },
-    "modal": {
-      "title": "Détail de la candidature",
-      "subtitle": "Consultez toutes les informations du candidat"
-    },
-    "no_applications": {
-      "title": "Aucune candidature",
-      "subtitle": "Vous n'avez pas encore reçu de candidatures"
-    },
-    "no_results": {
-      "title": "Aucun résultat",
-      "subtitle": "Aucune candidature ne correspond à vos critères"
+    "stats": {
+      "total": "Total candidatures",
+      "pending": "En attente",
+      "accepted": "Acceptées",
+      "rejected": "Refusées"
     },
     "errors": {
       "load_error": "Erreur lors du chargement des candidatures",
@@ -761,8 +648,164 @@
     "messages": {
       "accepted": "Candidature acceptée avec succès",
       "rejected": "Candidature refusée avec succès"
+    },
+    "details": "Détails",
+    "accept": "Accepter",
+    "reject": "Refuser",
+    "accept_application": "Accepter la candidature",
+    "reject_application": "Refuser la candidature",
+    "cover_letter": "Lettre de motivation",
+    "email": "Email",
+    "phone": "Téléphone",
+    "application_date": "Date de candidature",
+    "location": "Lieu",
+    "job_offer": "Offre d'emploi",
+    "resume": "CV",
+    "cv_file": "Fichier CV",
+    "download_cv": "Télécharger le CV",
+    "personal_info": "Informations personnelles",
+    "full_name": "Nom complet",
+    "address": "Adresse",
+    "birth_date": "Date de naissance",
+    "education_level": "Niveau d'étude",
+    "field_of_study": "Domaine d'étude",
+    "about": "À propos",
+    "work_experience": "Expériences professionnelles",
+    "education": "Formations",
+    "skills": "Compétences",
+    "languages": "Langues",
+    "present": "Présent",
+    "search_placeholder": "Rechercher par nom, email ou titre du poste...",
+    "no_applications": {
+      "title": "Aucune candidature",
+      "subtitle": "Vous n'avez reçu aucune candidature pour le moment"
+    },
+    "no_results": {
+      "title": "Aucun résultat",
+      "subtitle": "Aucune candidature ne correspond à vos critères de recherche"
+    },
+    "modal": {
+      "title": "Détail de la candidature",
+      "subtitle": "Informations du candidat et détails de la candidature"
     }
   },
+
+  "jobDetail": {
+    "job_description": "Description détaillée du poste",
+    "view_pdf": "Voir le PDF",
+    "download_pdf": "Télécharger le PDF",
+    "pdf_available": "Une description détaillée du poste est disponible au format PDF",
+    "pdf_description": "PDF détaillé",
+    "pdf_info_title": "Information",
+    "pdf_info_text": "Ce document PDF contient la description complète du poste. Vous pouvez le visualiser directement dans cette page ou le télécharger.",
+    "view": "Voir",
+    "download": "Télécharger"
+   ,
+    "not_specified": "Non spécifié",
+    "urgent": "Urgent",
+    "featured": "À la une",
+    "company": "Entreprise",
+    "location": "Lieu",
+    "salary": "Salaire",
+    "published_on": "Publié le",
+    "applications": "Candidatures",
+    "ready_to_apply": "Prêt à postuler ?",
+    "join_dynamic_team": "Rejoignez notre équipe dynamique",
+    "apply_now": "Postuler maintenant",
+    "application_sent": "Candidature envoyée",
+    "company_will_review": "L'entreprise examinera votre candidature",
+    "deadline": "Date limite",
+    "required_experience": "Expérience requise",
+    "similar_jobs": "Offres similaires",
+    "back_to_jobs": "Retour aux offres",
+    "about_company": "À propos de {{company}}",
+    "website": "Site web",
+    "technical_skills": "Compétences techniques",
+    "experience": "Expérience",
+    "education": "Formation",
+    "languages": "Langues",
+    "apply_to_job": "Postuler à cette offre",
+    "resume": "CV",
+    "select_resume_option": "Sélectionnez un CV",
+    "default": "Défaut",
+    "cover_letter": "Lettre de motivation",
+    "cover_letter_placeholder": "Rédigez votre lettre de motivation ici...",
+    "characters": "caractères",
+    "good_to_know": "Bon à savoir",
+    "application_info": "L'employeur recevra votre candidature et vous contactera si votre profil correspond.",
+    "sending": "Envoi en cours...",
+    "send_application": "Envoyer ma candidature",
+    "cancel": "Annuler",
+    "close": "Fermer",
+    "summary": "Résumé",
+    "date": "Date",
+    "no_resume": "Vous n'avez pas encore de CV. Créez-en un d'abord.",
+    "create_resume": "Créer un CV",
+    "application_for": "Candidature pour",
+    "has_been_sent": "a été envoyée avec succès",
+    "messages": {
+      "login_to_save": "Veuillez vous connecter pour sauvegarder les offres",
+      "removed_favorites": "Retiré des favoris",
+      "added_favorites": "Ajouté aux favoris",
+      "link_copied": "Lien copié !",
+      "copy_error": "Erreur lors de la copie du lien : ",
+      "login_to_apply": "Veuillez vous connecter pour postuler",
+      "select_resume": "Veuillez sélectionner un CV",
+      "add_cover_letter": "Veuillez ajouter une lettre de motivation",
+      "application_sent": "Votre candidature a été envoyée avec succès !",
+      "enter_name": "Veuillez entrer votre nom complet",
+      "enter_email": "Veuillez entrer votre adresse email",
+      "invalid_email": "Veuillez entrer une adresse email valide",
+      "select_cv_file": "Veuillez sélectionner un fichier CV",
+      "invalid_file_type": "Format de fichier non supporté. Utilisez PDF, DOC ou DOCX",
+      "file_too_large": "Le fichier est trop volumineux. Taille maximale: 10MB"
+    },
+    "errors": {
+      "load_error": "Erreur lors du chargement des détails de l'offre",
+      "application_error": "Erreur lors de l'envoi de la candidature"
+    },
+    "not_found": {
+      "title": "Offre non trouvée",
+      "subtitle": "Désolé, nous n'avons pas trouvé l'offre que vous recherchez"
+    },
+    "tabs": {
+      "pdf": "Descriptif PDF",
+      "description": "Description",
+      "requirements": "Prérequis",
+      "benefits": "Avantages"
+    },
+    "contract_types": {
+      "cdi": "CDI",
+      "cdd": "CDD",
+      "stage": "Stage",
+      "alternance": "Alternance",
+      "freelance": "Freelance"
+    },
+    "benefits": {
+      "career_growth": "Évolution de carrière",
+      "pro_environment": "Environnement professionnel",
+      "paid_vacation": "Congés payés",
+      "health_insurance": "Mutuelle santé",
+      "dynamic_team": "Équipe dynamique",
+      "training": "Formation continue"
+    },
+    "apply_without_account": "Postuler sans compte",
+    "full_name": "Nom complet",
+    "cv_file": "CV (fichier)",
+    "upload_cv": "Télécharger un CV",
+    "or_drag": "ou glissez-déposez",
+    "file_types": "PDF, DOC, DOCX (max. 10MB)",
+    "candidate": "Candidat",
+    "guest_application_info": "Votre candidature sera envoyée directement. Un lien de suivi vous sera envoyé par email.",
+    "have_account": "Vous avez déjà un compte ?",
+    "login_to_apply_with_profile": "Connectez-vous pour postuler avec votre profil",
+    "name_placeholder": "Entrez votre nom complet",
+    "email_placeholder": "exemple@email.com",
+    "phone_placeholder": "+222 12 345 678",
+    "optional": "Optionnel"
+  }
+,
+
   "companyProposals": {
     "title": "Propositions reçues",
     "subtitle": "Gérez les propositions des candidats pour vos appels d'offres",
