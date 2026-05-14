@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { HiMail, HiPhone, HiLocationMarker, HiClock, HiPaperAirplane } from 'react-icons/hi';
 import { toast } from 'react-toastify';
+import { sendContactEmail } from '../services/emailService';
 
 const Contact = () => {
   const { t } = useTranslation();
@@ -24,12 +25,38 @@ const Contact = () => {
     e.preventDefault();
     setIsSubmitting(true);
     
-    // Simuler l'envoi du formulaire
-    setTimeout(() => {
-      toast.success(t('contact.success'));
-      setFormData({ name: '', email: '', subject: '', message: '' });
+    // Validation basique
+    if (!formData.name || !formData.email || !formData.subject || !formData.message) {
+      toast.error('Veuillez remplir tous les champs');
       setIsSubmitting(false);
-    }, 1500);
+      return;
+    }
+
+    // Valider le format email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      toast.error('Veuillez entrer un email valide');
+      setIsSubmitting(false);
+      return;
+    }
+    
+    try {
+      // Envoyer l'email via EmailJS
+      const result = await sendContactEmail(formData);
+      
+      if (result.success) {
+        toast.success('Message envoyé avec succès ! Nous vous répondrons dans les plus brefs délais.');
+        // Réinitialiser le formulaire
+        setFormData({ name: '', email: '', subject: '', message: '' });
+      } else {
+        toast.error(`Erreur: ${result.message}. Veuillez réessayer.`);
+      }
+    } catch (error) {
+      console.error('Erreur:', error);
+      toast.error('Une erreur est survenue. Veuillez réessayer plus tard.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const contactInfo = [
@@ -60,7 +87,7 @@ const Contact = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-      {/* Hero Section - Responsive */}
+      {/* Hero Section */}
       <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
           <div className="text-center">
@@ -76,7 +103,7 @@ const Contact = () => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
         <div className="grid lg:grid-cols-3 gap-6 sm:gap-8">
-          {/* Contact Information - Responsive */}
+          {/* Contact Information */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-2xl shadow-xl p-5 sm:p-6 sticky top-24">
               <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">
@@ -110,7 +137,7 @@ const Contact = () => {
                 ))}
               </div>
 
-              {/* Map - Responsive */}
+              {/* Map */}
               <div className="mt-6 sm:mt-8">
                 <div className="rounded-lg overflow-hidden shadow-lg">
                   <iframe
@@ -128,7 +155,7 @@ const Contact = () => {
             </div>
           </div>
 
-          {/* Contact Form - Responsive */}
+          {/* Contact Form */}
           <div className="lg:col-span-2">
             <div className="bg-white rounded-2xl shadow-xl p-5 sm:p-6 md:p-8">
               <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">
