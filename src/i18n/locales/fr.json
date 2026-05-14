@@ -931,7 +931,57 @@
       "submit": "Envoyer le message",
       "sending": "Envoi en cours..."
     }
+  },
+  "forgotPassword": {
+    "title": "Mot de passe oublié ?",
+    "subtitle": "Entrez votre email pour recevoir un code de réinitialisation",
+    "email_label": "Adresse email",
+    "email_placeholder": "votre@email.com",
+    "send_button": "Envoyer le code",
+    "sending": "Envoi en cours...",
+    "back_to_login": "Retour à la connexion",
+    "errors": {
+      "email_required": "L'adresse email est requise",
+      "email_invalid": "Veuillez entrer une adresse email valide",
+      "request_failed": "Une erreur est survenue. Veuillez réessayer."
+    },
+    "success": {
+      "email_sent": "Un code OTP a été envoyé à votre email",
+      "title": "Email envoyé !",
+      "message": "Un code de réinitialisation a été envoyé à votre adresse email.",
+      "redirect": "Redirection vers la page de réinitialisation..."
+    }
+  },
+  "resetPassword": {
+    "title": "Réinitialiser le mot de passe",
+    "subtitle": "Entrez le code OTP et votre nouveau mot de passe",
+    "email_label": "Email",
+    "email_placeholder": "votre@email.com",
+    "otp_label": "Code OTP",
+    "otp_hint": "Entrez le code à 4 chiffres reçu par email",
+    "new_password_label": "Nouveau mot de passe",
+    "new_password_placeholder": "Nouveau mot de passe",
+    "confirm_password_label": "Confirmer le mot de passe",
+    "confirm_password_placeholder": "Confirmez votre mot de passe",
+    "reset_button": "Réinitialiser le mot de passe",
+    "resetting": "Réinitialisation en cours...",
+    "back_to_login": "Retour à la connexion",
+    "errors": {
+      "email_required": "L'adresse email est requise",
+      "otp_required": "Le code OTP à 4 chiffres est requis",
+      "password_required": "Le mot de passe est requis",
+      "password_mismatch": "Les mots de passe ne correspondent pas",
+      "password_length": "Le mot de passe doit contenir au moins 8 caractères",
+      "request_failed": "Une erreur est survenue. Veuillez réessayer."
+    },
+    "success": {
+      "reset_complete": "Votre mot de passe a été réinitialisé avec succès",
+      "title": "Mot de passe réinitialisé !",
+      "message": "Votre mot de passe a été modifié avec succès.",
+      "redirect": "Redirection vers la page de connexion..."
+    }
   }
+
 
 
 

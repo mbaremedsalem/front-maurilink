@@ -25,6 +25,8 @@ import CompanyProposals from './pages/CompanyProposals';
 import MyJobs from './pages/MyJobs';
 import About from './pages/About';
 import Contact from './pages/Contact';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 
 function App() {
   return (
@@ -49,6 +51,8 @@ function App() {
         <Route path="/my-jobs" element={<MyJobs />} />
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
       </Routes>
       <ToastContainer position="bottom-right" autoClose={5000} />
     </div>

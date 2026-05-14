@@ -40,8 +40,7 @@ const JobForm = ({ isOpen, onClose, onSuccess, initialData = null, refreshJobs }
   );
 
   const contractTypes = ['CDI', 'CDD', 'FREELANCE', 'STAGE', 'ALTERNANCE'];
-  const locations = ['Paris', 'Lyon', 'Marseille', 'Bordeaux', 'Lille', 'Toulouse', 'Nantes', 'Strasbourg', 'Remote'];
-
+  const locations = ['Nouakchott', 'Nouadhibou', 'Rosso', 'Kaédi', 'Zouérat', 'Atar', 'Kiffa', 'Sélibaby', 'Tidjikja','Paris', 'Lyon', 'Marseille', 'Bordeaux', 'Lille', 'Toulouse', 'Nantes', 'Strasbourg', 'Remote', 'France'];
   const getToken = () => {
     return localStorage.getItem('access_token');
   };

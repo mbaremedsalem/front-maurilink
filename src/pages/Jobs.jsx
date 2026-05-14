@@ -50,7 +50,7 @@ const Jobs = () => {
   const isRecruiter = user?.user_type === 'company';
 
   const contractTypes = ['CDI', 'CDD', 'FREELANCE', 'STAGE', 'ALTERNANCE'];
-  const locations = ['Paris', 'Lyon', 'Marseille', 'Bordeaux', 'Lille', 'Toulouse', 'Nantes', 'Strasbourg', 'Remote', 'France'];
+  const locations = ['Nouakchott', 'Nouadhibou', 'Rosso', 'Kaédi', 'Zouérat', 'Atar', 'Kiffa', 'Sélibaby', 'Tidjikja','Paris', 'Lyon', 'Marseille', 'Bordeaux', 'Lille', 'Toulouse', 'Nantes', 'Strasbourg', 'Remote', 'France'];
   const sortOptions = [
     { value: 'newest', label: t('jobs.sort.newest') },
     { value: 'oldest', label: t('jobs.sort.oldest') },

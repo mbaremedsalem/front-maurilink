@@ -8,6 +8,12 @@ export const authService = {
   updateProfile: (data) => api.put('/auth/profile/', data),
 };
 
+// Password Reset Services (AJOUTEZ CE CI)
+export const passwordService = {
+  forgotPassword: (email) => api.post('/auth/forgot-password/', { email }),
+  resetPassword: (data) => api.post('/auth/reset-password/', data),
+};
+
 
 // RFP (Appel d'offres) Services
 export const rfpService = {
