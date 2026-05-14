@@ -1,25 +1,26 @@
 {
-  "nav": {
-    "about": "À propos",
-    "contact": "Contact",
+    "nav": {
     "home": "الرئيسية",
-    "jobs": "وظائف",
+    "jobs": "الوظائف",
     "rfps": "طلبات العروض",
-    "employer_space": "مساحة التوظيف",
-    "proposals_received": "المقترحات المستلمة",
+    "employer_space": "مساحة صاحب العمل",
+    "about": "من نحن",
+    "contact": "اتصل بنا",
+    "proposals_received": "العروض المستلمة",
     "my_rfps": "طلبات العروض الخاصة بي",
-    "my_applications": "طلبات الترشح",
+    "my_applications": "طلبات التوظيف الخاصة بي",
     "my_resume": "سيرتي الذاتية",
-    "login": "تسجيل الدخول",
-    "register": "التسجيل",
     "profile": "ملفي الشخصي",
-    "create_rfp": "إنشاء طلب عرض",
-    "logout": "تسجيل الخروج"
+    "login": "تسجيل الدخول",
+    "register": "إنشاء حساب",
+    "logout": "تسجيل الخروج",
+    "create_rfp": "نشر طلب عرض"
   },
   "roles": {
     "candidate": "مرشح",
     "recruiter": "مسؤول توظيف"
   },
+
   "home": {
     "hero": {
       "badge": "🔥 أكثر من 1000 فرصة عمل هذا الأسبوع",
@@ -820,6 +821,80 @@
     "email_placeholder": "example@email.com",
     "phone_placeholder": "+222 12 345 678",
     "optional": "اختياري"
+  },
+  "about": {
+    "title": "من نحن - موريلينك",
+    "subtitle": "شريكك الموثوق للتوظيف في موريتانيا",
+    "mission": {
+      "title": "مهمتنا",
+      "description": "موريلينك هي منصة مبتكرة تربط المرشحين والشركات. ننشر فرص العمل وطلبات العروض ونقدم نصائح مخصصة للمرشحين ومتخصصي الموارد البشرية."
+    },
+    "features": {
+      "connection": {
+        "title": "ربط العلاقات",
+        "description": "نربط المرشحين المؤهلين بالشركات الباحثة عن المواهب"
+      },
+      "support": {
+        "title": "دعم الموارد البشرية",
+        "description": "ننشر نصائح للمرشحين ومتخصصي الموارد البشرية"
+      },
+      "network": {
+        "title": "شبكة واسعة",
+        "description": "منصة تغطي جميع القطاعات وأنواع الوظائف"
+      },
+      "quality": {
+        "title": "جودة مضمونة",
+        "description": "نتحقق من جميع العروض والطلبات لضمان صحتها"
+      }
+    },
+    "stats": {
+      "jobs": "فرص عمل منشورة",
+      "companies": "شركات شريكة",
+      "candidates": "مرشح مسجل"
+    },
+    "values": {
+      "title": "قيمنا",
+      "transparency": {
+        "title": "الشفافية",
+        "description": "تواصل واضح وصادق مع جميع مستخدمينا"
+      },
+      "innovation": {
+        "title": "الابتكار",
+        "description": "حلول حديثة لتسهيل التوظيف"
+      },
+      "quality": {
+        "title": "الجودة",
+        "description": "التميز في خدماتنا ومرافقتنا"
+      }
+    }
+  },
+  "contact": {
+    "title": "اتصل بنا",
+    "subtitle": "فريقنا في انتظارك للإجابة على جميع أسئلتك",
+    "success": "تم إرسال الرسالة بنجاح! سوف نرد عليك في أقرب وقت ممكن.",
+    "info": {
+      "title": "معلومات الاتصال",
+      "email": "البريد الإلكتروني",
+      "phone": "الهاتف",
+      "address": "العنوان",
+      "addressText": "نواكشوط، موريتانيا",
+      "hours": "ساعات العمل",
+      "weekdays": "الاثنين-الجمعة: 9:00 - 18:00",
+      "saturday": "السبت: 9:00 - 13:00"
+    },
+    "form": {
+      "title": "أرسل لنا رسالة",
+      "name": "الاسم الكامل",
+      "namePlaceholder": "اسمك",
+      "email": "البريد الإلكتروني",
+      "emailPlaceholder": "بريدك@example.com",
+      "subject": "الموضوع",
+      "subjectPlaceholder": "موضوع رسالتك",
+      "message": "الرسالة",
+      "messagePlaceholder": "صف طلبك...",
+      "submit": "إرسال الرسالة",
+      "sending": "جاري الإرسال..."
+    }
   }
   
 

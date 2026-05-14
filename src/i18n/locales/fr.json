@@ -1,20 +1,20 @@
 {
-  "nav": {
-    "about": "À propos",
-    "contact": "Contact",
+   "nav": {
     "home": "Accueil",
     "jobs": "Offres d'emploi",
     "rfps": "Appels d'offres",
-    "employer_space": "Espace Recruteur",
+    "employer_space": "Espace recruteur",
+    "about": "À propos",
+    "contact": "Contact",
     "proposals_received": "Propositions reçues",
     "my_rfps": "Mes appels d'offres",
     "my_applications": "Mes candidatures",
     "my_resume": "Mon CV",
+    "profile": "Mon profil",
     "login": "Connexion",
     "register": "Inscription",
-    "profile": "Mon profil",
-    "create_rfp": "Créer un appel d'offres",
-    "logout": "Déconnexion"
+    "logout": "Déconnexion",
+    "create_rfp": "Publier un appel d'offres"
   },
   "roles": {
     "candidate": "Candidat",
@@ -856,9 +856,82 @@
       "accepted": "Proposition acceptée avec succès",
       "rejected": "Proposition refusée avec succès"
     }
+  },
+
+ "about": {
+    "title": "À propos de MauriLink",
+    "subtitle": "Votre partenaire de confiance pour l'emploi et le recrutement en Mauritanie",
+    "mission": {
+      "title": "Notre Mission",
+      "description": "MauriLink est une plateforme innovante qui lie les candidats et les entreprises. Nous publions des offres d'emploi, des appels d'offres, et fournissons des conseils personnalisés pour les candidats et les professionnels RH."
+    },
+    "features": {
+      "connection": {
+        "title": "Mise en relation",
+        "description": "Nous connectons les candidats qualifiés avec les entreprises à la recherche de talents."
+      },
+      "support": {
+        "title": "Accompagnement RH",
+        "description": "Nous publions des conseils pour les candidats et les professionnels RH."
+      },
+      "network": {
+        "title": "Large réseau",
+        "description": "Une plateforme qui couvre tous les secteurs d'activité et types d'emplois."
+      },
+      "quality": {
+        "title": "Qualité garantie",
+        "description": "Nous vérifions toutes les offres et candidatures pour assurer leur authenticité."
+      }
+    },
+    "stats": {
+      "jobs": "Offres d'emploi publiées",
+      "companies": "Entreprises partenaires",
+      "candidates": "Candidats inscrits"
+    },
+    "values": {
+      "title": "Nos Valeurs",
+      "transparency": {
+        "title": "Transparence",
+        "description": "Communication claire et honnête avec tous nos utilisateurs"
+      },
+      "innovation": {
+        "title": "Innovation",
+        "description": "Solutions modernes pour faciliter le recrutement"
+      },
+      "quality": {
+        "title": "Qualité",
+        "description": "Excellence dans nos services et accompagnements"
+      }
+    }
+  },
+  "contact": {
+    "title": "Contactez-nous",
+    "subtitle": "Notre équipe est à votre écoute pour répondre à toutes vos questions",
+    "success": "Message envoyé avec succès ! Nous vous répondrons dans les plus brefs délais.",
+    "info": {
+      "title": "Informations de contact",
+      "email": "Email",
+      "phone": "Téléphone",
+      "address": "Adresse",
+      "addressText": "Nouakchott, Mauritanie",
+      "hours": "Horaires",
+      "weekdays": "Lun-Ven: 9h00 - 18h00",
+      "saturday": "Sam: 9h00 - 13h00"
+    },
+    "form": {
+      "title": "Envoyez-nous un message",
+      "name": "Nom complet",
+      "namePlaceholder": "Votre nom",
+      "email": "Email",
+      "emailPlaceholder": "votre@email.com",
+      "subject": "Sujet",
+      "subjectPlaceholder": "Sujet de votre message",
+      "message": "Message",
+      "messagePlaceholder": "Décrivez votre demande...",
+      "submit": "Envoyer le message",
+      "sending": "Envoi en cours..."
+    }
   }
-
-
 
 
 
