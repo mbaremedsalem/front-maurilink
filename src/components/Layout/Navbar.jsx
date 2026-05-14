@@ -15,7 +15,9 @@ import {
   HiClipboardList,
   HiDocumentSearch,
   HiPlusCircle,
-  HiTranslate
+  HiTranslate,
+  HiInformationCircle,
+  HiMail
 } from 'react-icons/hi';
 import { HiEnvelope } from 'react-icons/hi2';
 import { companyService } from '../../api/services';
@@ -63,6 +65,8 @@ const Navbar = () => {
     { name: t('nav.jobs'), href: '/jobs', icon: HiOfficeBuilding },
     { name: t('nav.rfps'), href: '/rfps', icon: HiClipboardList },
     { name: t('nav.employer_space'), href: '/employer-space', icon: HiEnvelope },
+    { name: t('nav.about'), href: '/about', icon: HiInformationCircle },
+    { name: t('nav.contact'), href: '/contact', icon: HiMail },
     ...(isAuthenticated && user?.user_type === 'company'
       ? [
           { name: t('nav.proposals_received'), href: '/company-proposals', icon: HiDocumentText },
@@ -259,7 +263,7 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Menu mobile - Mettez à jour avec les mêmes traductions */}
+      {/* Menu mobile */}
       {isMobileMenuOpen && (
         <div className="md:hidden border-t border-gray-100 bg-white/95 backdrop-blur-md">
           <div className="px-4 pt-2 pb-4 space-y-2">

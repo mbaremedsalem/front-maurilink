@@ -22,8 +22,9 @@ import MyRFPs from './pages/MyRFPs';
 import CreateRFP from './pages/CreateRFP';
 import EditRFP from './pages/EditRFP';
 import CompanyProposals from './pages/CompanyProposals';
-
 import MyJobs from './pages/MyJobs';
+import About from './pages/About';
+import Contact from './pages/Contact';
 
 function App() {
   return (
@@ -46,6 +47,8 @@ function App() {
         <Route path="/edit-rfp/:id" element={<EditRFP />} />
         <Route path="/company-proposals" element={<CompanyProposals />} />
         <Route path="/my-jobs" element={<MyJobs />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/contact" element={<Contact />} />
       </Routes>
       <ToastContainer position="bottom-right" autoClose={5000} />
     </div>
