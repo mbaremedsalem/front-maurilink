@@ -6,6 +6,7 @@ import JobCard from '../components/JobCard';
 import JobForm from '../components/JobForm';
 import { toast } from 'react-toastify';
 import { useSelector } from 'react-redux';
+import { encodeId } from '../utils/hashIds'; // 👈 AJOUTEZ CETTE LIGNE
 import { 
   HiSearch, 
   HiFilter, 
@@ -22,6 +23,7 @@ import {
   HiCalendar,
   HiTrendingUp
 } from 'react-icons/hi';
+
 
 const Jobs = () => {
   const { t, i18n } = useTranslation();

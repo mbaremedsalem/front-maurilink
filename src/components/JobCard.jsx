@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
+import { encodeId } from '../utils/hashIds';
 import { 
   HiLocationMarker, 
   HiCurrencyEuro, 
@@ -88,7 +89,7 @@ const JobCard = ({ job, viewMode = 'list', logoUrl }) => {
         whileHover={{ y: -8 }}
         className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden group h-full w-full flex flex-col"
       >
-        <Link to={`/jobs/${job.id}`} className="block h-full w-full flex flex-col">
+        <Link to={`/jobs/${encodeId(job.id)}`} className="block h-full w-full flex flex-col">
           {/* Section Image - Prend toute la largeur et hauteur proportionnelle */}
           <div className="relative w-full aspect-[16/9] overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200">
             {logoUrl ? (
@@ -218,7 +219,8 @@ const JobCard = ({ job, viewMode = 'list', logoUrl }) => {
       whileHover={{ scale: 1.01 }}
       className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group w-full"
     >
-      <Link to={`/jobs/${job.id}`} className="block w-full h-full">
+      {/* ✅ CORRECTION ICI : job.id → encodeId(job.id) */}
+      <Link to={`/jobs/${encodeId(job.id)}`} className="block w-full h-full">
         <div className={`flex flex-col sm:flex-row w-full ${isRTL ? 'sm:flex-row-reverse' : ''}`}>
           {/* Section Image - Prend toute la hauteur sur mobile, largeur fixe sur desktop */}
           <div className="relative w-full sm:w-48 md:w-56 lg:w-64 h-48 sm:h-auto aspect-[16/9] sm:aspect-auto overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 flex-shrink-0">

@@ -37,13 +37,18 @@ import {
 } from 'react-icons/hi';
 import { HiBuildingOffice2 } from 'react-icons/hi2';
 import { toast } from 'react-toastify';
+import { useDecodedId, encodeId } from '../utils/hashIds';
 
 const JobDetail = () => {
   const { t, i18n } = useTranslation();
-  const { id } = useParams();
+  const { decodedId: id, isValid: isValidId } = useDecodedId();
   const navigate = useNavigate();
   const isRTL = i18n.language === 'ar';
   
+  // 👉 DÉCLARÉ ICI - AVANT tous les useState et useEffect
+  const isAuthenticated = !!localStorage.getItem('access_token');
+  
+  // États
   const [job, setJob] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saved, setSaved] = useState(false);
@@ -69,8 +74,7 @@ const JobDetail = () => {
   const [guestSubmitting, setGuestSubmitting] = useState(false);
   const fileInputRef = useRef(null);
 
-  const isAuthenticated = !!localStorage.getItem('access_token');
-
+  // Fonctions utilitaires
   const getLogoUrl = (logoPath) => {
     if (!logoPath) return null;
     if (logoPath.startsWith('http')) return logoPath;
@@ -85,22 +89,12 @@ const JobDetail = () => {
     return <span className="transform group-hover:translate-x-1 transition-transform">→</span>;
   };
 
-  // 👇 AJOUTE CETTE FONCTION ICI
-const getPdfViewerUrl = () => {
-  if (!job?.job_description_file) return null;
-  return `https://back.maurilink.site/api/jobs/offers/${job.id}/pdf/`;
-};
+  const getPdfViewerUrl = () => {
+    if (!job?.job_description_file) return null;
+    return `https://back.maurilink.site/api/jobs/offers/${job.id}/pdf/`;
+  };
 
-  useEffect(() => {
-    fetchJob();
-    if (isAuthenticated) {
-      fetchUserResumes();
-      checkIfAlreadyApplied();
-    }
-    fetchSimilarJobs();
-    window.scrollTo(0, 0);
-  }, [id, isAuthenticated]);
-
+  // Fonctions API
   const fetchJob = async () => {
     try {
       const response = await jobService.getById(id);
@@ -151,6 +145,7 @@ const getPdfViewerUrl = () => {
     }
   };
 
+  // Handlers
   const handleSave = () => {
     if (!isAuthenticated) {
       toast.warning(t('jobDetail.messages.login_to_save'));
@@ -351,6 +346,23 @@ const getPdfViewerUrl = () => {
     }
   };
 
+  // useEffect
+  useEffect(() => {
+    if (!isValidId && id !== undefined) {
+      toast.error(t('jobDetail.errors.invalid_job_id') || 'Offre d\'emploi invalide');
+      navigate('/jobs');
+      return;
+    }
+    fetchJob();
+    if (isAuthenticated) {
+      fetchUserResumes();
+      checkIfAlreadyApplied();
+    }
+    fetchSimilarJobs();
+    window.scrollTo(0, 0);
+  }, [id, isAuthenticated, isValidId]);
+
+  // Fonctions de formatage
   const formatSalary = (salary) => {
     if (!salary) return t('jobDetail.not_specified');
     return new Intl.NumberFormat(i18n.language === 'ar' ? 'ar-MR' : 'fr-FR').format(salary) + ' MRU';
@@ -398,7 +410,6 @@ const getPdfViewerUrl = () => {
     return labels[type] || type || t('jobDetail.not_specified');
   };
 
-  // Définition des tabs avec gestion du PDF
   const getTabs = () => {
     const tabs = [
       { id: 'description', label: t('jobDetail.tabs.description'), icon: HiInformationCircle },
@@ -406,7 +417,6 @@ const getPdfViewerUrl = () => {
       { id: 'benefits', label: t('jobDetail.tabs.benefits'), icon: HiStar }
     ];
     
-    // Ajouter l'onglet PDF si un fichier existe
     if (job?.job_description_file) {
       tabs.push({ id: 'pdf', label: t('jobDetail.tabs.pdf'), icon: HiDocumentText });
     }
@@ -547,7 +557,6 @@ const getPdfViewerUrl = () => {
                                 <span className="hidden xs:inline">{t('jobDetail.featured')}</span>
                               </span>
                             )}
-                            {/* Badge PDF */}
                             {job.job_description_file && (
                               <a
                                 href={job.job_description_file}
@@ -723,7 +732,6 @@ const getPdfViewerUrl = () => {
                     </motion.div>
                   )}
 
-                  {/* NOUVEAU: Onglet PDF */}
                   {activeTab === 'pdf' && job.job_description_file && (
                     <motion.div
                       initial={{ opacity: 0 }}
@@ -921,7 +929,7 @@ const getPdfViewerUrl = () => {
                 </div>
               </motion.div>
 
-              {/* PDF Card - Dans la sidebar */}
+              {/* PDF Card */}
               {job.job_description_file && (
                 <motion.div
                   initial={{ opacity: 0, x: isRTL ? -20 : 20 }}
@@ -984,7 +992,7 @@ const getPdfViewerUrl = () => {
                         transition={{ delay: 0.4 + idx * 0.1 }}
                       >
                         <Link
-                          to={`/jobs/${similarJob.id}`}
+                          to={`/jobs/${encodeId(similarJob.id)}`}
                           className="block p-2 sm:p-2.5 md:p-3 rounded-xl hover:bg-gray-50 transition-all group border border-gray-100 hover:border-blue-200"
                         >
                           <div className={`flex items-start gap-2 sm:gap-2.5 md:gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
@@ -1381,8 +1389,6 @@ const getPdfViewerUrl = () => {
           </motion.div>
         )}
       </AnimatePresence>
-    
-    
     </div>
   );
 };

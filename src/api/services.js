@@ -1,4 +1,5 @@
 import api from './axios';
+import { decodeId, encodeId } from '../utils/hashIds';
 
 // Auth Services
 export const authService = {
@@ -42,12 +43,8 @@ export const rfpService = {
   getProposals: (id) => api.get(`/jobs/rfps/${id}/proposals/`),
 
 
-  // Soumettre une proposition pour un appel d'offres
-  // submitProposal: (data) => api.post('/jobs/proposals/', data),
-  // Soumettre une proposition pour un appel d'offres (UNIQUEMENT CETTE MÉTHODE)
   submitProposal: (data) => {
-    // NE PAS définir Content-Type manuellement
-    // Laissez axios le définir automatiquement pour FormData
+
     return api.post('/jobs/proposals/', data);
   },
   
@@ -76,18 +73,64 @@ export const companyService = {
     }
     return api.put('/companies/my-company/', data);
   },
-  // create: (data) => api.post('/companies/create-company/', data),
-  // getProfile: () => api.get('/companies/my-company/'),
-  // update: (data) => api.put('/companies/my-company/', data),
+
 };
 
-// Jobs Services
+// // Jobs Services
+// export const jobService = {
+//   getAll: (params) => api.get('/jobs/offers/', { params }),
+//   getById: (id) => api.get(`/jobs/offers/${id}/`),
+//   create: (data) => api.post('/jobs/offers/', data),
+//   update: (id, data) => api.put(`/jobs/offers/${id}/`, data),
+//   delete: (id) => api.delete(`/jobs/offers/${id}/`),
+// };
+
+
+// Jobs Services avec support des IDs hashés
 export const jobService = {
+  // Récupérer tous les jobs (inchangé)
   getAll: (params) => api.get('/jobs/offers/', { params }),
-  getById: (id) => api.get(`/jobs/offers/${id}/`),
+  
+  // Récupérer un job par ID (supporte maintenant les IDs hashés ET numériques)
+  getById: (idOrHashed) => {
+    // Essayer de décoder si c'est un hash, sinon utiliser l'ID directement
+    const decodedId = decodeId(idOrHashed);
+    const realId = decodedId || idOrHashed;
+    
+    if (!realId) {
+      return Promise.reject(new Error('Invalid job ID'));
+    }
+    
+    return api.get(`/jobs/offers/${realId}/`);
+  },
+  
+  // Créer un job (inchangé)
   create: (data) => api.post('/jobs/offers/', data),
-  update: (id, data) => api.put(`/jobs/offers/${id}/`, data),
-  delete: (id) => api.delete(`/jobs/offers/${id}/`),
+  
+  // Mettre à jour un job (supporte les IDs hashés)
+  update: (idOrHashed, data) => {
+    const decodedId = decodeId(idOrHashed);
+    const realId = decodedId || idOrHashed;
+    return api.put(`/jobs/offers/${realId}/`, data);
+  },
+  
+  // Supprimer un job (supporte les IDs hashés)
+  delete: (idOrHashed) => {
+    const decodedId = decodeId(idOrHashed);
+    const realId = decodedId || idOrHashed;
+    return api.delete(`/jobs/offers/${realId}/`);
+  },
+  
+  // NOUVEAU: Obtenir l'URL hashée pour un job
+  getHashedUrl: (realId) => {
+    return `/jobs/${encodeId(realId)}`;
+  },
+  
+  // NOUVEAU: Vérifier si un ID est valide
+  isValidId: (idOrHashed) => {
+    const decodedId = decodeId(idOrHashed);
+    return decodedId !== null || (typeof idOrHashed === 'number' && idOrHashed > 0);
+  }
 };
 
 // Resumes Services
