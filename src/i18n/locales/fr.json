@@ -1,20 +1,22 @@
 {
-   "nav": {
+  "nav": {
     "home": "Accueil",
     "jobs": "Offres d'emploi",
     "rfps": "Appels d'offres",
-    "employer_space": "Espace recruteur",
+    "employer_space": "Espace employeur",
+    "about_contact": "À propos & Contact",
     "about": "À propos",
     "contact": "Contact",
+    "professional_space": "Espace professionnel",
     "proposals_received": "Propositions reçues",
     "my_rfps": "Mes appels d'offres",
     "my_applications": "Mes candidatures",
+    "create_rfp": "Publier un appel d'offres",
     "my_resume": "Mon CV",
-    "profile": "Mon profil",
     "login": "Connexion",
     "register": "Inscription",
-    "logout": "Déconnexion",
-    "create_rfp": "Publier un appel d'offres"
+    "profile": "Mon profil",
+    "logout": "Déconnexion"
   },
   "roles": {
     "candidate": "Candidat",
@@ -542,71 +544,87 @@
     }
   },
   "rfpDetail": {
-    "back_button": "Retour aux appels d'offres",
-    "location": "Localisation",
+    "back_button": "Retour à la liste",
+    "location": "Lieu",
     "budget": "Budget",
     "deadline": "Date limite",
     "duration": "Durée",
     "project_description": "Description du projet",
     "requirements": "Prérequis",
     "evaluation_criteria": "Critères d'évaluation",
-    "attachments": "Documents joints",
+    "attachments": "Pièces jointes",
     "download_file": "Télécharger le fichier",
     "submit_proposal": "Soumettre une proposition",
     "view_proposals": "Voir les propositions ({{count}})",
-    "not_specified": "Non spécifié",
     "cover_letter": "Lettre de motivation",
-    "cover_letter_placeholder": "Présentez-vous, expliquez votre expérience et pourquoi vous êtes le bon candidat...",
+    "cover_letter_placeholder": "Décrivez votre motivation, votre expertise et pourquoi vous êtes le meilleur candidat...",
     "proposed_amount": "Montant proposé",
+    "amount_placeholder": "Exemple: 50000",
     "proposed_timeline": "Délai proposé",
-    "amount_placeholder": "Ex: 20000",
-    "timeline_placeholder": "Ex: 2.5 mois",
-    "proposal_document": "Document de proposition (CV, portfolio...)",
+    "timeline_placeholder": "Exemple: 2 mois",
+    "proposal_document": "Document de proposition",
     "send_proposal": "Envoyer la proposition",
     "sending": "Envoi en cours...",
     "cancel": "Annuler",
-    "received_proposals": "Propositions reçues",
-    "loading_proposals": "Chargement des propositions...",
-    "no_proposals": "Aucune proposition reçue pour le moment",
+    "accept": "Accepter",
+    "reject": "Refuser",
     "submitted_on": "Soumis le",
     "download_document": "Télécharger le document",
     "recruiter_notes": "Notes du recruteur",
-    "accept": "Accepter",
-    "reject": "Refuser",
+    "received_proposals": "Propositions reçues",
+    "loading_proposals": "Chargement des propositions...",
+    "no_proposals": "Aucune proposition pour le moment",
+    "not_specified": "Non spécifié",
+    "tabs": {
+      "details": "Détails",
+      "criteria": "Critères",
+      "company": "Entreprise"
+    },
     "rfp_status": {
       "closed": "Fermé",
       "expired": "Expiré",
-      "urgent": "Urgent",
       "open": "Ouvert",
+      "urgent": "Urgent",
       "days_left": "jours restants"
     },
     "proposal_status": {
       "pending": "En attente",
-      "accepted": "Acceptée",
-      "rejected": "Refusée",
-      "reviewed": "En cours"
-    },
-    "criteria": {
-      "experience": "Expérience requise",
-      "education": "Niveau d'études",
-      "skills": "Compétences requises",
-      "certifications": "Certifications",
-      "portfolio": "Portfolio exigé"
+      "accepted": "Accepté",
+      "rejected": "Refusé",
+      "reviewed": "Examiné"
     },
     "messages": {
       "login_to_submit": "Veuillez vous connecter pour soumettre une proposition",
-      "only_candidates": "Seuls les candidats peuvent soumettre des propositions",
-      "proposal_sent": "Proposition soumise avec succès !",
-      "accepted": "Proposition acceptée avec succès",
-      "rejected": "Proposition refusée avec succès"
+      "only_candidates": "Seuls les candidats peuvent postuler",
+      "proposal_sent": "Votre proposition a été envoyée avec succès !",
+      "accepted": "Proposition acceptée",
+      "rejected": "Proposition refusée",
+      "login_required": "Vous devez être connecté pour postuler à cet appel d'offres",
+      "click_to_login": "Cliquez ici pour vous connecter",
+      "already_applied_message": "Vous avez déjà postulé à cet appel d'offres",
+      "deadline_passed": "La date limite de soumission est dépassée",
+      "login_to_submit_button": "Se connecter pour postuler"
     },
     "errors": {
-      "load_error": "Impossible de charger l'appel d'offres",
-      "submit_error": "Erreur lors de la soumission de la proposition",
-      "status_update_error": "Erreur lors de la mise à jour du statut"
+      "load_error": "Erreur lors du chargement de l'appel d'offres",
+      "submit_error": "Erreur lors de l'envoi de la proposition",
+      "status_update_error": "Erreur lors de la mise à jour du statut",
+      "cover_letter_required": "La lettre de motivation est requise",
+      "amount_required": "Le montant proposé est requis",
+      "timeline_required": "Le délai proposé est requis",
+      "invalid_file_type": "Type de fichier non autorisé. Utilisez PDF, DOC ou DOCX",
+      "file_too_large": "Le fichier ne doit pas dépasser 10MB",
+      "already_applied": "Vous avez déjà postulé à cet appel d'offres"
+    },
+    "file_hint": "Formats acceptés: PDF, DOC, DOCX (max 10MB)",
+    "criteria": {
+      "technical_score": "Score technique",
+      "financial_score": "Score financier",
+      "experience": "Expérience",
+      "delivery_time": "Délai de livraison"
     }
-  },
-
+  }
+,
   "applications": {
     "title": "Candidatures",
     "subtitle": "Gestion des candidatures reçues",
@@ -981,10 +999,6 @@
       "redirect": "Redirection vers la page de connexion..."
     }
   }
-
-
-
-
 
 
 }

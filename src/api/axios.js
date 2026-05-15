@@ -1,3 +1,4 @@
+// src/api/axios.js
 import axios from 'axios';
 import { toast } from 'react-toastify';
 
@@ -17,10 +18,73 @@ api.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+
+    // Si c'est un FormData, laisser le navigateur gérer le Content-Type
+    if (config.data instanceof FormData) {
+      delete config.headers['Content-Type'];
+    }
+    
     return config;
   },
   (error) => Promise.reject(error)
 );
+
+// Fonction pour extraire le message d'erreur de la réponse du backend
+const getErrorMessage = (error) => {
+  // Pas de réponse du serveur
+  if (!error.response) {
+    return '🌐 Impossible de se connecter au serveur. Vérifiez votre connexion internet.';
+  }
+
+  const { data, status } = error.response;
+
+  // Cas 1: Le backend retourne un message simple (string)
+  if (typeof data === 'string') {
+    return data;
+  }
+
+  // Cas 2: Le backend retourne un tableau d'erreurs
+  if (Array.isArray(data) && data.length > 0) {
+    return data[0];
+  }
+
+  // Cas 3: Le backend retourne un objet avec 'detail' (DRF)
+  if (data.detail) {
+    return data.detail;
+  }
+
+  // Cas 4: Le backend retourne un objet avec 'message'
+  if (data.message) {
+    return data.message;
+  }
+
+  // Cas 5: Le backend retourne une erreur de validation de champ
+  if (data.non_field_errors) {
+    return data.non_field_errors[0];
+  }
+
+  // Cas 6: Parcourir les champs pour trouver la première erreur
+  for (const key in data) {
+    if (Array.isArray(data[key]) && data[key].length > 0) {
+      return data[key][0];
+    }
+    if (typeof data[key] === 'string') {
+      return data[key];
+    }
+  }
+
+  // Message par défaut selon le code HTTP
+  const statusMessages = {
+    400: '❌ Requête invalide. Vérifiez les données envoyées.',
+    401: '🔒 Non autorisé. Veuillez vous reconnecter.',
+    403: '⛔ Accès interdit. Vous n\'avez pas les permissions nécessaires.',
+    404: '🔍 Ressource non trouvée.',
+    409: '⚠️ Conflit. Cette ressource existe déjà.',
+    500: '💥 Erreur interne du serveur. Veuillez réessayer plus tard.',
+  };
+
+  return statusMessages[status] || '❓ Une erreur est survenue. Veuillez réessayer.';
+};
 
 // Response interceptor
 api.interceptors.response.use(
@@ -28,6 +92,7 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
+    // Gestion du refresh token (401)
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
       try {
@@ -46,8 +111,19 @@ api.interceptors.response.use(
       }
     }
 
-    const message = error.response?.data?.detail || error.response?.data?.message || 'Une erreur est survenue';
-    toast.error(message);
+    // Extraire et afficher le message d'erreur retourné par le backend
+    const errorMessage = getErrorMessage(error);
+    
+    // Afficher le toast avec le message exact du backend
+    toast.error(errorMessage, {
+      position: "top-right",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+    });
+
     return Promise.reject(error);
   }
 );

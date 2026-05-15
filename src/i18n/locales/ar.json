@@ -1,26 +1,27 @@
 {
-    "nav": {
+  "nav": {
     "home": "الرئيسية",
     "jobs": "الوظائف",
     "rfps": "طلبات العروض",
     "employer_space": "مساحة صاحب العمل",
-    "about": "من نحن",
+    "about_contact": "حول & تواصل",
+    "about": "حول الموقع",
     "contact": "اتصل بنا",
-    "proposals_received": "العروض المستلمة",
+    "professional_space": "مساحة مهنية",
+    "proposals_received": "المقترحات المستلمة",
     "my_rfps": "طلبات العروض الخاصة بي",
-    "my_applications": "طلبات التوظيف الخاصة بي",
+    "my_applications": "طلباتي",
+    "create_rfp": "نشر طلب عرض",
     "my_resume": "سيرتي الذاتية",
-    "profile": "ملفي الشخصي",
     "login": "تسجيل الدخول",
     "register": "إنشاء حساب",
-    "logout": "تسجيل الخروج",
-    "create_rfp": "نشر طلب عرض"
+    "profile": "ملفي الشخصي",
+    "logout": "تسجيل الخروج"
   },
   "roles": {
     "candidate": "مرشح",
     "recruiter": "مسؤول توظيف"
   },
-
   "home": {
     "hero": {
       "badge": "🔥 أكثر من 1000 فرصة عمل هذا الأسبوع",
@@ -532,8 +533,9 @@
       "delete_success": "تم حذف طلب العرض بنجاح"
     }
   },
+
   "rfpDetail": {
-    "back_button": "العودة إلى طلبات العروض",
+    "back_button": "العودة إلى القائمة",
     "location": "الموقع",
     "budget": "الميزانية",
     "deadline": "الموعد النهائي",
@@ -543,60 +545,78 @@
     "evaluation_criteria": "معايير التقييم",
     "attachments": "المرفقات",
     "download_file": "تحميل الملف",
-    "submit_proposal": "تقديم مقترح",
-    "view_proposals": "عرض المقترحات ({{count}})",
-    "not_specified": "غير محدد",
-    "cover_letter": "خطاب التحفيز",
-    "cover_letter_placeholder": "قدم نفسك، واشرح خبرتك ولماذا أنت المرشح المناسب...",
+    "submit_proposal": "تقديم عرض",
+    "view_proposals": "عرض العروض ({{count}})",
+    "cover_letter": "رسالة التحفيز",
+    "cover_letter_placeholder": "صف دوافعك وخبراتك ولماذا أنت المرشح المناسب...",
     "proposed_amount": "المبلغ المقترح",
-    "proposed_timeline": "الجدول الزمني المقترح",
-    "amount_placeholder": "مثال: 20000",
-    "timeline_placeholder": "مثال: 2.5 شهر",
-    "proposal_document": "وثيقة المقترح (السيرة الذاتية، ملف الأعمال...)",
-    "send_proposal": "إرسال المقترح",
+    "amount_placeholder": "مثال: 50000",
+    "proposed_timeline": "المدة الزمنية المقترحة",
+    "timeline_placeholder": "مثال: شهرين",
+    "proposal_document": "وثيقة العرض",
+    "send_proposal": "إرسال العرض",
     "sending": "جاري الإرسال...",
     "cancel": "إلغاء",
-    "received_proposals": "المقترحات المستلمة",
-    "loading_proposals": "جاري تحميل المقترحات...",
-    "no_proposals": "لا توجد مقترحات مستلمة حالياً",
+    "accept": "قبول",
+    "reject": "رفض",
     "submitted_on": "تم الإرسال في",
     "download_document": "تحميل المستند",
     "recruiter_notes": "ملاحظات المسؤول",
-    "accept": "قبول",
-    "reject": "رفض",
+    "received_proposals": "العروض المستلمة",
+    "loading_proposals": "جاري تحميل العروض...",
+    "no_proposals": "لا توجد عروض حالياً",
+    "not_specified": "غير محدد",
+    "tabs": {
+      "details": "التفاصيل",
+      "criteria": "المعايير",
+      "company": "الشركة"
+    },
     "rfp_status": {
       "closed": "مغلق",
       "expired": "منتهي",
-      "urgent": "عاجل",
       "open": "مفتوح",
+      "urgent": "عاجل",
       "days_left": "أيام متبقية"
     },
     "proposal_status": {
       "pending": "قيد الانتظار",
-      "accepted": "مقبولة",
-      "rejected": "مرفوضة",
-      "reviewed": "قيد المراجعة"
-    },
-    "criteria": {
-      "experience": "الخبرة المطلوبة",
-      "education": "المستوى التعليمي",
-      "skills": "المهارات المطلوبة",
-      "certifications": "الشهادات",
-      "portfolio": "ملف الأعمال مطلوب"
+      "accepted": "مقبول",
+      "rejected": "مرفوض",
+      "reviewed": "تمت المراجعة"
     },
     "messages": {
-      "login_to_submit": "الرجاء تسجيل الدخول لتقديم مقترح",
-      "only_candidates": "المرشحون فقط يمكنهم تقديم المقترحات",
-      "proposal_sent": "تم إرسال المقترح بنجاح!",
-      "accepted": "تم قبول المقترح بنجاح",
-      "rejected": "تم رفض المقترح بنجاح"
+      "login_to_submit": "يرجى تسجيل الدخول لتقديم عرض",
+      "only_candidates": "فقط المرشحون يمكنهم التقديم",
+      "proposal_sent": "تم إرسال عرضك بنجاح!",
+      "accepted": "تم قبول العرض",
+      "rejected": "تم رفض العرض",
+      "login_required": "يجب عليك تسجيل الدخول للتقدم لهذا الطلب",
+      "click_to_login": "انقر هنا لتسجيل الدخول",
+      "already_applied_message": "لقد تقدمت بالفعل لهذا الطلب",
+      "deadline_passed": "لقد انتهى الموعد النهائي للتقديم",
+      "login_to_submit_button": "تسجيل الدخول للتقدم"
     },
     "errors": {
-      "load_error": "لا يمكن تحميل طلب العرض",
-      "submit_error": "خطأ في إرسال المقترح",
-      "status_update_error": "خطأ في تحديث الحالة"
+      "load_error": "خطأ في تحميل بيانات الطلب",
+      "submit_error": "خطأ في إرسال العرض",
+      "status_update_error": "خطأ في تحديث حالة العرض",
+      "cover_letter_required": "رسالة التحفيز مطلوبة",
+      "amount_required": "المبلغ المقترح مطلوب",
+      "timeline_required": "المدة الزمنية المقترحة مطلوبة",
+      "invalid_file_type": "نوع الملف غير مسموح. استخدم PDF، DOC أو DOCX",
+      "file_too_large": "حجم الملف يجب ألا يتجاوز 10 ميغابايت",
+      "already_applied": "لقد تقدمت بالفعل لهذا الطلب"
+    },
+    "file_hint": "الصيغ المقبولة: PDF، DOC، DOCX (الحد الأقصى 10 ميغابايت)",
+    "criteria": {
+      "technical_score": "الدرجة التقنية",
+      "financial_score": "الدرجة المالية",
+      "experience": "الخبرة",
+      "delivery_time": "وقت التسليم"
     }
-  },
+  }
+,
+
   "applications": {
     "title": "إدارة الطلبات",
     "subtitle": "عرض وإدارة جميع الطلبات المستلمة",
@@ -946,9 +966,5 @@
       "redirect": "جاري التوجيه إلى صفحة تسجيل الدخول..."
     }
   }
-
-  
-
-
 
 }

@@ -6,9 +6,10 @@ import {
   PieChart, BarChart3, Eye, Camera, ChevronRight, Building2,
   DollarSign, MapPin as MapPinIcon, Calendar as CalendarIcon,
   FileText, ExternalLink, Loader2, Sparkles, Rocket, Target,
-  Shield, Zap, Heart, Star, Users, BookOpen, Code, Coffee
+  Shield, Zap, Heart, Star, Users, BookOpen, Code, Coffee,
+  Building, CreditCard, Link as LinkIcon, Info
 } from 'lucide-react';
-import { applicationService, authService } from '../api/services';
+import { applicationService, authService, companyService } from '../api/services';
 import api from '../api/axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -27,7 +28,11 @@ ChartJS.register(
 const Profile = () => {
   const { user } = useSelector((state) => state.auth);
   const [profile, setProfile] = useState(null);
+  const [company, setCompany] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [isEditingCompany, setIsEditingCompany] = useState(false);
+  const [hasCompany, setHasCompany] = useState(false);
+  const [loadingCompany, setLoadingCompany] = useState(true);
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadingProfile, setLoadingProfile] = useState(true);
@@ -48,13 +53,27 @@ const Profile = () => {
     bio: '',
     location: ''
   });
+  const [companyFormData, setCompanyFormData] = useState({
+    company_name: '',
+    siret: '',
+    website: '',
+    description: '',
+    address: ''
+  });
+  const [isCreatingCompany, setIsCreatingCompany] = useState(false);
   
   const fileInputRef = useRef(null);
   const coverInputRef = useRef(null);
+  const logoInputRef = useRef(null);
+
+  const isCompany = user?.user_type === 'company';
 
   useEffect(() => {
     fetchProfile();
     fetchApplications();
+    if (isCompany) {
+      fetchCompany();
+    }
   }, []);
 
   const fetchProfile = async () => {
@@ -87,6 +106,158 @@ const Profile = () => {
       toast.error('Impossible de charger le profil complet');
     } finally {
       setLoadingProfile(false);
+    }
+  };
+
+const fetchCompany = async () => {
+  try {
+    setLoadingCompany(true);
+    console.log('🟡 [DEBUG] fetchCompany - Début');
+    console.log('🟡 [DEBUG] user:', user);
+    console.log('🟡 [DEBUG] isCompany:', isCompany);
+    
+    const response = await companyService.getProfile();
+    console.log('🟢 [DEBUG] getProfile response status:', response.status);
+    console.log('🟢 [DEBUG] getProfile response data:', response.data);
+    
+    // ✅ VÉRIFICATION IMPORTANTE: Si l'entreprise est vide, on considère qu'elle n'existe pas
+    const companyData = response.data;
+    const isValidCompany = companyData && 
+                          companyData.id && 
+                          companyData.company_name && 
+                          companyData.company_name.trim() !== '';
+    
+
+    
+    if (isValidCompany) {
+      setCompany(companyData);
+      setHasCompany(true);
+      setCompanyFormData({
+        company_name: companyData.company_name || '',
+        siret: companyData.siret || '',
+        website: companyData.website || '',
+        description: companyData.description || '',
+        address: companyData.address || ''
+      });
+
+    } else {
+      // Entreprise vide ou invalide
+
+      setCompany(null);
+      setHasCompany(false);
+      // Réinitialiser le formulaire
+      setCompanyFormData({
+        company_name: '',
+        siret: '',
+        website: '',
+        description: '',
+        address: ''
+      });
+    }
+  } catch (error) {
+
+    setHasCompany(false);
+    setCompany(null);
+
+  } finally {
+    setLoadingCompany(false);
+
+  }
+};
+
+const handleCreateCompany = async (e) => {
+  e.preventDefault();
+  setIsCreatingCompany(true);
+  
+  try {
+    // Créer FormData au lieu d'envoyer en JSON
+    const formData = new FormData();
+    formData.append('company_name', companyFormData.company_name);
+    formData.append('siret', companyFormData.siret);
+    formData.append('website', companyFormData.website);
+    formData.append('description', companyFormData.description);
+    formData.append('address', companyFormData.address);
+    
+    // Ajouter le logo si un fichier a été sélectionné
+    if (logoInputRef.current && logoInputRef.current.files[0]) {
+      formData.append('logo', logoInputRef.current.files[0]);
+    }
+    
+    console.log('🟡 [DEBUG] Envoi FormData:', {
+      company_name: companyFormData.company_name,
+      siret: companyFormData.siret,
+      website: companyFormData.website,
+      description: companyFormData.description,
+      address: companyFormData.address,
+      logo: logoInputRef.current?.files[0]?.name || 'Aucun logo'
+    });
+    
+    const response = await companyService.create(formData);
+    console.log('🟢 [DEBUG] Réponse création:', response);
+    
+    setCompany(response.data);
+    setHasCompany(true);
+    toast.success('Entreprise créée avec succès !');
+    setIsEditingCompany(false);
+  } catch (error) {
+    console.error('🔴 [DEBUG] Erreur création entreprise:', error);
+    console.error('🔴 [DEBUG] Error response:', error.response);
+    console.error('🔴 [DEBUG] Error data:', error.response?.data);
+    
+    const errorMessage = error.response?.data?.message || 
+                        error.response?.data?.detail || 
+                        error.response?.data?.error ||
+                        'Erreur lors de la création de l\'entreprise';
+    toast.error(errorMessage);
+  } finally {
+    setIsCreatingCompany(false);
+  }
+};
+
+  const handleUpdateCompany = async (e) => {
+    e.preventDefault();
+    setIsCreatingCompany(true);
+    
+    try {
+      const response = await companyService.update(companyFormData);
+      setCompany(response.data);
+      toast.success('Entreprise mise à jour avec succès !');
+      setIsEditingCompany(false);
+    } catch (error) {
+      console.error('Error updating company:', error);
+      const errorMessage = error.response?.data?.message || 
+                          error.response?.data?.detail || 
+                          'Erreur lors de la mise à jour de l\'entreprise';
+      toast.error(errorMessage);
+    } finally {
+      setIsCreatingCompany(false);
+    }
+  };
+
+  const handleCompanyInputChange = (e) => {
+    const { name, value } = e.target;
+    setCompanyFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleLogoUpload = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    setUploading(true);
+    const uploadFormData = new FormData();
+    uploadFormData.append('logo', file);
+
+    try {
+      await api.patch('/companies/update/', uploadFormData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      toast.success('Logo mis à jour avec succès !');
+      fetchCompany();
+    } catch (error) {
+      console.error('Error uploading logo:', error);
+      toast.error('Erreur lors de l\'upload du logo');
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -290,18 +461,6 @@ const Profile = () => {
           font: { size: 10, weight: '500' }, 
           usePointStyle: true, 
           boxWidth: 8,
-          generateLabels: (chart) => {
-            const labels = chart.data.labels;
-            return labels.map((label, i) => ({
-              text: label,
-              fillStyle: chart.data.datasets[0].backgroundColor[i],
-              strokeStyle: chart.data.datasets[0].borderColor[i],
-              lineWidth: 2,
-              hidden: false,
-              index: i,
-              font: { size: 10 }
-            }));
-          }
         } 
       },
       tooltip: { backgroundColor: '#1F2937', padding: 10, titleFont: { size: 12 }, bodyFont: { size: 11 }, cornerRadius: 8 }
@@ -347,7 +506,7 @@ const Profile = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/30 pb-8 sm:pb-12">
-      {/* Cover Section - Responsive */}
+      {/* Cover Section */}
       <div className="relative h-48 xs:h-56 sm:h-64 md:h-80 lg:h-96">
         <div className="absolute inset-0">
           {(profile?.cover_image || user?.cover_image) ? (
@@ -377,13 +536,13 @@ const Profile = () => {
         <input ref={coverInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => handleImageUpload(e, 'cover_image')} />
       </div>
 
-      {/* Profile Content - Responsive Container */}
+      {/* Profile Content */}
       <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 -mt-12 xs:-mt-14 sm:-mt-16 md:-mt-20 lg:-mt-24 relative z-20">
-        {/* Profile Header Card - Responsive */}
+        {/* Profile Header Card */}
         <div className="bg-white rounded-xl sm:rounded-2xl shadow-xl overflow-hidden">
           <div className="p-4 sm:p-5 md:p-6 lg:p-8">
             <div className="flex flex-col sm:flex-row gap-4 sm:gap-5 md:gap-6">
-              {/* Avatar - Responsive sizes */}
+              {/* Avatar */}
               <div className="relative flex justify-center sm:justify-start">
                 <div className="relative">
                   <div className="w-20 h-20 xs:w-24 xs:h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-xl sm:rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 p-0.5 sm:p-1">
@@ -408,7 +567,7 @@ const Profile = () => {
                 </div>
               </div>
 
-              {/* User Info - Responsive */}
+              {/* User Info */}
               <div className="flex-1 text-center sm:text-left">
                 <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center sm:justify-between gap-3 sm:gap-4">
                   <div>
@@ -447,7 +606,7 @@ const Profile = () => {
                   )}
                 </div>
 
-                {/* Contact Info - Responsive Grid */}
+                {/* Contact Info */}
                 <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3 mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-gray-100">
                   <div className="flex items-center justify-center sm:justify-start gap-1.5 sm:gap-2 text-gray-600">
                     <Mail className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-500" />
@@ -467,7 +626,7 @@ const Profile = () => {
                   )}
                 </div>
 
-                {/* Bio - Responsive */}
+                {/* Bio */}
                 {profile?.bio && (
                   <div className="mt-3 sm:mt-4 p-3 sm:p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg sm:rounded-xl">
                     <p className="text-gray-700 text-xs sm:text-sm leading-relaxed">{profile.bio}</p>
@@ -476,7 +635,7 @@ const Profile = () => {
               </div>
             </div>
 
-            {/* Edit Mode Fields - Responsive */}
+            {/* Edit Mode Fields */}
             {isEditing && (
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mt-4 sm:mt-5 md:mt-6 pt-4 sm:pt-5 md:pt-6 border-t border-gray-200">
                 <div className="grid grid-cols-1 xs:grid-cols-2 gap-3 sm:gap-4">
@@ -506,30 +665,364 @@ const Profile = () => {
           </div>
         </div>
 
-        {/* Stats Grid - Responsive */}
-        <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-5 gap-2 sm:gap-3 md:gap-4 mt-4 sm:mt-6 md:mt-8">
-          {statCards.map((stat, idx) => (
-            <motion.div
-              key={idx}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.1 }}
-              whileHover={{ y: -2 }}
-              className={`bg-gradient-to-br ${stat.bgGradient} rounded-lg sm:rounded-xl p-2 sm:p-3 md:p-4 border border-${stat.color}-100 shadow-sm hover:shadow-md transition-all`}
-            >
-              <div className="flex items-center justify-between mb-1 sm:mb-2">
-                <div className={`p-1 sm:p-1.5 md:p-2 bg-gradient-to-r ${stat.gradient} rounded-lg shadow-md`}>
-                  <stat.icon className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 text-white" />
+        {/* Company Section - UNIQUEMENT POUR LES COMPTES ENTREPRISE */}
+        {isCompany && (
+          <div className="mt-4 sm:mt-6 md:mt-8">
+            <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg overflow-hidden border border-gray-100">
+              <div className="bg-gradient-to-r from-purple-600 to-pink-600 px-4 sm:px-5 md:px-6 py-3 sm:py-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <Building2 className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                    <h2 className="text-base sm:text-lg md:text-xl font-bold text-white">Mon entreprise</h2>
+                  </div>
+                  {/* Bouton Modifier - UNIQUEMENT si une entreprise existe et pas en mode édition */}
+                  {hasCompany && !isEditingCompany && (
+                    <button
+                      onClick={() => setIsEditingCompany(true)}
+                      className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 bg-white/20 hover:bg-white/30 rounded-lg transition-all text-white text-xs sm:text-sm font-medium"
+                    >
+                      <Edit2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                      Modifier
+                    </button>
+                  )}
                 </div>
-                <span className={`text-base sm:text-xl md:text-2xl font-bold text-${stat.color}-600`}>{stat.value}</span>
               </div>
-              <p className="text-gray-600 text-[9px] xs:text-[10px] sm:text-xs font-medium truncate">{stat.label}</p>
-            </motion.div>
-          ))}
-        </div>
 
-        {/* Charts Section - Responsive */}
-        {stats.total > 0 && (
+              <div className="p-4 sm:p-5 md:p-6">
+                {loadingCompany ? (
+                  <div className="flex justify-center py-8">
+                    <Loader2 className="w-6 h-6 animate-spin text-purple-600" />
+                  </div>
+                ) : !hasCompany ? (
+  <div>
+    <div className="mb-4 p-3 sm:p-4 bg-amber-50 border border-amber-200 rounded-lg sm:rounded-xl">
+      <p className="text-amber-800 text-xs sm:text-sm flex items-center gap-2">
+        <Info className="w-4 h-4" />
+        Vous n'avez pas encore créé votre entreprise. Veuillez compléter les informations ci-dessous.
+      </p>
+    </div>
+    
+    <form onSubmit={handleCreateCompany} className="space-y-4 sm:space-y-5">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
+        <div>
+          <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+            Nom de l'entreprise *
+          </label>
+          <input
+            type="text"
+            name="company_name"
+            required
+            value={companyFormData.company_name}
+            onChange={handleCompanyInputChange}
+            className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+            placeholder="Ex: Tech Solutions SARL"
+          />
+        </div>
+        <div>
+          <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+            SIRET / Numéro d'identification
+          </label>
+          <input
+            type="text"
+            name="siret"
+            value={companyFormData.siret}
+            onChange={handleCompanyInputChange}
+            className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+            placeholder="Ex: 12345000600143"
+          />
+        </div>
+      </div>
+
+      <div>
+        <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+          Site web
+        </label>
+        <input
+          type="url"
+          name="website"
+          value={companyFormData.website}
+          onChange={handleCompanyInputChange}
+          className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+          placeholder="https://www.votreentreprise.com"
+        />
+      </div>
+
+      <div>
+        <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+          Description *
+        </label>
+        <textarea
+          name="description"
+          required
+          rows="4"
+          value={companyFormData.description}
+          onChange={handleCompanyInputChange}
+          className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+          placeholder="Décrivez votre entreprise, son activité, ses valeurs..."
+        />
+      </div>
+
+      <div>
+        <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+          Adresse *
+        </label>
+        <input
+          type="text"
+          name="address"
+          required
+          value={companyFormData.address}
+          onChange={handleCompanyInputChange}
+          className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+          placeholder="Ex: Quartier Tevragh Zeina, Rue 42-100, Nouakchott, Mauritanie"
+        />
+      </div>
+
+      {/* ⬇️ CHAMP LOGO AJOUTÉ ICI ⬇️ */}
+      <div>
+        <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+          Logo de l'entreprise
+        </label>
+        <input
+          ref={logoInputRef}
+          type="file"
+          accept="image/*"
+          className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+        />
+        <p className="text-xs text-gray-500 mt-1">Formats acceptés: PNG, JPG, JPEG (max 2MB)</p>
+      </div>
+      {/* ⬆️ FIN CHAMP LOGO ⬆️ */}
+
+      <button
+        type="submit"
+        disabled={isCreatingCompany}
+        className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-2.5 sm:py-3 rounded-lg sm:rounded-xl font-semibold hover:shadow-lg transition-all disabled:opacity-50 text-sm sm:text-base"
+      >
+        {isCreatingCompany ? (
+          <div className="flex items-center justify-center gap-2">
+            <Loader2 className="w-4 h-4 animate-spin" />
+            Création en cours...
+          </div>
+        ) : (
+          'Créer mon entreprise'
+        )}
+      </button>
+    </form>
+  </div>
+
+                ) : isEditingCompany ? (
+                  // ✅ CAS 2: ENTREPRISE EXISTANTE EN MODE ÉDITION - Formulaire de MODIFICATION
+                  <form onSubmit={handleUpdateCompany} className="space-y-4 sm:space-y-5">
+                    <div className="flex items-start gap-4 sm:gap-6 pb-4 border-b border-gray-100">
+                      <div className="relative">
+                        <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center overflow-hidden">
+                          {company?.logo ? (
+                            <img src={company.logo} alt={company.company_name} className="w-full h-full object-cover" />
+                          ) : (
+                            <Building2 className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
+                          )}
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => logoInputRef.current?.click()}
+                          className="absolute -bottom-1 -right-1 p-1 bg-white rounded-full shadow-md"
+                        >
+                          <Camera className="w-3 h-3 sm:w-4 sm:h-4 text-gray-600" />
+                        </button>
+                        <input ref={logoInputRef} type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-xs text-gray-500">Logo de l'entreprise</p>
+                        <p className="text-xs text-gray-400 mt-1">Format recommandé: 200x200px</p>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
+                      <div>
+                        <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                          Nom de l'entreprise *
+                        </label>
+                        <input
+                          type="text"
+                          name="company_name"
+                          required
+                          value={companyFormData.company_name}
+                          onChange={handleCompanyInputChange}
+                          className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 text-sm"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                          SIRET
+                        </label>
+                        <input
+                          type="text"
+                          name="siret"
+                          value={companyFormData.siret}
+                          onChange={handleCompanyInputChange}
+                          className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 text-sm"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                        Site web
+                      </label>
+                      <input
+                        type="url"
+                        name="website"
+                        value={companyFormData.website}
+                        onChange={handleCompanyInputChange}
+                        className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 text-sm"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                        Description *
+                      </label>
+                      <textarea
+                        name="description"
+                        required
+                        rows="4"
+                        value={companyFormData.description}
+                        onChange={handleCompanyInputChange}
+                        className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 text-sm"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                        Adresse *
+                      </label>
+                      <input
+                        type="text"
+                        name="address"
+                        required
+                        value={companyFormData.address}
+                        onChange={handleCompanyInputChange}
+                        className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 text-sm"
+                      />
+                    </div>
+
+                    <div className="flex gap-3 pt-2">
+                      <button
+                        type="submit"
+                        disabled={isCreatingCompany}
+                        className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 text-white py-2.5 rounded-lg font-semibold hover:shadow-lg transition-all disabled:opacity-50"
+                      >
+                        {isCreatingCompany ? (
+                          <div className="flex items-center justify-center gap-2">
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            Mise à jour...
+                          </div>
+                        ) : (
+                          'Mettre à jour'
+                        )}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setIsEditingCompany(false)}
+                        className="px-6 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                      >
+                        Annuler
+                      </button>
+                    </div>
+                  </form>
+                ) : (
+                  // ✅ CAS 3: ENTREPRISE EXISTANTE - AFFICHAGE DES INFORMATIONS
+                  <div className="space-y-4 sm:space-y-5">
+                    <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
+                      <div className="flex-shrink-0">
+                        <div className="w-24 h-24 sm:w-28 sm:h-28 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center overflow-hidden">
+                          {company?.logo ? (
+                            <img src={company.logo} alt={company.company_name} className="w-full h-full object-cover" />
+                          ) : (
+                            <Building2 className="w-10 h-10 sm:w-12 sm:h-12 text-white" />
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="text-lg sm:text-xl font-bold text-gray-900">{company?.company_name}</h3>
+                        {company?.website && (
+                          <a
+                            href={company.website}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 text-purple-600 hover:text-purple-700 text-sm mt-1"
+                          >
+                            <Globe className="w-3.5 h-3.5" />
+                            {company.website}
+                          </a>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
+                      {company?.siret && (
+                        <div className="flex items-start gap-2">
+                          <CreditCard className="w-4 h-4 text-gray-400 mt-0.5" />
+                          <div>
+                            <p className="text-xs text-gray-500">SIRET</p>
+                            <p className="text-sm font-medium text-gray-900">{company.siret}</p>
+                          </div>
+                        </div>
+                      )}
+                      {company?.address && (
+                        <div className="flex items-start gap-2">
+                          <MapPin className="w-4 h-4 text-gray-400 mt-0.5" />
+                          <div>
+                            <p className="text-xs text-gray-500">Adresse</p>
+                            <p className="text-sm font-medium text-gray-900">{company.address}</p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {company?.description && (
+                      <div className="bg-purple-50 rounded-lg p-4">
+                        <p className="text-xs text-purple-600 font-medium mb-1">À propos</p>
+                        <p className="text-sm text-gray-700 leading-relaxed">{company.description}</p>
+                      </div>
+                    )}
+
+                    <div className="text-xs text-gray-400 flex items-center gap-1 pt-2">
+                      <Calendar className="w-3 h-3" />
+                      Membre depuis le {formatDate(company?.created_at)}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Stats Grid - Uniquement pour les candidats */}
+        {!isCompany && stats.total > 0 && (
+          <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-5 gap-2 sm:gap-3 md:gap-4 mt-4 sm:mt-6 md:mt-8">
+            {statCards.map((stat, idx) => (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: idx * 0.1 }}
+                whileHover={{ y: -2 }}
+                className={`bg-gradient-to-br ${stat.bgGradient} rounded-lg sm:rounded-xl p-2 sm:p-3 md:p-4 border border-${stat.color}-100 shadow-sm hover:shadow-md transition-all`}
+              >
+                <div className="flex items-center justify-between mb-1 sm:mb-2">
+                  <div className={`p-1 sm:p-1.5 md:p-2 bg-gradient-to-r ${stat.gradient} rounded-lg shadow-md`}>
+                    <stat.icon className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 text-white" />
+                  </div>
+                  <span className={`text-base sm:text-xl md:text-2xl font-bold text-${stat.color}-600`}>{stat.value}</span>
+                </div>
+                <p className="text-gray-600 text-[9px] xs:text-[10px] sm:text-xs font-medium truncate">{stat.label}</p>
+              </motion.div>
+            ))}
+          </div>
+        )}
+
+        {/* Charts Section - Uniquement pour les candidats */}
+        {!isCompany && stats.total > 0 && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5 md:gap-6 mt-6 sm:mt-8">
             <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-5 md:p-6 border border-gray-100">
               <div className="flex items-center gap-1.5 sm:gap-2 mb-3 sm:mb-4">
@@ -557,152 +1050,155 @@ const Profile = () => {
           </div>
         )}
 
-        {/* Applications Section - Responsive */}
-        <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg mt-6 sm:mt-8 overflow-hidden border border-gray-100">
-          <div className="px-4 sm:px-5 md:px-6 py-3 sm:py-4 md:py-5 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
-            <div className="flex flex-col xs:flex-row xs:items-center xs:justify-between gap-3">
-              <div className="flex items-center gap-1.5 sm:gap-2">
-                <div className="p-1.5 sm:p-2 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-lg">
-                  <Eye className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
+        {/* Applications Section - Uniquement pour les candidats */}
+        {!isCompany && (
+          <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg mt-6 sm:mt-8 overflow-hidden border border-gray-100">
+            <div className="px-4 sm:px-5 md:px-6 py-3 sm:py-4 md:py-5 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
+              <div className="flex flex-col xs:flex-row xs:items-center xs:justify-between gap-3">
+                <div className="flex items-center gap-1.5 sm:gap-2">
+                  <div className="p-1.5 sm:p-2 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-lg">
+                    <Eye className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
+                  </div>
+                  <h2 className="text-sm sm:text-base md:text-lg font-semibold text-gray-900">Mes candidatures</h2>
+                  <span className="px-1.5 sm:px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full text-[10px] sm:text-xs font-medium">{applications.length}</span>
                 </div>
-                <h2 className="text-sm sm:text-base md:text-lg font-semibold text-gray-900">Mes candidatures</h2>
-                <span className="px-1.5 sm:px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full text-[10px] sm:text-xs font-medium">{applications.length}</span>
-              </div>
 
-              {/* Filters - Horizontal scrollable on mobile */}
-              <div className="flex gap-1.5 sm:gap-2 overflow-x-auto pb-1 sm:pb-0">
-                {['all', 'pending', 'accepted', 'rejected', 'interviewed'].map((filter) => (
-                  <button
-                    key={filter}
-                    onClick={() => setActiveFilter(filter)}
-                    className={`px-2 sm:px-2.5 md:px-3 py-1 sm:py-1.5 rounded-lg text-[10px] xs:text-xs font-medium whitespace-nowrap transition-all duration-300 ${
-                      activeFilter === filter
-                        ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                    }`}
-                  >
-                    {filter === 'all' ? 'Tous' : filter === 'pending' ? 'En attente' : filter === 'accepted' ? 'Acceptés' : filter === 'rejected' ? 'Refusés' : 'Entretiens'}
-                  </button>
-                ))}
+                <div className="flex gap-1.5 sm:gap-2 overflow-x-auto pb-1 sm:pb-0">
+                  {['all', 'pending', 'accepted', 'rejected', 'interviewed'].map((filter) => (
+                    <button
+                      key={filter}
+                      onClick={() => setActiveFilter(filter)}
+                      className={`px-2 sm:px-2.5 md:px-3 py-1 sm:py-1.5 rounded-lg text-[10px] xs:text-xs font-medium whitespace-nowrap transition-all duration-300 ${
+                        activeFilter === filter
+                          ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md'
+                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      }`}
+                    >
+                      {filter === 'all' ? 'Tous' : filter === 'pending' ? 'En attente' : filter === 'accepted' ? 'Acceptés' : filter === 'rejected' ? 'Refusés' : 'Entretiens'}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
 
-          <div className="p-3 sm:p-4 md:p-6">
-            {loading ? (
-              <div className="text-center py-8 sm:py-12">
-                <Loader2 className="w-6 h-6 sm:w-8 sm:h-8 animate-spin text-blue-600 mx-auto mb-2 sm:mb-3" />
-                <p className="text-gray-500 text-xs sm:text-sm">Chargement des candidatures...</p>
-              </div>
-            ) : getFilteredApplications().length === 0 ? (
-              <div className="text-center py-8 sm:py-12">
-                <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4">
-                  <Briefcase className="w-8 h-8 sm:w-10 sm:h-10 text-gray-400" />
+            <div className="p-3 sm:p-4 md:p-6">
+              {loading ? (
+                <div className="text-center py-8 sm:py-12">
+                  <Loader2 className="w-6 h-6 sm:w-8 sm:h-8 animate-spin text-blue-600 mx-auto mb-2 sm:mb-3" />
+                  <p className="text-gray-500 text-xs sm:text-sm">Chargement des candidatures...</p>
                 </div>
-                <p className="text-gray-500 text-sm sm:text-base font-medium">Aucune candidature trouvée</p>
-                <p className="text-gray-400 text-xs sm:text-sm mt-1">Commencez à postuler dès maintenant !</p>
-              </div>
-            ) : (
-              <div className="space-y-3 sm:space-y-4">
-                {getFilteredApplications().map((application, index) => (
-                  <motion.div
-                    key={application.id}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.05 }}
-                    whileHover={{ scale: 1.00 }}
-                    className="group bg-white border border-gray-100 rounded-lg sm:rounded-xl p-3 sm:p-4 hover:shadow-md transition-all duration-300 cursor-pointer"
-                    onClick={() => { setSelectedApplication(application); setShowDetailsModal(true); }}
-                  >
-                    <div className="flex flex-col xs:flex-row xs:items-start gap-3 xs:gap-4">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-start gap-2 sm:gap-3">
-                          <div className="w-8 h-8 xs:w-9 xs:h-9 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center flex-shrink-0 shadow-md">
-                            <Building2 className="w-4 h-4 xs:w-4.5 xs:h-4.5 sm:w-5 sm:h-5 text-white" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <h3 className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors text-sm sm:text-base break-words">
-                              {application.job_details?.title}
-                            </h3>
-                            <p className="text-xs sm:text-sm text-gray-600 mt-0.5 break-words">{application.job_details?.company_details?.company_name}</p>
-                            <div className="flex flex-wrap gap-2 sm:gap-3 mt-1.5 sm:mt-2 text-[10px] xs:text-xs text-gray-500">
-                              <span className="flex items-center gap-0.5 sm:gap-1"><MapPinIcon className="w-2.5 h-2.5 sm:w-3 sm:h-3" />{application.job_details?.location}</span>
-                              <span className="flex items-center gap-0.5 sm:gap-1"><Briefcase className="w-2.5 h-2.5 sm:w-3 sm:h-3" />{application.job_details?.contract_type}</span>
-                              <span className="flex items-center gap-0.5 sm:gap-1"><CalendarIcon className="w-2.5 h-2.5 sm:w-3 sm:h-3" />{formatDate(application.applied_date)}</span>
+              ) : getFilteredApplications().length === 0 ? (
+                <div className="text-center py-8 sm:py-12">
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                    <Briefcase className="w-8 h-8 sm:w-10 sm:h-10 text-gray-400" />
+                  </div>
+                  <p className="text-gray-500 text-sm sm:text-base font-medium">Aucune candidature trouvée</p>
+                  <p className="text-gray-400 text-xs sm:text-sm mt-1">Commencez à postuler dès maintenant !</p>
+                </div>
+              ) : (
+                <div className="space-y-3 sm:space-y-4">
+                  {getFilteredApplications().map((application, index) => (
+                    <motion.div
+                      key={application.id}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.05 }}
+                      whileHover={{ scale: 1.00 }}
+                      className="group bg-white border border-gray-100 rounded-lg sm:rounded-xl p-3 sm:p-4 hover:shadow-md transition-all duration-300 cursor-pointer"
+                      onClick={() => { setSelectedApplication(application); setShowDetailsModal(true); }}
+                    >
+                      <div className="flex flex-col xs:flex-row xs:items-start gap-3 xs:gap-4">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-start gap-2 sm:gap-3">
+                            <div className="w-8 h-8 xs:w-9 xs:h-9 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center flex-shrink-0 shadow-md">
+                              <Building2 className="w-4 h-4 xs:w-4.5 xs:h-4.5 sm:w-5 sm:h-5 text-white" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h3 className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors text-sm sm:text-base break-words">
+                                {application.job_details?.title}
+                              </h3>
+                              <p className="text-xs sm:text-sm text-gray-600 mt-0.5 break-words">{application.job_details?.company_details?.company_name}</p>
+                              <div className="flex flex-wrap gap-2 sm:gap-3 mt-1.5 sm:mt-2 text-[10px] xs:text-xs text-gray-500">
+                                <span className="flex items-center gap-0.5 sm:gap-1"><MapPinIcon className="w-2.5 h-2.5 sm:w-3 sm:h-3" />{application.job_details?.location}</span>
+                                <span className="flex items-center gap-0.5 sm:gap-1"><Briefcase className="w-2.5 h-2.5 sm:w-3 sm:h-3" />{application.job_details?.contract_type}</span>
+                                <span className="flex items-center gap-0.5 sm:gap-1"><CalendarIcon className="w-2.5 h-2.5 sm:w-3 sm:h-3" />{formatDate(application.applied_date)}</span>
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                      <div className="flex items-center justify-between xs:justify-end gap-2 sm:gap-3">
-                        <div className={`inline-flex items-center gap-1 px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-full text-[9px] xs:text-[10px] sm:text-xs font-medium ${getStatusColor(application.status)} border`}>
-                          {getStatusIcon(application.status)}
-                          <span className="hidden xs:inline">{getStatusLabel(application.status)}</span>
+                        <div className="flex items-center justify-between xs:justify-end gap-2 sm:gap-3">
+                          <div className={`inline-flex items-center gap-1 px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-full text-[9px] xs:text-[10px] sm:text-xs font-medium ${getStatusColor(application.status)} border`}>
+                            {getStatusIcon(application.status)}
+                            <span className="hidden xs:inline">{getStatusLabel(application.status)}</span>
+                          </div>
+                          <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-400 group-hover:text-blue-600 group-hover:translate-x-0.5 transition-all" />
                         </div>
-                        <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-400 group-hover:text-blue-600 group-hover:translate-x-0.5 transition-all" />
                       </div>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            )}
+                    </motion.div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
-        </div>
+        )}
 
-        {/* Tips Section - Responsive */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5 md:gap-6 mt-6 sm:mt-8">
-          <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-5 md:p-6 text-white relative overflow-hidden">
-            <div className="absolute top-0 right-0 opacity-10"><Sparkles className="w-24 h-24 sm:w-32 sm:h-32" /></div>
-            <div className="relative z-10">
+        {/* Tips Section - Uniquement pour les candidats */}
+        {!isCompany && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5 md:gap-6 mt-6 sm:mt-8">
+            <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-5 md:p-6 text-white relative overflow-hidden">
+              <div className="absolute top-0 right-0 opacity-10"><Sparkles className="w-24 h-24 sm:w-32 sm:h-32" /></div>
+              <div className="relative z-10">
+                <div className="flex items-center gap-1.5 sm:gap-2 mb-3 sm:mb-4">
+                  <div className="p-1.5 sm:p-2 bg-white/20 rounded-lg backdrop-blur-sm"><Target className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5" /></div>
+                  <h3 className="text-sm sm:text-base md:text-lg font-semibold">Statistiques</h3>
+                </div>
+                <div className="space-y-3 sm:space-y-4">
+                  <div><p className="text-2xl sm:text-3xl md:text-4xl font-bold">{stats.total}</p><p className="text-xs sm:text-sm opacity-90">Total candidatures</p></div>
+                  <div className="grid grid-cols-2 gap-3 sm:gap-4 pt-2">
+                    <div><p className="text-lg sm:text-xl md:text-2xl font-bold">{stats.interviewed}</p><p className="text-[10px] sm:text-xs opacity-80">Entretiens</p></div>
+                    <div><p className="text-lg sm:text-xl md:text-2xl font-bold">{stats.accepted}</p><p className="text-[10px] sm:text-xs opacity-80">Acceptées</p></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-5 md:p-6 border border-gray-100">
               <div className="flex items-center gap-1.5 sm:gap-2 mb-3 sm:mb-4">
-                <div className="p-1.5 sm:p-2 bg-white/20 rounded-lg backdrop-blur-sm"><Target className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5" /></div>
-                <h3 className="text-sm sm:text-base md:text-lg font-semibold">Statistiques</h3>
+                <div className="p-1.5 sm:p-2 bg-gradient-to-r from-amber-500 to-orange-600 rounded-lg"><Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" /></div>
+                <h3 className="text-sm sm:text-base md:text-lg font-semibold text-gray-900">Conseils</h3>
               </div>
-              <div className="space-y-3 sm:space-y-4">
-                <div><p className="text-2xl sm:text-3xl md:text-4xl font-bold">{stats.total}</p><p className="text-xs sm:text-sm opacity-90">Total candidatures</p></div>
-                <div className="grid grid-cols-2 gap-3 sm:gap-4 pt-2">
-                  <div><p className="text-lg sm:text-xl md:text-2xl font-bold">{stats.interviewed}</p><p className="text-[10px] sm:text-xs opacity-80">Entretiens</p></div>
-                  <div><p className="text-lg sm:text-xl md:text-2xl font-bold">{stats.accepted}</p><p className="text-[10px] sm:text-xs opacity-80">Acceptées</p></div>
-                </div>
+              <div className="space-y-2 sm:space-y-3">
+                {stats.total === 0 && (
+                  <div className="flex items-start gap-2 sm:gap-3 p-2 sm:p-3 bg-blue-50 rounded-lg sm:rounded-xl">
+                    <div className="p-1 sm:p-1.5 bg-blue-100 rounded-lg flex-shrink-0"><Rocket className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-blue-600" /></div>
+                    <p className="text-[10px] xs:text-xs sm:text-sm text-gray-700 flex-1">🚀 Commencez à postuler à des offres qui vous correspondent</p>
+                  </div>
+                )}
+                {stats.pending > 3 && (
+                  <div className="flex items-start gap-2 sm:gap-3 p-2 sm:p-3 bg-amber-50 rounded-lg sm:rounded-xl">
+                    <div className="p-1 sm:p-1.5 bg-amber-100 rounded-lg flex-shrink-0"><Clock className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-amber-600" /></div>
+                    <p className="text-[10px] xs:text-xs sm:text-sm text-gray-700 flex-1">⏳ {stats.pending} candidatures en attente. N'hésitez pas à relancer</p>
+                  </div>
+                )}
+                {stats.rejected > 2 && (
+                  <div className="flex items-start gap-2 sm:gap-3 p-2 sm:p-3 bg-rose-50 rounded-lg sm:rounded-xl">
+                    <div className="p-1 sm:p-1.5 bg-rose-100 rounded-lg flex-shrink-0"><TrendingUp className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-rose-600" /></div>
+                    <p className="text-[10px] xs:text-xs sm:text-sm text-gray-700 flex-1">📈 Améliorez votre CV et votre lettre de motivation</p>
+                  </div>
+                )}
+                {stats.accepted > 0 && (
+                  <div className="flex items-start gap-2 sm:gap-3 p-2 sm:p-3 bg-emerald-50 rounded-lg sm:rounded-xl">
+                    <div className="p-1 sm:p-1.5 bg-emerald-100 rounded-lg flex-shrink-0"><Heart className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-emerald-600" /></div>
+                    <p className="text-[10px] xs:text-xs sm:text-sm text-gray-700 flex-1">🎉 Félicitations pour vos offres acceptées !</p>
+                  </div>
+                )}
               </div>
             </div>
           </div>
-
-          <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-5 md:p-6 border border-gray-100">
-            <div className="flex items-center gap-1.5 sm:gap-2 mb-3 sm:mb-4">
-              <div className="p-1.5 sm:p-2 bg-gradient-to-r from-amber-500 to-orange-600 rounded-lg"><Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" /></div>
-              <h3 className="text-sm sm:text-base md:text-lg font-semibold text-gray-900">Conseils</h3>
-            </div>
-            <div className="space-y-2 sm:space-y-3">
-              {stats.total === 0 && (
-                <div className="flex items-start gap-2 sm:gap-3 p-2 sm:p-3 bg-blue-50 rounded-lg sm:rounded-xl">
-                  <div className="p-1 sm:p-1.5 bg-blue-100 rounded-lg flex-shrink-0"><Rocket className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-blue-600" /></div>
-                  <p className="text-[10px] xs:text-xs sm:text-sm text-gray-700 flex-1">🚀 Commencez à postuler à des offres qui vous correspondent</p>
-                </div>
-              )}
-              {stats.pending > 3 && (
-                <div className="flex items-start gap-2 sm:gap-3 p-2 sm:p-3 bg-amber-50 rounded-lg sm:rounded-xl">
-                  <div className="p-1 sm:p-1.5 bg-amber-100 rounded-lg flex-shrink-0"><Clock className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-amber-600" /></div>
-                  <p className="text-[10px] xs:text-xs sm:text-sm text-gray-700 flex-1">⏳ {stats.pending} candidatures en attente. N'hésitez pas à relancer</p>
-                </div>
-              )}
-              {stats.rejected > 2 && (
-                <div className="flex items-start gap-2 sm:gap-3 p-2 sm:p-3 bg-rose-50 rounded-lg sm:rounded-xl">
-                  <div className="p-1 sm:p-1.5 bg-rose-100 rounded-lg flex-shrink-0"><TrendingUp className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-rose-600" /></div>
-                  <p className="text-[10px] xs:text-xs sm:text-sm text-gray-700 flex-1">📈 Améliorez votre CV et votre lettre de motivation</p>
-                </div>
-              )}
-              {stats.accepted > 0 && (
-                <div className="flex items-start gap-2 sm:gap-3 p-2 sm:p-3 bg-emerald-50 rounded-lg sm:rounded-xl">
-                  <div className="p-1 sm:p-1.5 bg-emerald-100 rounded-lg flex-shrink-0"><Heart className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-emerald-600" /></div>
-                  <p className="text-[10px] xs:text-xs sm:text-sm text-gray-700 flex-1">🎉 Félicitations pour vos offres acceptées !</p>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
+        )}
       </div>
 
-      {/* Application Details Modal - Responsive */}
+      {/* Application Details Modal */}
       <AnimatePresence>
         {showDetailsModal && selectedApplication && (
           <motion.div

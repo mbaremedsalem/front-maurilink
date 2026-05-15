@@ -43,7 +43,13 @@ export const rfpService = {
 
 
   // Soumettre une proposition pour un appel d'offres
-  submitProposal: (data) => api.post('/jobs/proposals/', data),
+  // submitProposal: (data) => api.post('/jobs/proposals/', data),
+  // Soumettre une proposition pour un appel d'offres (UNIQUEMENT CETTE MÉTHODE)
+  submitProposal: (data) => {
+    // NE PAS définir Content-Type manuellement
+    // Laissez axios le définir automatiquement pour FormData
+    return api.post('/jobs/proposals/', data);
+  },
   
   // Récupérer les propositions de l'entreprise connectée
   getCompanyProposals: () => api.get('/jobs/proposals/company/'),
@@ -55,9 +61,24 @@ export const rfpService = {
 // Companies Services
 export const companyService = {
   getMyRfps: () => api.get('/jobs/rfps/my/'),
-  create: (data) => api.post('/companies/create/', data),
-  getProfile: () => api.get('/companies/profile/'),
-  update: (data) => api.put('/companies/profile/', data),
+    create: (data) => {
+    // Si c'est un FormData, laissez axios gérer automatiquement
+    if (data instanceof FormData) {
+      return api.post('/companies/create-company/', data);
+    }
+    // Sinon, envoyez en JSON
+    return api.post('/companies/create-company/', data);
+  },
+  getProfile: () => api.get('/companies/my-company/'),
+  update: (data) => {
+    if (data instanceof FormData) {
+      return api.put('/companies/my-company/', data);
+    }
+    return api.put('/companies/my-company/', data);
+  },
+  // create: (data) => api.post('/companies/create-company/', data),
+  // getProfile: () => api.get('/companies/my-company/'),
+  // update: (data) => api.put('/companies/my-company/', data),
 };
 
 // Jobs Services
